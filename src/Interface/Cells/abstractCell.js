@@ -3,6 +3,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import styled from 'styled-components';
+
+const DefaultCell = styled('button')`
+  background: none;
+  box-shadow: ${(props) => props.live ? 'inset 0 0 4px 0px blue' : 'none  '};
+`;
 
 const Cell = (props) => {
   const [actionVisible, setActionVisible] = useState(false);
@@ -33,7 +39,7 @@ const Cell = (props) => {
 
   return (
     <>
-      <button
+      <props.Component
         type="button"
         onClick={props.onClick ? onClick : undefined}
         onMouseDown={props.drag ? onMouseDown : props.onMouseDown}
@@ -45,6 +51,7 @@ const Cell = (props) => {
         data-type={props.action}
         data-value={props.value}
         data-active={props.isActive ? true : undefined}
+        live={props.live}
       >
         {
           props.children
@@ -58,7 +65,7 @@ const Cell = (props) => {
             </>
           )
         }
-      </button>
+      </props.Component>
       { actionVisible ? (
           <props.drag.Component
             {...props.drag.props }
@@ -68,6 +75,10 @@ const Cell = (props) => {
       }
     </>
   )
+}
+
+Cell.defaultProps = {
+  Component: DefaultCell,
 }
 
 export default Cell;

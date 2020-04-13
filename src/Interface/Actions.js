@@ -6,14 +6,8 @@ import React, {
 } from 'react';
 import playerContext from '../System/Tone';
 import Action from './Cells/Action';
-import XYGrid from './DragMeters/XYGrid';
-
-const PLAY = 'play';
-const WRITE = 'write';
-const PATTERN = 'pattern';
-const BPM = 'bpm';
-const VOLUME = 'volume';
-const SOUND = 'sound';
+import DragGrid from './DragMeters/DragGrid';
+import { WRITE, SOUNDS_VIEW, PATTERN, BPM, PLAY } from '../System/_utils';
 
 const Actions = () => {
   const {
@@ -34,19 +28,21 @@ const Actions = () => {
 
   const actions = [
     { id: WRITE, isActive: state[WRITE] },
-    { id: SOUND, onHold: { type: 'nah', action: () => {}} },
+    { id: PLAY, isActive: state[PLAY], activeChildren: 'pause' },
+    { id: SOUNDS_VIEW, onHold: { type: 'nah', action: () => {}} },
     { id: PATTERN, isActive: state.isPatternMode,
       drag: {
-        Component: XYGrid,
+        Component: DragGrid,
         props: {
           onRelease: () => {},
-          rows: 4,
-          cols: 4,
+          rows: 5,
+          cols: 5,
+          cells: new Array(25).fill({}).map((v, idx) => ({ id: idx })),
         }
       }
     },
     { id: BPM, onHold: { type: 'bpm', action: () => {} }},
-    { id: PLAY, isActive: state[PLAY], activeChildren: 'pause' }
+    { id: 'fx' },
   ];
 
   return (

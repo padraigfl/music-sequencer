@@ -1,23 +1,17 @@
-import React, {
-  useCallback,
-  useContext,
-  useState,
-} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import Actions from './Interface/Actions';
 import PlayPad from './Interface/Pads/PlayPad';
 import SequencePad from './Interface/Pads/SequencePad';
-import playerContext from './System/Tone';
+import DataView from './Interface/DataView';
+import SoundsPad from './Interface/Pads/SoundsPad';
 
 const Wrapper = styled('div')`
   display: grid;
   max-width: 320px;
   max-height: 100vh;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 80px;
-`;
-const DataView = styled('div')`
-  grid-column: 1/4
+  grid-template-columns: repeat(4, 25%);
+  grid-auto-rows: 60px;
 `;
 
 const action = (text, values) => e => {
@@ -48,6 +42,7 @@ const UI = () => {
       <Actions />
       <PlayPad />
       <SequencePad />
+      <SoundsPad />
     </Wrapper>
   )
 }

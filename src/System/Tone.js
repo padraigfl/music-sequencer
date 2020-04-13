@@ -16,29 +16,37 @@ import {
   SOUND,
   rotateBpm,
   updateSingleField,
+  SOUNDS_SET,
+  SOUNDS_VIEW,
 } from './_utils';
 
 const playerContext = createContext({});
 
 const sounds = [
-  new Tone.Synth().toMaster(),
-  new Tone.DuoSynth(),
-  new Tone.FMSynth(),
-  new Tone.Instrument(),
-  new Tone.MembraneSynth(),
-  new Tone.MetalSynth(),
-  new Tone.Monophonic(),
-  new Tone.MonoSynth(),
-  new Tone.NoiseSynth(),
-  new Tone.PluckSynth(),
-  new Tone.PolySynth(),
-  new Tone.Sampler(),
-  new Tone.DuoSynth(),
-  new Tone.FMSynth(),
-  new Tone.Instrument(),
-];
+  [ new Tone.Synth().toMaster(), 'synth' ],
+  [ new Tone.DuoSynth(), 'duo' ],
+  [ new Tone.FMSynth(), 'fm' ],
+  [ new Tone.Instrument(), 'instr' ],
+  [ new Tone.MembraneSynth(), 'membr' ],
+  [ new Tone.MetalSynth(), 'metal' ],
+  [ new Tone.Monophonic(), 'monoph' ],
+  [ new Tone.MonoSynth(), 'mono' ],
+  [ new Tone.NoiseSynth(), 'noise' ],
+  [ new Tone.PluckSynth(), 'pluck' ],
+  [ new Tone.PolySynth(), 'poly' ],
+  [ new Tone.Sampler(), 'sampl' ],
+  [ new Tone.DuoSynth(), 'duo' ],
+  [ new Tone.FMSynth(), 'fm' ],
+  [ new Tone.Instrument(), 'inst' ],
+].map((v, idx) => ({
+  tone: v[0],
+  name: v[1],
+  id: idx,
+}));
 
-const toggleActions = [PLAY, WRITE, PATTERN];
+console.log(sounds);
+
+const toggleActions = [PLAY, WRITE, PATTERN, SOUNDS_VIEW];
 
 const reducer = (state, action) => {
   if (toggleActions.includes(action.type)) {
@@ -47,7 +55,7 @@ const reducer = (state, action) => {
       [action.type]: !state[action.type],
     }
   }
-  console.log(action.type, state[BPM], action.value);
+
   switch (action.type) {
     case BPM:
       console.log(action)
@@ -55,10 +63,13 @@ const reducer = (state, action) => {
         ...state,
         [BPM]: action.value ? action.value : rotateBpm(state[BPM]),
       };
-    case SOUND: 
+    case SOUNDS_SET:
+      const idx = (action.value || 0 % 16);
+      sounds[idx].tone.toMaster();
       return {
         ...state,
-        [SOUND]:  sounds[idx % 16].toMaster(),
+        [SOUNDS_VIEW]: false,
+        [SOUND]: idx,
       };
     case VOLUME:
       return updateSingleField(state, action.type, action.value);
@@ -68,7 +79,7 @@ const reducer = (state, action) => {
 }
 
 export const ToneProvider = (props) => {
-  const [state, dispatch] = useReducer(reducer, getInitialState(sounds));
+  const [state, dispatch] = useReducer(reducer, getInitialState());
 
   // @todo, pattern scope may be bigger
   const [patterns, updatePatterns] = useState(new Array(16).fill(null));
@@ -82,13 +93,13 @@ export const ToneProvider = (props) => {
   }, [patterns]);
 
   const synthAction = useCallback((note, action = 'release') => {
-    console.log(note, action);
+    console.log(state.selectedSound, note, action);
     switch(action) {
       case 'attack':
-        state.sound.triggerAttackRelease(note);
+        sounds[state[SOUND]].tone.triggerAttackRelease(note);
         return;
       default: 
-        state.sound.triggerRelease();
+        sounds[state[SOUND]].tone.triggerRelease();
         return;
     }
   }, [state[SOUND]]);
@@ -102,6 +113,7 @@ export const ToneProvider = (props) => {
         dispatch,
         synthAction,
         patterns, updatePattern,
+        sounds,
       }}
     >
       {props.children}

@@ -13,7 +13,7 @@ const Cancel = styled('div')`
 const Wrapper = styled('div')`
   width: 320px;
   height: 320px;
-  top: ${({ pad }) => pad ? 0 : '100%'};
+  top: ${({ pad }) => pad ? 0 : '160px'};
   position: absolute;
 `;
 
