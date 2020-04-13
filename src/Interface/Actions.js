@@ -17,7 +17,7 @@ const Actions = () => {
 
   const fireDispatch = useCallback(
     (e) => {
-      const dataset = e.target.dataset;
+      const dataset = e.currentTarget.dataset;
       console.log('dispatch', dataset)
       if (dataset.type) {
         dispatch(dataset);

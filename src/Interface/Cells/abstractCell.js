@@ -6,8 +6,16 @@ import React, {
 import styled from 'styled-components';
 
 const DefaultCell = styled('button')`
-  background: none;
-  box-shadow: ${(props) => props.live ? 'inset 0 0 4px 0px blue' : 'none  '};
+  background-color: rgba(240, 240, 240, 0.9);
+  margin: 4px;
+  ${(props) => props.live ?
+      `
+        box-shadow: inset 0 0 30px 0px lightblue;
+        border: none;
+      `
+    : ''
+  };
+
 `;
 
 const Cell = (props) => {
