@@ -1,6 +1,6 @@
+export const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
 export const generateKeys = (start = 3) => {
-  const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
   const sounds = [];
   for (let i = 0; i < 16; i++) {
     sounds.push({ id: `${notes[i % 7]}${start + Math.floor(i / 7)}`});

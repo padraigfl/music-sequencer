@@ -7,7 +7,7 @@ import React, {
 import playerContext from '../System/Tone';
 import Action from './Cells/Action';
 import DragGrid from './DragMeters/DragGrid';
-import { WRITE, SOUNDS_VIEW, PATTERN, BPM, PLAY } from '../System/_utils';
+import { WRITE, SOUNDS_VIEW, PATTERNS, BPM, PLAY } from '../System/_utils';
 
 const Actions = () => {
   const {
@@ -18,7 +18,6 @@ const Actions = () => {
   const fireDispatch = useCallback(
     (e) => {
       const dataset = e.currentTarget.dataset;
-      console.log('dispatch', dataset)
       if (dataset.type) {
         dispatch(dataset);
       }
@@ -30,7 +29,7 @@ const Actions = () => {
     { id: WRITE, isActive: state[WRITE] },
     { id: PLAY, isActive: state[PLAY], activeChildren: 'pause' },
     { id: SOUNDS_VIEW, onHold: { type: 'nah', action: () => {}} },
-    { id: PATTERN, isActive: state.isPatternMode,
+    { id: 'pattern_select', isActive: state.isPatternMode,
       drag: {
         Component: DragGrid,
         props: {

@@ -4,48 +4,51 @@ import React, {
 } from 'react';
 import Cell from './abstractCell';
 import XYGrid from '../DragMeters/XYGrid';
+import { notes } from '../_utils';
 
+const getNote = (updateData, base = 3) => {
+  if (!updateData.y) {
+    return null;
+  }
+  const note = notes[updateData.y % notes.length];
+  const octave = base + Math.floor(updateData.y / notes.length);
+  return `${note}${octave}`;
+};
+
+const getSpanFromGrid = (updateData) => {
+  return updateData.x ? +updateData.x + 1 : 1;
+};
+
+const formatDataFromGrid = (updateData) => {
+  const note = getNote(updateData);
+  const span = getSpanFromGrid(updateData);
+  return {
+    note,
+    span,
+  };
+}
 // @todo pattern chaining is gonna take work
 const PatternButton = (props) => {
-  const debounce = useRef(null);
-  // drag timeout should be handled one level up?
-  const onMouseDown = useCallback(() => {
-    debounce.current = setTimeout(() => {
-      props.setModifyFunction({
-        type: 'note',
-        action: props.updatePattern,
-      });
-    }, 300)
-  }, [props.dragAction]);
-  const cancelTimeout = useCallback(() => {
-    if (debounce.current) {
-      clearTimeout(debounce.current);
-    }
-  }, []);
-  const onClick = useCallback(() => {
-    if (debounce.current) {
-      clearTimeout(debounce.current);
-      props.updatePattern({
-        note: props.lastNote,
-        duration: '1n', // @todo
-        idx: props.key,
-      });
-    }
+  const onRelease = useCallback((updateData) => {
+    const sanitizedData = updateData.x ? formatDataFromGrid(updateData) : updateData;
+    props.updatePattern({
+        ...sanitizedData,
+        idx: props.idx,
+    });
   }, []);
 
-  const onRelease = useCallback((params) => {
-    if (debounce.current) {
-      clearTimeout(debounce.current);
-    }
-    props.updatePattern(params);
-  }, []);
+  const onClick = useCallback(() => {
+    props.updatePattern({
+      note: props.lastNote,
+      idx: props.idx,
+    });
+  }, [props.lastNote]);
+
 
   return (
     <Cell
       type="button"
-      onClick={props.onClick ? onClick : undefined}
-      onMouseDown={props.setModifyFunction ? onMouseDown : undefined}
-      onMouseUp={props.setModifyFunction ? cancelTimeout : undefined}
+      onClick={onClick}
       drag={{
         Component: XYGrid,
         props: {
@@ -58,7 +61,7 @@ const PatternButton = (props) => {
     >
       {props.isActive && props.activeChildren}
       { (!props.isActive || !props.activeChildren) && 
-        <div>{props.id}{props.value}</div>
+        <div>{props.id}{props.activeValue}</div>
       }
     </Cell>
   )

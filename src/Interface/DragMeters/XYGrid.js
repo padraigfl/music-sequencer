@@ -1,7 +1,6 @@
 import React, {
   useMemo,
 } from 'react';
-import styled from 'styled-components';
 import DragGrid from './DragGrid';
 
 // @todo, get x y value on move/release
@@ -15,17 +14,17 @@ const XYGrid = (props) => {
       key: `grid_${rowNumber}_${colNumber}`,
       id: `grid_${rowNumber}_${colNumber}`,
       className: `mouseOverRow--${rowNumber} mouseOverCell--${colNumber}`,
-      'data-y': rowData.length - rowNumber,
-      'data-x': cols.length - (colData.length - colNumber),
+      'data-y': rowData.length - rowNumber - 1,
+      'data-x': colData.length - (colData.length - colNumber),
       'data-count':  (rowData.length * colData.length) - ((rowData.length * rowNumber) + colNumber),
-      'data-value': `${row}_${col}`,
+      'data-value': row && col ? `${row}_${col}` : undefined,
     }))
-  ))
+  )).flat(1);
   return (
     <DragGrid
       {...restProps}
-      rows={rows.length}
-      cols={cols.length}
+      rows={rowData.length}
+      cols={colData.length}
       cells={cells}
     />
   );

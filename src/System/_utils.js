@@ -1,6 +1,10 @@
 export const PLAY = 'play';
 export const WRITE = 'write';
-export const PATTERN = 'pattern';
+export const PATTERNS = 'patterns';
+export const PATTERN_VIEW = 'pattern_view';
+export const PATTERN_SET = 'pattern_set';
+export const PATTERN_UPDATE = 'pattern_update';
+export const PATTERN_IDX = 'pattern_idx';
 export const BPM = 'bpm';
 export const VOLUME = 'volume';
 export const SOUND = 'sound';
@@ -10,11 +14,14 @@ export const SOUNDS_SET = 'sounds_set'
 export const getInitialState = sounds => ({
   [PLAY]: false,
   [WRITE]: false,
-  [PATTERN]: false,
+  [PATTERN_VIEW]: false,
   [SOUNDS_VIEW]: false,
   [BPM]: 120,
   [VOLUME]: 1,
   [SOUND]: 0,
+  [PATTERNS]: new Array(16).fill({ spots: new Array(16).fill(null), effects: {} }),
+  [PATTERN_IDX]: 0,
+  lastNote: 'C3',
 });
 
 export const updateSingleField = (state, key, value) => {

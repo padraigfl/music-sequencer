@@ -7,10 +7,10 @@ const Pad = styled('div')`
   height: 320px;
   flex-wrap: wrap;
   grid-column: 1/5;
-  grid-row: 4;
+  grid-row: 4 / 9;
   > button {
     width: calc(25% - 8px);
-    height: ${({ entries = 16 }) => (100 / (entries / 4))}%;
+    height: calc(${({ entries = 16 }) => (100 / (entries / 4))}% - 8px);
   }
 `;
 

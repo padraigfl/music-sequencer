@@ -9,6 +9,7 @@ import { getCorrectParent } from '../_utils';
 
 const TouchGridMap = styled('div')`
   display: grid;
+  background-color: #ddd;
   grid: ${
     ({ rows, cols }) =>
       `repeat(${rows}, ${100/rows}%) / repeat(${cols}, ${100/cols}%)`
@@ -16,7 +17,7 @@ const TouchGridMap = styled('div')`
   > div { border: 1px solid blue; }
   width: 100%;
   height: 100%;
-  z-index: 10;
+  z-index: 1000;
   position: relative;
 `;
 
@@ -29,7 +30,6 @@ const DragGrid = (props) => {
 
   const onRelease = React.useCallback((e) => {
     const focusedCell = getActionCell(e.target).dataset;
-    console.log(focusedCell);
     props.onRelease(focusedCell);
     props.onCancel();
   }, [props.onRelease]);

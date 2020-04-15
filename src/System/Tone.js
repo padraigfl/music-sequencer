@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  useState,
   useCallback,
   useReducer,
 } from 'react';
@@ -10,7 +9,7 @@ import {
   getInitialState,
   PLAY,
   WRITE,
-  PATTERN,
+  PATTERNS,
   BPM,
   VOLUME,
   SOUND,
@@ -18,6 +17,9 @@ import {
   updateSingleField,
   SOUNDS_SET,
   SOUNDS_VIEW,
+  PATTERN_UPDATE,
+  PATTERN_VIEW,
+  PATTERN_IDX,
 } from './_utils';
 
 const playerContext = createContext({});
@@ -44,9 +46,22 @@ const sounds = [
   id: idx,
 }));
 
-console.log(sounds);
 
-const toggleActions = [PLAY, WRITE, PATTERN, SOUNDS_VIEW];
+// @todo more complex overwrites passed in by context?
+const updatePattern = (pattern, updateData, lastNote) => {
+  const { note = lastNote, span, idx } = updateData;
+  const currentVal = pattern.spots[idx];
+  return {
+    ...pattern,
+    spots: [
+      ...pattern.spots.slice(0, idx),
+      currentVal && currentVal.note && !updateData.note ? null : { note, span },
+      ...pattern.spots.slice(idx + 1),
+    ],
+  }
+};
+
+const toggleActions = [PLAY, WRITE, SOUNDS_VIEW, PATTERN_VIEW];
 
 const reducer = (state, action) => {
   if (toggleActions.includes(action.type)) {
@@ -58,7 +73,6 @@ const reducer = (state, action) => {
 
   switch (action.type) {
     case BPM:
-      console.log(action)
       return {
         ...state,
         [BPM]: action.value ? action.value : rotateBpm(state[BPM]),
@@ -71,6 +85,17 @@ const reducer = (state, action) => {
         [SOUNDS_VIEW]: false,
         [SOUND]: idx,
       };
+    case PATTERN_UPDATE:
+      const patternIdx = action.value.idx || state[PATTERN_IDX];
+      return {
+        ...state,
+        [PATTERNS]: [
+          ...state[PATTERNS].slice(0, patternIdx),
+          updatePattern(state[PATTERNS][patternIdx], action.value.update, state.lastNote),
+          ...state[PATTERNS].slice(patternIdx + 1),
+        ],
+        lastNote: action.value.update.note || state.lastNote,
+      }
     case VOLUME:
       return updateSingleField(state, action.type, action.value);
     default:
@@ -80,17 +105,6 @@ const reducer = (state, action) => {
 
 export const ToneProvider = (props) => {
   const [state, dispatch] = useReducer(reducer, getInitialState());
-
-  // @todo, pattern scope may be bigger
-  const [patterns, updatePatterns] = useState(new Array(16).fill(null));
-
-  const updatePattern = useCallback((idx, pattern) => {
-    updatePatterns([
-      ...patterns.slice(0, idx),
-      pattern,
-      ...patterns.slice(idx + 1),
-    ]);
-  }, [patterns]);
 
   const synthAction = useCallback((note, action = 'release') => {
     console.log(state.selectedSound, note, action);
@@ -104,15 +118,12 @@ export const ToneProvider = (props) => {
     }
   }, [state[SOUND]]);
 
-  console.log(state);
-
   return (
     <playerContext.Provider
       value={{
         state,
         dispatch,
         synthAction,
-        patterns, updatePattern,
         sounds,
       }}
     >
