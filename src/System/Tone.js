@@ -2,6 +2,7 @@ import React, {
   createContext,
   useCallback,
   useReducer,
+  useRef,
 } from 'react';
 
 import Tone from 'tone';
@@ -19,7 +20,10 @@ import {
   SOUNDS_VIEW,
   PATTERN_UPDATE,
   PATTERN_VIEW,
+  PATTERN_CHAIN,
   PATTERN_IDX,
+  PATTERN_SET,
+  CLEAR_VIEW,
 } from './_utils';
 
 const playerContext = createContext({});
@@ -61,7 +65,14 @@ const updatePattern = (pattern, updateData, lastNote) => {
   }
 };
 
-const toggleActions = [PLAY, WRITE, SOUNDS_VIEW, PATTERN_VIEW];
+const toggleActions = [PLAY];
+
+const clearChainTimeout = ref => {
+  if (ref.current) {
+    clearTimeout(ref.current);
+  }
+  ref.current = null;
+}
 
 const reducer = (state, action) => {
   if (toggleActions.includes(action.type)) {
@@ -71,7 +82,47 @@ const reducer = (state, action) => {
     }
   }
 
+  if (state.mutable.chainTimer.current && (
+    [ SOUNDS_VIEW, CLEAR_VIEW, PATTERN_VIEW ].includes(action.type)
+    || state[WRITE]
+  )) {
+    clearChainTimeout(state.mutable.chainTimer);
+  }
+
   switch (action.type) {
+    case PLAY: 
+      return {
+        ...state,
+        [PLAY]: !state[PLAY],
+      };
+    case WRITE:
+      return {
+        ...state,
+        [WRITE]: !state[WRITE],
+        view: !state[WRITE] ? WRITE : null,
+      };
+    case PATTERN_VIEW:
+      return {
+        ...state,
+        view: state.view !== PATTERN_VIEW ? PATTERN_VIEW : null,
+      };
+    case PATTERN_CHAIN:
+      if (state[WRITE]) {
+        return {
+          ...state,
+          [PATTERN_IDX]: action.value.idx,
+          view: WRITE,
+        };
+      }
+      return {
+        ...state,
+        [PATTERN_CHAIN]: action.value.append ? [...state[PATTERN_CHAIN], action.value.idx ] : [action.value.idx],
+      };
+    case SOUNDS_VIEW:
+      return {
+        ...state,
+        view: state.view !== SOUNDS_VIEW ? SOUNDS_VIEW : null,
+      };
     case BPM:
       return {
         ...state,
@@ -82,7 +133,7 @@ const reducer = (state, action) => {
       sounds[idx].tone.toMaster();
       return {
         ...state,
-        [SOUNDS_VIEW]: false,
+        view: null,
         [SOUND]: idx,
       };
     case PATTERN_UPDATE:
@@ -96,6 +147,20 @@ const reducer = (state, action) => {
         ],
         lastNote: action.value.update.note || state.lastNote,
       }
+    case PATTERN_SET:
+      if (state[WRITE]) {
+        return {
+          ...state,
+          [PATTERN_IDX]: action.value,
+        };
+      }
+
+    case CLEAR_VIEW:
+      return {
+        ...state,
+        view: null,
+      };
+
     case VOLUME:
       return updateSingleField(state, action.type, action.value);
     default:
@@ -103,8 +168,13 @@ const reducer = (state, action) => {
   }
 }
 
+const chainTimeout = dispatch => setTimeout(() => {
+  dispatch({ type: PATTERN_VIEW }); 
+}, 3000);
+
 export const ToneProvider = (props) => {
-  const [state, dispatch] = useReducer(reducer, getInitialState());
+  const chainTimer = useRef(null);
+  const [state, dispatch] = useReducer(reducer, getInitialState({ mutable: { chainTimer } }));
 
   const synthAction = useCallback((note, action = 'release') => {
     console.log(state.selectedSound, note, action);
@@ -118,6 +188,19 @@ export const ToneProvider = (props) => {
     }
   }, [state[SOUND]]);
 
+
+  const patternSet = useCallback((idx) => {
+    dispatch({
+      type: PATTERN_CHAIN,
+      value: {
+        append: chainTimer.current,
+        idx,
+      },
+    });
+    clearChainTimeout(chainTimer);
+    chainTimer.current = chainTimeout(dispatch);
+  }, []);
+
   return (
     <playerContext.Provider
       value={{
@@ -125,6 +208,7 @@ export const ToneProvider = (props) => {
         dispatch,
         synthAction,
         sounds,
+        patternSet,
       }}
     >
       {props.children}

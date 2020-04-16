@@ -14,7 +14,7 @@ const PlayPad = (props) => {
   }, [props.octave]);
 
   return (
-    <Pad> 
+    <Pad style={{ flexWrap: 'wrap-reverse' }}> 
       { keys.map(note => <Note key={note.id} {...note} />) }
     </Pad>
   )

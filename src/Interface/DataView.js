@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import playerContext from '../System/Tone';
+import { PATTERN_IDX, PATTERN_CHAIN } from '../System/_utils';
 
 const DataViews = styled('div')`
   grid-column: 1/4;
@@ -15,8 +16,8 @@ const DataView = () => {
   const bools = Object.entries(rest).filter(([_, val]) => typeof val === 'boolean');
   return (
     <DataViews>
-      {JSON.stringify(rest).split(',').join(' ')}
-      { bools.map(([key, val]) => <div className={`${key} ${val ? `${key}--active` : ''}`} />)}
+      {state[PATTERN_IDX]} <br/>
+      {state[PATTERN_CHAIN].join(',')}
     </DataViews>
   );
 }

@@ -5,6 +5,8 @@ import PlayPad from './Interface/Pads/PlayPad';
 import SequencePad from './Interface/Pads/SequencePad';
 import DataView from './Interface/DataView';
 import SoundsPad from './Interface/Pads/SoundsPad';
+import { PATTERN_SET, PATTERN_VIEW } from './System/_utils';
+import PatternPad from './Interface/Pads/PatternPad';
 
 const Wrapper = styled('div')`
   display: grid;
@@ -43,6 +45,7 @@ const UI = () => {
       <PlayPad />
       <SequencePad />
       <SoundsPad />
+      <PatternPad />
     </Wrapper>
   )
 }

@@ -13,7 +13,7 @@ import { WRITE, PATTERN_UPDATE, PATTERNS, PATTERN_IDX } from '../../System/_util
 
 const PlayPad = () => {
   const { state, dispatch } = useContext(playContext);
-  const pattern = useMemo(() => state[PATTERNS][state[PATTERN_IDX]], [state[PATTERNS]]);
+  const pattern = useMemo(() => state[PATTERNS][state[PATTERN_IDX]], [state[PATTERNS], state[PATTERN_IDX]]);
 
   const initalPattern = useMemo(() => (
     JSON.parse(JSON.stringify(state[PATTERNS][state[PATTERN_IDX]]))
@@ -31,7 +31,7 @@ const PlayPad = () => {
     });
   }, []);
 
-  return state[WRITE] && (
+  return state.view === WRITE && (
     <Pad> 
       {pattern && pattern.spots && pattern.spots.map((note, idx) =>
         <PatternCell

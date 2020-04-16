@@ -7,7 +7,7 @@ import React, {
 import playerContext from '../System/Tone';
 import Action from './Cells/Action';
 import DragGrid from './DragMeters/DragGrid';
-import { WRITE, SOUNDS_VIEW, PATTERNS, BPM, PLAY } from '../System/_utils';
+import { WRITE, SOUNDS_VIEW, PATTERNS, BPM, PLAY, PATTERN_VIEW, SOUND } from '../System/_utils';
 
 const Actions = () => {
   const {
@@ -28,26 +28,16 @@ const Actions = () => {
   const actions = [
     { id: WRITE, isActive: state[WRITE] },
     { id: PLAY, isActive: state[PLAY], activeChildren: 'pause' },
-    { id: SOUNDS_VIEW, onHold: { type: 'nah', action: () => {}} },
-    { id: 'pattern_select', isActive: state.isPatternMode,
-      drag: {
-        Component: DragGrid,
-        props: {
-          onRelease: () => {},
-          rows: 5,
-          cols: 5,
-          cells: new Array(25).fill({}).map((v, idx) => ({ id: idx })),
-        }
-      }
-    },
-    { id: BPM, onHold: { type: 'bpm', action: () => {} }},
+    { id: SOUNDS_VIEW, value: state[SOUND] },
+    { id: PATTERN_VIEW },
+    { id: BPM, value: state[BPM]},
     { id: 'fx' },
   ];
 
   return (
     <>
       {actions.map(action => (
-        <Action key={action.id} onClick={fireDispatch} {...action} />
+        <Action {...action}  key={action.id} onClick={fireDispatch} isActive={state.view === action.id} />
       ))}
     </>
   );

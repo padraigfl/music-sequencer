@@ -5,12 +5,7 @@ export const generateKeys = (start = 3) => {
   for (let i = 0; i < 16; i++) {
     sounds.push({ id: `${notes[i % 7]}${start + Math.floor(i / 7)}`});
   }
-  return [
-    sounds.slice(0,4),
-    sounds.slice(4,8),
-    sounds.slice(8,12),
-    sounds.slice(12,16),
-  ].reverse().flat();
+  return sounds;
 };
 
 export const getEmptyPattern = (size = 16) => {
