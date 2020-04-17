@@ -21,7 +21,7 @@ export const getInitialState = ({ sounds, mutable }) => ({
   [BPM]: 120,
   [VOLUME]: 1,
   [SOUND]: 0,
-  [PATTERNS]: new Array(16).fill({ spots: new Array(16).fill(null), effects: {} }),
+  [PATTERNS]: new Array(16).fill({ spots: new Array(16).fill(null), drums: new Array(16).fill(null), effects: {} }),
   [PATTERN_IDX]: 0,
   lastNote: 'C3',
   [PATTERN_CHAIN]: [0],

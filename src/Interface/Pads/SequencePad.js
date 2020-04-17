@@ -19,10 +19,14 @@ const PlayPad = () => {
     JSON.parse(JSON.stringify(state[PATTERNS][state[PATTERN_IDX]]))
   ), [state[PATTERN_IDX]]);
 
-  const [lastNote, setNote] = useState('C3');
+  const dragType = useMemo(() => {
+    if (state[PATTERN_IDX] !== 15) {
+      return 'drum';
+    }
+    return 'note';
+   }, [state[PATTERN_IDX]]);
 
   const updatePattern = useCallback((updateData) => {
-    setNote(updateData.note);
     dispatch({
       type: PATTERN_UPDATE,
       value: {
@@ -40,6 +44,7 @@ const PlayPad = () => {
           key={idx}
           idx={idx}
           activeValue={note ? JSON.stringify(note)  : null}
+          dragType={dragType}
         />
       )}
     </Pad>

@@ -7,10 +7,11 @@ import React, {
 import styled from 'styled-components';
 import Cell from './abstractCell';
 import playerContext from '../../System/Tone';
+import { SOUND } from '../../System/_utils';
 
 const NoteButton = (props) => {
   const [playing, setPlayStatus] = useState(false);
-  const { synthAction } = useContext(playerContext);
+  const { synthAction, sounds, state } = useContext(playerContext);
   const debounce = useRef(null);
 
   // needs debouncers
@@ -44,7 +45,6 @@ const NoteButton = (props) => {
     synthAction(props.id, 'attack');
   }, [synthAction]);
 
-
   return (
     <Cell
       // onClick={() => synthAction(props.id, 'attack')}
@@ -54,10 +54,7 @@ const NoteButton = (props) => {
       onMouseLeave={onDragExit}
       live={playing}
     >
-      {props.isActive && props.activeChildren}
-      { (!props.isActive || !props.activeChildren) && 
-        <div>{props.id}{props.value}</div>
-      }
+      {state[SOUND] === 15 ? sounds[state[SOUND]].keys[props.idx] : props.id}
     </Cell>
   )
 };

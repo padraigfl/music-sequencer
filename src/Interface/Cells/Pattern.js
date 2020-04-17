@@ -1,10 +1,11 @@
 import React, {
   useCallback,
-  useRef,
+  useMemo,
 } from 'react';
 import Cell from './abstractCell';
 import XYGrid from '../DragMeters/XYGrid';
 import { notes } from '../_utils';
+import DragGrid from '../DragMeters/DragGrid';
 
 const getNote = (updateData, base = 3) => {
   if (!updateData.y) {
@@ -27,6 +28,14 @@ const formatDataFromGrid = (updateData) => {
     span,
   };
 }
+
+const sampleDragPad = {
+};
+
+const noteDragPad = {
+
+}
+
 // @todo pattern chaining is gonna take work
 const PatternButton = (props) => {
   const onRelease = useCallback((updateData) => {
@@ -44,12 +53,9 @@ const PatternButton = (props) => {
     });
   }, [props.lastNote]);
 
-
-  return (
-    <Cell
-      type="button"
-      onClick={onClick}
-      drag={{
+  const drag = useMemo(() => {
+    if (props.dragType !== 'drum') {
+      return {
         Component: XYGrid,
         props: {
           onRelease,
@@ -57,7 +63,25 @@ const PatternButton = (props) => {
           cols: 16,
           pad: true,
         },
-      }}
+      }
+    }
+    return {
+      Component: DragGrid,
+      props: {
+        onRelease,
+        rows: 4,
+        cols: 4,
+        cells: new Array(16).fill({}).map((v, idx) => ({ children: idx })),
+        pad: true,
+      },
+    }
+  }, [props.dragType, onRelease])
+
+  return (
+    <Cell
+      type="button"
+      onClick={onClick}
+      drag={drag}
     >
       {props.isActive && props.activeChildren}
       { (!props.isActive || !props.activeChildren) && 

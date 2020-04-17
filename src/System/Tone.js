@@ -44,23 +44,26 @@ const sounds = [
   [ new Tone.DuoSynth(), 'duo' ],
   [ new Tone.FMSynth(), 'fm' ],
   [ new Tone.Instrument(), 'inst' ],
+  [ new Tone.Instrument(), 'basicdrum', new Array(16).fill(null).map((v, idx) => String.fromCharCode(idx + 3330)) ],
 ].map((v, idx) => ({
   tone: v[0],
   name: v[1],
   id: idx,
+  keys: v[2],
 }));
 
 
 // @todo more complex overwrites passed in by context?
-const updatePattern = (pattern, updateData, lastNote) => {
+const updatePattern = (pattern, updateData, lastNote, key = 'spots') => {
   const { note = lastNote, span, idx } = updateData;
-  const currentVal = pattern.spots[idx];
+  debugger;
+  const currentVal = pattern[key][idx];
   return {
     ...pattern,
-    spots: [
-      ...pattern.spots.slice(0, idx),
+    [key]: [
+      ...pattern[key].slice(0, idx),
       currentVal && currentVal.note && !updateData.note ? null : { note, span },
-      ...pattern.spots.slice(idx + 1),
+      ...pattern[key].slice(idx + 1),
     ],
   }
 };
@@ -138,14 +141,20 @@ const reducer = (state, action) => {
       };
     case PATTERN_UPDATE:
       const patternIdx = action.value.idx || state[PATTERN_IDX];
+      const lastKey = state[PATTERN_IDX] === 15 ? 'lastBeat' : 'lastNote';
       return {
         ...state,
         [PATTERNS]: [
           ...state[PATTERNS].slice(0, patternIdx),
-          updatePattern(state[PATTERNS][patternIdx], action.value.update, state.lastNote),
+          updatePattern(
+            state[PATTERNS][patternIdx],
+            action.value.update,
+            state.lastNote,
+            state[SOUND] === 15 ? 'drums' : undefined,
+          ),
           ...state[PATTERNS].slice(patternIdx + 1),
         ],
-        lastNote: action.value.update.note || state.lastNote,
+        [lastKey]: action.value.update.note || state[lastKey],
       }
     case PATTERN_SET:
       if (state[WRITE]) {

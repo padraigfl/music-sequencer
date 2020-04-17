@@ -7,7 +7,7 @@ import styled from 'styled-components';
 
 const DefaultCell = styled('button')`
   background-color: rgba(240, 240, 240, 0.9);
-  margin: 4px;
+  margin: 5px;
   ${(props) => props.live ?
       `
         box-shadow: inset 0 0 30px 0px lightblue;

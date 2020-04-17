@@ -13,6 +13,7 @@ export const getEmptyPattern = (size = 16) => {
     spots: new Array(size).fill({
       note: null,
     }),
+    drums: new Array(size).fill({ note: null }),
     effects: {},
   };
 };

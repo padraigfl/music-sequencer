@@ -15,7 +15,7 @@ const PlayPad = (props) => {
 
   return (
     <Pad style={{ flexWrap: 'wrap-reverse' }}> 
-      { keys.map(note => <Note key={note.id} {...note} />) }
+      { keys.map((note, idx) => <Note key={note.id} idx={idx} {...note} />) }
     </Pad>
   )
 };
