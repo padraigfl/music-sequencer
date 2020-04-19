@@ -21,7 +21,7 @@ const MeterWrapper = (props) => {
   return (
     <Wrapper pad={props.pad}>
       <Cancel
-        eUp={props.onCancel}
+        onMouseUp={props.onCancel}
         onTouchEnd={props.onCancel}
         onClick={props.onCancel}
       />

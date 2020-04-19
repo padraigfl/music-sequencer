@@ -8,6 +8,7 @@ import styled from 'styled-components';
 const DefaultCell = styled('button')`
   background-color: rgba(240, 240, 240, 0.9);
   margin: 5px;
+  word-wrap: break-word;
   ${(props) => props.live ?
       `
         box-shadow: inset 0 0 30px 0px lightblue;
@@ -15,10 +16,16 @@ const DefaultCell = styled('button')`
       `
     : ''
   };
+  &[data-active], &:focus {
+    border: none;
+    border-top: 2px solid #222;
+    border-left: 2px solid #222;
+    background-color: white;
+  }
 
 `;
 
-const Cell = (props) => {
+const Cell = React.forwardRef((props, ref) => {
   const [actionVisible, setActionVisible] = useState(false);
   const onCancel = useCallback(() => setActionVisible(false), []);
 
@@ -60,6 +67,7 @@ const Cell = (props) => {
         data-value={props.value}
         data-active={props.isActive ? true : undefined}
         live={props.live}
+        ref={ref}
       >
         {
           props.children
@@ -68,7 +76,7 @@ const Cell = (props) => {
             <>
               {props.isActive && props.activeChildren}
               { (!props.isActive || !props.activeChildren) && 
-                <div>{props.id}{props.value}</div>
+                <span>{props.id}{props.value}</span>
               }
             </>
           )
@@ -83,7 +91,7 @@ const Cell = (props) => {
       }
     </>
   )
-}
+});
 
 Cell.defaultProps = {
   Component: DefaultCell,

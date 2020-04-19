@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import Pad from './abstractPad';
 import { SOUNDS_SET, SOUNDS_VIEW } from '../../System/_utils';
-import playerContext from '../../System/Tone';
+import playerContext from '../../System/context';
 import Cell from '../Cells/abstractCell';
 
 const SoundsPad = () => {

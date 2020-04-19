@@ -3,7 +3,7 @@ import React, {
   useCallback,
 } from 'react';
 import Pad from './abstractPad';
-import playerContext from '../../System/Tone';
+import playerContext from '../../System/context';
 import Cell from '../Cells/abstractCell';
 import { PATTERN_VIEW } from '../../System/_utils';
 

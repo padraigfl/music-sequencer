@@ -6,21 +6,22 @@ import React, {
   useContext,
 } from 'react';
 import PatternCell from '../Cells/Pattern';
-import playContext from '../../System/Tone';
+import playContext from '../../System/context';
 import Pad from './abstractPad';
 import { WRITE, PATTERN_UPDATE, PATTERNS, PATTERN_IDX } from '../../System/_utils';
 
 
-const PlayPad = () => {
+const SequencePad = () => {
   const { state, dispatch } = useContext(playContext);
   const pattern = useMemo(() => state[PATTERNS][state[PATTERN_IDX]], [state[PATTERNS], state[PATTERN_IDX]]);
+  const patternType = state.patternType;
 
   const initalPattern = useMemo(() => (
     JSON.parse(JSON.stringify(state[PATTERNS][state[PATTERN_IDX]]))
   ), [state[PATTERN_IDX]]);
 
   const dragType = useMemo(() => {
-    if (state[PATTERN_IDX] !== 15) {
+    if (state[PATTERN_IDX] === 15) {
       return 'drum';
     }
     return 'note';
@@ -37,7 +38,7 @@ const PlayPad = () => {
 
   return state.view === WRITE && (
     <Pad> 
-      {pattern && pattern.spots && pattern.spots.map((note, idx) =>
+      {pattern && pattern[patternType] && pattern[patternType].map((note, idx) =>
         <PatternCell
           {...note}
           updatePattern={updatePattern}
@@ -51,4 +52,4 @@ const PlayPad = () => {
   );
 };
 
-export default PlayPad;
+export default SequencePad;

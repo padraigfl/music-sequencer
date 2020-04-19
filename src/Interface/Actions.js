@@ -4,7 +4,7 @@ import React, {
   useReducer,
   useMemo,
 } from 'react';
-import playerContext from '../System/Tone';
+import playerContext from '../System/context';
 import Action from './Cells/Action';
 import DragGrid from './DragMeters/DragGrid';
 import { WRITE, SOUNDS_VIEW, PATTERNS, BPM, PLAY, PATTERN_VIEW, SOUND } from '../System/_utils';
@@ -37,7 +37,7 @@ const Actions = () => {
   return (
     <>
       {actions.map(action => (
-        <Action {...action}  key={action.id} onClick={fireDispatch} isActive={state.view === action.id} />
+        <Action {...action}  key={action.id} onClick={fireDispatch} isActive={action.isActive || state.view === action.id} />
       ))}
     </>
   );

@@ -26,6 +26,7 @@ export const getInitialState = ({ sounds, mutable }) => ({
   lastNote: 'C3',
   [PATTERN_CHAIN]: [0],
   mutable,
+  patternType: 'spots',
 });
 
 export const updateSingleField = (state, key, value) => {

@@ -13,7 +13,7 @@ const Wrapper = styled('div')`
   max-width: 320px;
   max-height: 100vh;
   grid-template-columns: repeat(4, 25%);
-  grid-auto-rows: 60px;
+  grid-template-rows: repeat(3, 40px) 320px 1fr;
 `;
 
 const action = (text, values) => e => {
