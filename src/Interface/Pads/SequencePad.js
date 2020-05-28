@@ -36,7 +36,7 @@ const SequencePad = () => {
     });
   }, []);
 
-  return state.view === WRITE && (
+  return state[WRITE] && (
     <Pad> 
       {pattern && pattern[patternType] && pattern[patternType].map((note, idx) =>
         <PatternCell

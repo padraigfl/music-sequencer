@@ -5,6 +5,7 @@ import PlayPad from './Interface/Pads/PlayPad';
 import SequencePad from './Interface/Pads/SequencePad';
 import DataView from './Interface/DataView';
 import SoundsPad from './Interface/Pads/SoundsPad';
+import StatusPad from './Interface/Pads/StatusPad';
 import { PATTERN_SET, PATTERN_VIEW } from './System/_utils';
 import PatternPad from './Interface/Pads/PatternPad';
 
@@ -42,6 +43,7 @@ const UI = () => {
     <Wrapper>
       <DataView />
       <Actions />
+      <StatusPad />
       <PlayPad />
       <SequencePad />
       <SoundsPad />

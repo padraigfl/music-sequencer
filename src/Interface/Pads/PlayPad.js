@@ -3,7 +3,7 @@ import React, {
   useEffect,
 } from 'react';
 import Note from '../Cells/Note';
-import { generateKeys } from '../_utils';
+import { generateKeys } from '../../tools/_player';
 import Pad from './abstractPad';
 
 const PlayPad = (props) => {

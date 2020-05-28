@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import Cell from './abstractCell';
 import XYGrid from '../DragMeters/XYGrid';
-import { notes } from '../_utils';
+import { notes } from '../../tools/_player';
 import DragGrid from '../DragMeters/DragGrid';
 
 const getNote = (updateData, base = 3) => {

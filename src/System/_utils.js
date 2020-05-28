@@ -1,3 +1,5 @@
+import { Tone } from 'tone';
+
 export const PLAY = 'play';
 export const WRITE = 'write';
 export const PATTERNS = 'patterns';
@@ -13,7 +15,7 @@ export const SOUNDS_VIEW = 'sounds_view';
 export const SOUNDS_SET = 'sounds_set'
 export const CLEAR_VIEW = 'clear_view';
 
-export const getInitialState = ({ sounds, mutable }) => ({
+export const getInitialState = ({ mutable } = {}) => ({
   [PLAY]: false,
   [WRITE]: false,
   [PATTERN_VIEW]: false,
@@ -36,9 +38,26 @@ export const updateSingleField = (state, key, value) => {
   };
 }
 
+// if working from a base you have limited control of BPM
 const getSyncBpmOptions = (base) => [base/4, base/2, base, base * 2, base * 4].filter(v => v > 30 && v < 320);
 
+// iterating through basic bpm options, if there's a base it sticks to times that pair well with it
 export const rotateBpm = (value, base) => {
   const options = base ? getSyncBpmOptions(base) :  [80, 100, 120, 140, 320];
   return (options.find(v => v > value) || 80);
+}
+
+// Generates instrument for player with title and display properties
+export const generateInstrument = ({
+  title,
+  instrument = Tone.Synth,
+  toneParams = [],
+  customKeys,
+}) => {
+  const tone =  new instrument(...toneParams);
+  return {
+    name: title || tone.toString().split('Synth')[0] || 'Synth',
+    tone,
+    keys: customKeys,
+  }
 }

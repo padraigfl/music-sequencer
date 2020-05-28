@@ -11,13 +11,14 @@ const Pad = styled('div')`
   grid-column: 1/5;
   grid-row: 4 / 9;
   justify-content: space-evenly;
-  > button {
+  > button, > .cell {
     border-radius: 4px;
-    box-shadow: 0px 0px 0px 1px #222, 0px 0px 0px 3px rgba(255, 255, 255, 0.5), 0px 0px 0px 5px rgba(255, 0, 0, 0.2);
     margin: ${margin}px;
     width: calc(25% - ${margin * 2}px);
     height: calc(${({ entries = 16 }) => (100 / (entries / 4))}% - ${margin * 2}px);
     border: none;
+  }
+  > button {
     border-bottom: 2px solid #bbb;
     border-right: 2px solid #bbb;
     &:active {

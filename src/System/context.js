@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useReducer,
   useRef,
+  useEffect,
 } from 'react';
 
 import Tone from 'tone';
@@ -25,68 +26,9 @@ import {
   PATTERN_SET,
   CLEAR_VIEW,
 } from './_utils';
+import { sounds, SoundProcessor } from './sound';
 
 const playerContext = createContext({});
-
-const sounds = [
-  [ new Tone.Synth().toMaster(), 'synth' ],
-  [ new Tone.DuoSynth(), 'duo' ],
-  [ new Tone.FMSynth(), 'fm' ],
-  [ new Tone.Instrument(), 'instr' ],
-  [ new Tone.MembraneSynth(), 'membr' ],
-  [ new Tone.MetalSynth(), 'metal' ],
-  [ new Tone.Monophonic(), 'monoph' ],
-  [ new Tone.MonoSynth(), 'mono' ],
-  [ new Tone.NoiseSynth(), 'noise' ],
-  [ new Tone.PluckSynth(), 'pluck' ],
-  [ new Tone.PolySynth(), 'poly' ],
-  [ new Tone.Sampler(), 'sampl' ],
-  [ new Tone.Synth({
-    oscillator: {
-      type: 'fmsquare',
-      modulationType: 'sawtooth',
-      modulationIndex: 3,
-      harmonicity: 3.4
-    },
-    envelope: {
-      attack: 0.001,
-      decay: 0.1,
-      sustain: 0.1,
-      release: 0.1
-    }
-  }), 'custom1'],
-  [ new Tone.Synth({
-    oscillator: {
-      type: 'triangle8'
-    },
-    envelope: {
-      attack: 1,
-      decay: 1,
-      sustain: 0.4,
-      release: 4
-    }
-  }), 'custom2'],
-  [ new Tone.Sampler({
-    "C1" : "C1.[mp3|ogg]",
-    "C2" : "C2.[mp3|ogg]",
-    "C3" : "C3.[mp3|ogg]",
-    "C4" : "C4.[mp3|ogg]",
-    "C5" : "C5.[mp3|ogg]",
-    "C6" : "C6.[mp3|ogg]",
-    "C7" : "C7.[mp3|ogg]",
-    "C8" : "C8.[mp3|ogg]"
-  }, {
-    "release" : 1,
-    "baseUrl" : "/static/sampler/"
-  }), 'pianoSampler' ],
-  [ new Tone.Instrument(), 'basicdrum', new Array(16).fill(null).map((v, idx) => String.fromCharCode(idx + 3330)) ],
-].map((v, idx) => ({
-  tone: v[0],
-  name: v[1],
-  id: idx,
-  keys: v[2],
-}));
-
 
 // @todo more complex overwrites passed in by context?
 const updatePattern = (pattern, updateData, lastNote, key = 'spots') => {
@@ -102,8 +44,6 @@ const updatePattern = (pattern, updateData, lastNote, key = 'spots') => {
   }
 };
 
-const toggleActions = [PLAY];
-
 const clearChainTimeout = ref => {
   if (ref.current) {
     clearTimeout(ref.current);
@@ -111,15 +51,9 @@ const clearChainTimeout = ref => {
   ref.current = null;
 }
 
-const reducer = (state, action) => {
-  console.log(state.patternType);
-  if (toggleActions.includes(action.type)) {
-    return {
-      ...state,
-      [action.type]: !state[action.type],
-    }
-  }
+const soundProcessor = new SoundProcessor(getInitialState());
 
+const reducer = (state, action) => {
   if (state.mutable.chainTimer.current && (
     [ SOUNDS_VIEW, CLEAR_VIEW, PATTERN_VIEW ].includes(action.type)
     || state[WRITE]
@@ -128,7 +62,11 @@ const reducer = (state, action) => {
   }
 
   switch (action.type) {
-    case PLAY: 
+    case PLAY:
+      if (Tone.Transport.state !== 'started') {
+        Tone.Transport.start();
+      }
+      soundProcessor.reducer(PLAY, !state[PLAY]);
       return {
         ...state,
         [PLAY]: !state[PLAY],
@@ -152,6 +90,7 @@ const reducer = (state, action) => {
           view: WRITE,
         };
       }
+      soundProcessor.reducer(PATTERN_CHAIN, action.value.append ? [...state[PATTERN_CHAIN], action.value.idx ] : [action.value.idx]);
       return {
         ...state,
         [PATTERN_CHAIN]: action.value.append ? [...state[PATTERN_CHAIN], action.value.idx ] : [action.value.idx],
@@ -162,13 +101,15 @@ const reducer = (state, action) => {
         view: state.view !== SOUNDS_VIEW ? SOUNDS_VIEW : null,
       };
     case BPM:
+      const newBpm = action.value ? action.value : rotateBpm(state[BPM]);
+      soundProcessor.reducer(newBpm);
       return {
         ...state,
         [BPM]: action.value ? action.value : rotateBpm(state[BPM]),
       };
     case SOUNDS_SET:
       const idx = (action.value || 0 % 16);
-      sounds[idx].tone.toMaster();
+      soundProcessor.reducer(SOUNDS_SET, idx);
       return {
         ...state,
         view: state[WRITE] ? WRITE : null,
@@ -178,18 +119,20 @@ const reducer = (state, action) => {
     case PATTERN_UPDATE:
       const patternIdx = action.value.idx || state[PATTERN_IDX];
       const lastKey = state[PATTERN_IDX] === 15 ? 'lastBeat' : 'lastNote';
+      const updatedPatterns = [
+        ...state[PATTERNS].slice(0, patternIdx),
+        updatePattern(
+          state[PATTERNS][patternIdx],
+          action.value.update,
+          state.lastNote,
+          state.patternType,
+        ),
+        ...state[PATTERNS].slice(patternIdx + 1),
+      ];
+      soundProcessor.reducer(PATTERN_UPDATE, updatedPatterns);
       return {
         ...state,
-        [PATTERNS]: [
-          ...state[PATTERNS].slice(0, patternIdx),
-          updatePattern(
-            state[PATTERNS][patternIdx],
-            action.value.update,
-            state.lastNote,
-            state.patternType,
-          ),
-          ...state[PATTERNS].slice(patternIdx + 1),
-        ],
+        [PATTERNS]: updatedPatterns,
         [lastKey]: action.value.update.note || state[lastKey],
       }
     case PATTERN_SET:
@@ -204,7 +147,6 @@ const reducer = (state, action) => {
         ...state,
         view: null,
       };
-
     case VOLUME:
       return updateSingleField(state, action.type, action.value);
     default:
@@ -224,14 +166,13 @@ export const ToneProvider = (props) => {
     console.log(state.selectedSound, note, action);
     switch(action) {
       case 'attack':
-        sounds[state[SOUND]].tone.triggerAttackRelease(note);
+        soundProcessor.sound.tone.triggerAttackRelease(note);
         return;
       default: 
-        sounds[state[SOUND]].tone.triggerRelease();
+        soundProcessor.sound.tone.triggerRelease();
         return;
     }
   }, [state[SOUND]]);
-
 
   const patternSet = useCallback((idx) => {
     dispatch({
@@ -244,6 +185,7 @@ export const ToneProvider = (props) => {
     clearChainTimeout(chainTimer);
     chainTimer.current = chainTimeout(dispatch);
   }, []);
+  window.state = state;
 
   return (
     <playerContext.Provider

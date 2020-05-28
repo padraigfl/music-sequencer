@@ -6,7 +6,7 @@ import React, {
 import styled from 'styled-components';
 
 const DefaultCell = styled('button')`
-  background-color: rgba(240, 240, 240, 0.9);
+  background-color: #e8e8e8;  
   margin: 5px;
   word-wrap: break-word;
   ${(props) => props.live ?
@@ -20,7 +20,7 @@ const DefaultCell = styled('button')`
     border: none;
     border-top: 2px solid #222;
     border-left: 2px solid #222;
-    background-color: white;
+    background-color: #eeeeee;
   }
 
 `;
