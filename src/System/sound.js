@@ -99,50 +99,68 @@ export class SoundProcessor {
   isPlaying;
   lastSound = 0;
   sound = sounds[0];
+  melodySound = sounds[0];
+  basicDrum = sounds[15];
 
   constructor(initialState) {
     this.patterns = initialState[PATTERNS];
     this.sequence = this.sequenceBuilder(initialState[PATTERN_CHAIN]);
   }
 
-  reducer(actionType, value) {
+  reducer(actionType, state) {
     switch(actionType) {
       case PLAY:
-        this.isPlaying = value;
-        if (value) {
+        if (Tone.Transport.state !== 'started') {
+          Tone.Transport.start();
+        }
+        this.isPlaying = state[PLAY];
+        if (this.isPlaying) {
           this.sequence.start();
         } else {
           this.sequence.stop();
         }
         return;
       case BPM:
-        this.bpm.rampTo(value, 2);
+        Tone.Transport.bpm.rampTo(state[BPM], 2);
         return;
       case PATTERN_CHAIN:
-        this.sequence.stop();
+        if (this.sequence.state === 'started') {
+          this.sequence.stop();
+        }
         this.sequence.dispose();
-        this.sequence = sequenceBuilder(value);
+        this.sequence = this.sequenceBuilder(state[PATTERN_CHAIN]);
         if (this.isPlaying) {
           this.sequence.start();
         }
         return;
       case SOUNDS_SET:
-        if (value !== 15) {
-          this.sound = sounds[value];
+        this.sound = sounds[state[SOUND]];
+        if (state[SOUND] !== 15) {
+          this.melodySound = this.sound;
         }
-        sounds[value].tone.toMaster();
+        this.sound.tone.toMaster();
         return;
       case PATTERN_UPDATE:
-        this.patterns = value;
+        this.patterns = state[PATTERNS];
+        return;
+      default:
         return;
     }
   }
 
   updateLights = (idx, color = 'red') => {
-    const prev = document.getElementById(`live-status--${(idx + 15) % 16}`)
     const next = document.getElementById(`live-status--${idx % 16}`)
-    prev.classList.remove(color);
+    this.clearLights(color);
     next.classList.add(color);
+  }
+
+  clearLights = (color = 'red') => {
+    document.querySelectorAll(`[id^=live-status--].${color}`).forEach(v => v.classList.remove(color))
+  }
+
+  clearAllLights = () => {
+    this.clearLights('red');
+    this.clearLights('green');
   }
 
   sequenceBuilder = (chain) => {
@@ -154,12 +172,15 @@ export class SoundProcessor {
     return new Tone.Sequence(
       (time, { patternIdx, noteIdx }) => {
         this.updateLights(noteIdx);
+        if (noteIdx === 0) {
+          this.updateLights(patternIdx, 'green');
+        }
         const pattern = this.patterns[patternIdx];
         if (pattern.spots[noteIdx]) {
-          this.sound.tone.triggerAttackRelease(pattern.spots[noteIdx].note, '4n');
+          this.melodySound.tone.triggerAttackRelease(pattern.spots[noteIdx].note, `${17 - (pattern.spots[noteIdx].span || 1)}n`);
         }
         if (pattern.drums[noteIdx]) {
-          sounds[15].tone.triggerAttackRelease(pattern.drums[noteIdx].note)
+          this.basicDrum.tone.triggerAttackRelease(pattern.drums[noteIdx].note)
         }
       },
       baseArray,

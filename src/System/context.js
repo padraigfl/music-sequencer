@@ -53,6 +53,50 @@ const clearChainTimeout = ref => {
 
 const soundProcessor = new SoundProcessor(getInitialState());
 
+const viewHandler = (view) => ({ view });
+
+const actionHandler = {
+  [PLAY]: state =>({ [PLAY]: !state[PLAY] }),
+  [WRITE]: state => ({ [WRITE]: !state[WRITE], ...viewHandler(state.view === WRITE ? !state[WRITE] : state.view) }),
+  [CLEAR_VIEW]: () => ({ view: null }),
+  [VOLUME]: () => updateSingleField(state, action.type, action.value),
+  [SOUNDS_VIEW]: state => viewHandler(state.view !== SOUNDS_VIEW ? SOUNDS_VIEW : null),
+  [SOUNDS_SET]: (state, value) => ({
+    view: state[WRITE] ? WRITE : null,
+    [SOUND]: value,
+    patternType: +value === 15 ? 'drums' : 'spots',
+  }),
+  [PATTERN_VIEW]: state => viewHandler(state.view !== PATTERN_VIEW ? PATTERN_VIEW : null ),
+  [PATTERN_SET]: (state, value) => ({ [PATTERN_IDX]: value }),
+  [PATTERN_CHAIN]: (state, { idx, append }) => {
+    if (state[WRITE]) {
+      return { [PATTERN_IDX]: idx, view: WRITE };
+    }
+    return {
+      [PATTERN_CHAIN]: append ? [...state[PATTERN_CHAIN], idx ] : [idx],
+    };
+  },
+  [BPM]: (state, value) => ({ [BPM]: value ? value : rotateBpm(state[BPM]) }),
+  [PATTERN_UPDATE]: (state, { update, idx }) => {
+    const patternIdx = idx || state[PATTERN_IDX];
+    const lastKey = state[PATTERN_IDX] === 15 ? 'lastBeat' : 'lastNote';
+    const updatedPatterns = [
+      ...state[PATTERNS].slice(0, patternIdx),
+      updatePattern(
+        state[PATTERNS][patternIdx],
+        update,
+        state.lastNote,
+        state.patternType,
+      ),
+      ...state[PATTERNS].slice(patternIdx + 1),
+    ];
+    return {
+      [PATTERNS]: updatedPatterns,
+      [lastKey]: update.note || state[lastKey],
+    };
+  },
+}
+
 const reducer = (state, action) => {
   if (state.mutable.chainTimer.current && (
     [ SOUNDS_VIEW, CLEAR_VIEW, PATTERN_VIEW ].includes(action.type)
@@ -60,98 +104,15 @@ const reducer = (state, action) => {
   )) {
     clearChainTimeout(state.mutable.chainTimer);
   }
+  let stateChanges = actionHandler[action.type] ? actionHandler[action.type](state, action.value) : {};
 
-  switch (action.type) {
-    case PLAY:
-      if (Tone.Transport.state !== 'started') {
-        Tone.Transport.start();
-      }
-      soundProcessor.reducer(PLAY, !state[PLAY]);
-      return {
-        ...state,
-        [PLAY]: !state[PLAY],
-      };
-    case WRITE:
-      return {
-        ...state,
-        [WRITE]: !state[WRITE],
-        view: state.view === WRITE ? !state[WRITE] : state.view,
-      };
-    case PATTERN_VIEW:
-      return {
-        ...state,
-        view: state.view !== PATTERN_VIEW ? PATTERN_VIEW : null,
-      };
-    case PATTERN_CHAIN:
-      if (state[WRITE]) {
-        return {
-          ...state,
-          [PATTERN_IDX]: action.value.idx,
-          view: WRITE,
-        };
-      }
-      soundProcessor.reducer(PATTERN_CHAIN, action.value.append ? [...state[PATTERN_CHAIN], action.value.idx ] : [action.value.idx]);
-      return {
-        ...state,
-        [PATTERN_CHAIN]: action.value.append ? [...state[PATTERN_CHAIN], action.value.idx ] : [action.value.idx],
-      };
-    case SOUNDS_VIEW:
-      return {
-        ...state,
-        view: state.view !== SOUNDS_VIEW ? SOUNDS_VIEW : null,
-      };
-    case BPM:
-      const newBpm = action.value ? action.value : rotateBpm(state[BPM]);
-      soundProcessor.reducer(newBpm);
-      return {
-        ...state,
-        [BPM]: action.value ? action.value : rotateBpm(state[BPM]),
-      };
-    case SOUNDS_SET:
-      const idx = (action.value || 0 % 16);
-      soundProcessor.reducer(SOUNDS_SET, idx);
-      return {
-        ...state,
-        view: state[WRITE] ? WRITE : null,
-        [SOUND]: idx,
-        patternType: +action.value === 15 ? 'drums' : 'spots',
-      };
-    case PATTERN_UPDATE:
-      const patternIdx = action.value.idx || state[PATTERN_IDX];
-      const lastKey = state[PATTERN_IDX] === 15 ? 'lastBeat' : 'lastNote';
-      const updatedPatterns = [
-        ...state[PATTERNS].slice(0, patternIdx),
-        updatePattern(
-          state[PATTERNS][patternIdx],
-          action.value.update,
-          state.lastNote,
-          state.patternType,
-        ),
-        ...state[PATTERNS].slice(patternIdx + 1),
-      ];
-      soundProcessor.reducer(PATTERN_UPDATE, updatedPatterns);
-      return {
-        ...state,
-        [PATTERNS]: updatedPatterns,
-        [lastKey]: action.value.update.note || state[lastKey],
-      }
-    case PATTERN_SET:
-      if (state[WRITE]) {
-        return {
-          ...state,
-          [PATTERN_IDX]: action.value,
-        };
-      }
-    case CLEAR_VIEW:
-      return {
-        ...state,
-        view: null,
-      };
-    case VOLUME:
-      return updateSingleField(state, action.type, action.value);
-    default:
-      return state;
-  }
+  let newState = {
+    ...state,
+    ...stateChanges,
+    lastAction: action.type,
+  };
+  state.mutable.soundProcessor.reducer(action.type, newState);
+  return newState;
 }
 
 const chainTimeout = dispatch => setTimeout(() => {
@@ -160,7 +121,15 @@ const chainTimeout = dispatch => setTimeout(() => {
 
 export const ToneProvider = (props) => {
   const chainTimer = useRef(null);
-  const [state, dispatch] = useReducer(reducer, getInitialState({ mutable: { chainTimer } }));
+  const [state, dispatch] = useReducer(
+    reducer,
+    getInitialState({
+      mutable: {
+        chainTimer,
+        soundProcessor,
+      },
+    }),
+  );
 
   const synthAction = useCallback((note, action = 'release') => {
     console.log(state.selectedSound, note, action);
