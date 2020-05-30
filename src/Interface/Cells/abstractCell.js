@@ -16,13 +16,24 @@ const DefaultCell = styled('button')`
       `
     : ''
   };
-  &[data-active], &:focus {
-    border: none;
-    border-top: 2px solid #222;
-    border-left: 2px solid #222;
-    background-color: #eeeeee;
+  &[data-active]:not(:active) {
+    box-shadow: 0px 0px 8px #ffd0d0;
   }
-
+  &:focus {
+    outline: none;
+  }
+  &:active, &[data-active] {
+    background-color: #ffe0e0;
+  }
+  .pad & {
+    &[data-active], &:focus {
+      border: none;
+      padding-top: 2px;
+      padding-left: 2px;
+      background-color: #eeeeee;
+      box-shadow: 0px 0px 2px white;
+    }
+  }
 `;
 
 const Cell = React.forwardRef((props, ref) => {

@@ -8,6 +8,7 @@ const ActionButton = (props) => {
       drag={props.drag}
       action={props.id}
       isActive={props.isActive}
+      width={2}
     >
       {props.isActive && props.activeChildren}
       { (!props.isActive || !props.activeChildren) && 

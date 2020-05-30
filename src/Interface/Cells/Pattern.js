@@ -85,7 +85,7 @@ const PatternButton = (props) => {
     >
       {props.isActive && props.activeChildren}
       { (!props.isActive || !props.activeChildren) && 
-        <div>{props.id}{props.activeValue}</div>
+        <span>{props.id}{props.activeValue}</span>
       }
     </Cell>
   )

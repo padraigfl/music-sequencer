@@ -7,7 +7,7 @@ import React, {
 import playerContext from '../System/context';
 import Action from './Cells/Action';
 import DragGrid from './DragMeters/DragGrid';
-import { WRITE, SOUNDS_VIEW, PATTERNS, BPM, PLAY, PATTERN_VIEW, SOUND } from '../System/_utils';
+import { CANCEL, WRITE, SOUNDS_VIEW, BPM, PLAY, PATTERN_VIEW, SOUND } from '../System/_utils';
 
 const Actions = () => {
   const {
@@ -26,12 +26,12 @@ const Actions = () => {
   );
 
   const actions = [
+    { id: CANCEL },
     { id: WRITE, isActive: state[WRITE] },
-    { id: PLAY, isActive: state[PLAY], activeChildren: 'pause' },
     { id: SOUNDS_VIEW, value: state[SOUND] },
     { id: PATTERN_VIEW },
     { id: BPM, value: state[BPM]},
-    { id: 'fx' },
+    { id: PLAY, isActive: state[PLAY], activeChildren: 'pause' },
   ];
 
   return (

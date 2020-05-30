@@ -4,6 +4,7 @@ import React, {
   useReducer,
   useRef,
   useEffect,
+  useMemo,
 } from 'react';
 
 import Tone from 'tone';
@@ -50,8 +51,6 @@ const clearChainTimeout = ref => {
   }
   ref.current = null;
 }
-
-const soundProcessor = new SoundProcessor(getInitialState());
 
 const viewHandler = (view) => ({ view });
 
@@ -111,7 +110,6 @@ const reducer = (state, action) => {
     ...stateChanges,
     lastAction: action.type,
   };
-  state.mutable.soundProcessor.reducer(action.type, newState);
   return newState;
 }
 
@@ -121,24 +119,27 @@ const chainTimeout = dispatch => setTimeout(() => {
 
 export const ToneProvider = (props) => {
   const chainTimer = useRef(null);
+  const initialState = useMemo(() => getInitialState({
+    mutable: { chainTimer },
+  }), [])
+  const soundProcessor = useRef(new SoundProcessor(initialState));
   const [state, dispatch] = useReducer(
     reducer,
-    getInitialState({
-      mutable: {
-        chainTimer,
-        soundProcessor,
-      },
-    }),
+    initialState,
   );
 
+  useEffect(() => {
+    soundProcessor.current.reducer(state.lastAction, state);
+  }, [state.lastAction])
+
   const synthAction = useCallback((note, action = 'release') => {
-    console.log(state.selectedSound, note, action);
+    console.log(state[SOUND], note, action);
     switch(action) {
       case 'attack':
-        soundProcessor.sound.tone.triggerAttackRelease(note);
+        soundProcessor.current.sound.tone.triggerAttackRelease(note);
         return;
       default: 
-        soundProcessor.sound.tone.triggerRelease();
+        soundProcessor.current.sound.tone.triggerRelease();
         return;
     }
   }, [state[SOUND]]);

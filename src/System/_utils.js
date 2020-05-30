@@ -14,6 +14,7 @@ export const SOUND = 'sound';
 export const SOUNDS_VIEW = 'sounds_view';
 export const SOUNDS_SET = 'sounds_set'
 export const CLEAR_VIEW = 'clear_view';
+export const CANCEL = 'cancel';
 
 export const getInitialState = ({ mutable } = {}) => ({
   [PLAY]: false,
