@@ -76,22 +76,16 @@ const actionHandler = {
     };
   },
   [BPM]: (state, value) => ({ [BPM]: value ? value : rotateBpm(state[BPM]) }),
-  [PATTERN_UPDATE]: (state, { update, idx }) => {
-    const patternIdx = idx || state[PATTERN_IDX];
+  [PATTERN_UPDATE]: (state, value) => {
     const lastKey = state[PATTERN_IDX] === 15 ? 'lastBeat' : 'lastNote';
     const updatedPatterns = [
-      ...state[PATTERNS].slice(0, patternIdx),
-      updatePattern(
-        state[PATTERNS][patternIdx],
-        update,
-        state.lastNote,
-        state.patternType,
-      ),
-      ...state[PATTERNS].slice(patternIdx + 1),
+      ...state[PATTERNS].slice(0, state[PATTERN_IDX]),
+      value,
+      ...state[PATTERNS].slice(state[PATTERN_IDX] + 1),
     ];
     return {
       [PATTERNS]: updatedPatterns,
-      [lastKey]: update.note || state[lastKey],
+      [lastKey]: value.note || state[lastKey],
     };
   },
 }
@@ -144,17 +138,6 @@ export const ToneProvider = (props) => {
     }
   }, [state[SOUND]]);
 
-  const patternSet = useCallback((idx) => {
-    dispatch({
-      type: PATTERN_CHAIN,
-      value: {
-        append: chainTimer.current,
-        idx,
-      },
-    });
-    clearChainTimeout(chainTimer);
-    chainTimer.current = chainTimeout(dispatch);
-  }, []);
   window.state = state;
 
   return (
@@ -164,7 +147,6 @@ export const ToneProvider = (props) => {
         dispatch,
         synthAction,
         sounds,
-        patternSet,
       }}
     >
       {props.children}

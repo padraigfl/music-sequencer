@@ -3,15 +3,15 @@ import React, {
   useContext,
   useRef,
   useState,
+  useMemo,
 } from 'react';
-import styled from 'styled-components';
 import Cell from './abstractCell';
 import playerContext from '../../System/context';
 import { SOUND } from '../../System/_utils';
 
 const NoteButton = (props) => {
   const [playing, setPlayStatus] = useState(false);
-  const { synthAction, sounds, state } = useContext(playerContext);
+  const { synthAction, sounds, state, dispatch } = useContext(playerContext);
   const debounce = useRef(null);
   const noteRef = useRef(null);
 
@@ -50,15 +50,23 @@ const NoteButton = (props) => {
     synthAction(props.id, 'attack');
   }, [synthAction]);
 
+  const actions = useMemo(() => {
+    return props.onClick
+      ? { onClick: props.onClick }
+      : {
+        onMouseUp,
+        onMouseDown,
+        onMouseEnter: onDragEnter,
+        onMouseExit: onDragExit,
+      }
+  }, [props.onClick]);
+
   return (
     <Cell
-      // onClick={() => synthAction(props.id, 'attack')}
-      onMouseUp={onMouseUp}
-      onMouseDown={onMouseDown}
-      onMouseEnter={onDragEnter}
-      onMouseLeave={onDragExit}
+      { ...actions }
       ref={noteRef}
       isActive={playing}
+      value={props.idx}
     >
       {state[SOUND] === 15 ? sounds[state[SOUND]].keys[props.idx] : props.id}
     </Cell>

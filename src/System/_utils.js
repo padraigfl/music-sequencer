@@ -5,8 +5,11 @@ export const WRITE = 'write';
 export const PATTERNS = 'patterns';
 export const PATTERN_VIEW = 'pattern_view';
 export const PATTERN_CHAIN = 'pattern_chain';
+export const PATTERN_CHAIN_APPEND = 'pattern_chain_append';
+export const PATTERN_CHAIN_NEW = 'pattern_chain_new';
 export const PATTERN_SET = 'pattern_set';
 export const PATTERN_UPDATE = 'pattern_update';
+export const PATTERN_COPY = 'pattern_copy';
 export const PATTERN_IDX = 'pattern_idx';
 export const BPM = 'bpm';
 export const VOLUME = 'volume';
@@ -15,6 +18,51 @@ export const SOUNDS_VIEW = 'sounds_view';
 export const SOUNDS_SET = 'sounds_set'
 export const CLEAR_VIEW = 'clear_view';
 export const CANCEL = 'cancel';
+
+export const HOLD = 'hold_state';
+
+const actionButtons = [
+  { id: CANCEL },
+  { id: WRITE, isActive: WRITE },
+  { id: SOUNDS_VIEW, value: SOUND },
+  { id: PATTERN_VIEW },
+  { id: BPM, value: BPM },
+  { id: PLAY, isActive: PLAY, activeChildren: 'pause' },
+];
+
+export const getActionButtons = (state) => actionButtons.map(
+  button => ({
+    ...button,
+    isActive: state[button.isActive],
+    value: state[button.value], 
+  })
+);
+
+export const getCorrectAction = (action, state) => {
+  if (!state[HOLD]) {
+    return action.type;
+  }
+
+  if (state[HOLD] === PATTERN_VIEW) {
+    if (action.type === PATTERN_VIEW) {
+      return PATTERN_VIEW;
+    }
+    return PATTERN_CHAIN;
+  }
+
+  if (state[HOLD] === SOUNDS_VIEW) {
+    if (action.type === SOUNDS_VIEW) {
+      return SOUNDS_VIEW;
+    }
+    return VOLUME;
+  }
+
+  if (state[HOLD] === HOLD_PATTERN_IDX) {
+    // copy pattern or delete to cancel
+    return PATTERN_COPY;
+  }
+  return action.type;
+}
 
 export const getInitialState = ({ mutable } = {}) => ({
   [PLAY]: false,

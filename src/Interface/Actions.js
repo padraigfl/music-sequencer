@@ -1,13 +1,11 @@
 import React, {
   useCallback,
   useContext,
-  useReducer,
   useMemo,
 } from 'react';
 import playerContext from '../System/context';
 import Action from './Cells/Action';
-import DragGrid from './DragMeters/DragGrid';
-import { CANCEL, WRITE, SOUNDS_VIEW, BPM, PLAY, PATTERN_VIEW, SOUND } from '../System/_utils';
+import { getActionButtons, CANCEL } from '../System/_utils';
 
 const Actions = () => {
   const {
@@ -25,19 +23,29 @@ const Actions = () => {
     [],
   );
 
-  const actions = [
-    { id: CANCEL },
-    { id: WRITE, isActive: state[WRITE] },
-    { id: SOUNDS_VIEW, value: state[SOUND] },
-    { id: PATTERN_VIEW },
-    { id: BPM, value: state[BPM]},
-    { id: PLAY, isActive: state[PLAY], activeChildren: 'pause' },
-  ];
+  const onHold = useCallback((val) => {
+    dispatch({
+      type: val,
+    });
+  }, []);
+
+  const onCancelHold = useCallback((val) => {
+    dispatch({ type: CANCEL });
+  }, []);
+
+  const actions = useMemo(() => getActionButtons(state), [state]);
 
   return (
     <>
       {actions.map(action => (
-        <Action {...action}  key={action.id} onClick={fireDispatch} isActive={action.isActive || state.view === action.id} />
+        <Action
+          {...action} 
+          key={action.id}
+          onHold={onHold}
+          onCancelHold={onCancelHold}
+          onClick={fireDispatch}
+          isActive={action.isActive || state.view === action.id}
+        />
       ))}
     </>
   );

@@ -1,13 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import Actions from './Interface/Actions';
-import PlayPad from './Interface/Pads/PlayPad';
+import PlayPad from './Interface/Pads/NotesPad';
 import SequencePad from './Interface/Pads/SequencePad';
 import DataView from './Interface/DataView';
 import SoundsPad from './Interface/Pads/SoundsPad';
 import StatusPad from './Interface/Pads/StatusPad';
-import { PATTERN_SET, PATTERN_VIEW } from './System/_utils';
-import PatternPad from './Interface/Pads/PatternPad';
+import PatternsPad from './Interface/Pads/PatternsPad';
 
 const Wrapper = styled('div')`
   display: grid;
@@ -47,7 +46,7 @@ const UI = () => {
       <PlayPad />
       <SequencePad />
       <SoundsPad />
-      <PatternPad />
+      <PatternsPad />
     </Wrapper>
   )
 }

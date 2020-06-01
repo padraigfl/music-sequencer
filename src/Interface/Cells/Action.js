@@ -5,7 +5,7 @@ const ActionButton = (props) => {
   return (
     <Cell
       onClick={props.onClick ? props.onClick : undefined}
-      drag={props.drag}
+      onHold={props.onHold}
       action={props.id}
       isActive={props.isActive}
       width={2}

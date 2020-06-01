@@ -37,9 +37,6 @@ const DefaultCell = styled('button')`
 `;
 
 const Cell = React.forwardRef((props, ref) => {
-  const [actionVisible, setActionVisible] = useState(false);
-  const onCancel = useCallback(() => setActionVisible(false), []);
-
   const debounce = useRef(null);
 
   const onMouseDown = useCallback((e) => {
@@ -48,14 +45,22 @@ const Cell = React.forwardRef((props, ref) => {
     }, 300)
   }, []);
 
+  const onTouchStart = useCallback((e) => {
+    debounce.current = setTimeout(() => {
+      props.onHold(e);
+    }, 300)
+  }, []);
+
   const cancelTimeout = useCallback(() => {
     if (debounce.current) {
       clearTimeout(debounce.current);
+    } else if (props.onCancelHold) {
+      props.onCancelHold();
     }
   }, []);
 
   const onClick = useCallback((e) => {
-    if (!debounce.current || !props.drag) {
+    if (!debounce.current && !props.onHold) {
       props.onClick(e);
     } else if (debounce.current) {
       clearTimeout(debounce.current);
@@ -68,10 +73,10 @@ const Cell = React.forwardRef((props, ref) => {
       <props.Component
         type="button"
         onClick={props.onClick ? onClick : undefined}
-        onMouseDown={props.drag ? onMouseDown : props.onMouseDown}
-        onMouseUp={props.drag ? cancelTimeout : props.onMouseUp}
-        onTouchStart={props.drag ? onMouseDown : undefined}
-        onTouchEnd={props.drag ? cancelTimeout : undefined}
+        onMouseDown={props.onHold ? onMouseDown : props.onMouseDown}
+        onMouseUp={props.onMouseUp}
+        onTouchStart={props.onHold ? onTouchStart : undefined}
+        onTouchEnd={props.onHold ? cancelTimeout : undefined}
         onMouseEnter={props.onMouseEnter}
         onMouseLeave={props.onMouseLeave}
         data-type={props.action}
@@ -93,13 +98,6 @@ const Cell = React.forwardRef((props, ref) => {
           )
         }
       </props.Component>
-      { actionVisible ? (
-          <props.drag.Component
-            {...props.drag.props }
-            onCancel={onCancel}
-          />
-        ) : undefined
-      }
     </>
   )
 });
