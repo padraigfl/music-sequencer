@@ -24,8 +24,8 @@ export const HOLD = 'hold_state';
 const actionButtons = [
   { id: CANCEL },
   { id: WRITE, isActive: WRITE },
-  { id: SOUNDS_VIEW, value: SOUND },
-  { id: PATTERN_VIEW },
+  { id: SOUNDS_VIEW, value: SOUND, secondaryAction: VOLUME },
+  { id: PATTERN_VIEW, secondaryAction: 'copy_pattern' },
   { id: BPM, value: BPM },
   { id: PLAY, isActive: PLAY, activeChildren: 'pause' },
 ];

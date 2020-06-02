@@ -1,9 +1,13 @@
 import React, {
+  useContext,
   useCallback,
   useRef,
   useState,
+  useEffect,
+  useMemo,
 } from 'react';
 import styled from 'styled-components';
+import playerContext from '../../System/context';
 
 const DefaultCell = styled('button')`
   background-color: #e8e8e8;  
@@ -34,56 +38,74 @@ const DefaultCell = styled('button')`
       box-shadow: 0px 0px 2px white;
     }
   }
+  &:after {
+    content: attr(data-value);
+  }
 `;
 
 const Cell = React.forwardRef((props, ref) => {
   const debounce = useRef(null);
+  const [held, updateHeld] = useState(undefined);
+  const { updateMultiTouch, multiTouch } = useContext(playerContext);
+
+  const updateHeldButtons = useCallback((clear) => {
+    console.log('up')
+    updateMultiTouch({ secondaryAction: props.secondaryAction, value: props.value, action: props.action }, { clear });
+  }, [props.value, props.secondaryAction]);
 
   const onMouseDown = useCallback((e) => {
     debounce.current = setTimeout(() => {
-      setActionVisible(true);
+      updateHeldButtons();
+      updateHeld(true);
     }, 300)
   }, []);
 
-  const onTouchStart = useCallback((e) => {
-    debounce.current = setTimeout(() => {
-      props.onHold(e);
-    }, 300)
-  }, []);
-
-  const cancelTimeout = useCallback(() => {
+  const onMouseUp = useCallback((e) => {
     if (debounce.current) {
       clearTimeout(debounce.current);
-    } else if (props.onCancelHold) {
-      props.onCancelHold();
     }
+    console.log('mu')
   }, []);
 
   const onClick = useCallback((e) => {
-    if (!debounce.current && !props.onHold) {
-      props.onClick(e);
-    } else if (debounce.current) {
+    if (debounce.current) {
       clearTimeout(debounce.current);
-      props.onClick(e);
+      if (props.onClick) {
+        props.onClick(e);
+      }
+      updateHeldButtons(true);
+      updateHeld(false);
     }
-  }, []);
+  }, [props.onClick, held]);
+
+  const actionProps = useMemo(() => {
+    return {
+      onClick: onClick,
+      onMouseDown: props.onHold || onMouseDown,
+      onMouseUp: props.onHoldRelease
+        ? props.onHoldRelease
+        : onMouseUp,
+      onTouchStart: props.onHold || updateHeldButtons,
+      onTouchEnd: props.onHoldRelease || (() => updateHeldButtons(true)),
+      onMouseEnter: props.onMouseEnter,
+      onMouseLeave: props.onMouseLeave,
+    }
+  }, [props.onClick, props.onHold, props.onHoldRelease, props.onMouseEnter, props.onMouseLeave]);
 
   return (
     <>
       <props.Component
         type="button"
-        onClick={props.onClick ? onClick : undefined}
-        onMouseDown={props.onHold ? onMouseDown : props.onMouseDown}
-        onMouseUp={props.onMouseUp}
-        onTouchStart={props.onHold ? onTouchStart : undefined}
-        onTouchEnd={props.onHold ? cancelTimeout : undefined}
-        onMouseEnter={props.onMouseEnter}
-        onMouseLeave={props.onMouseLeave}
-        data-type={props.action}
-        data-value={props.value}
+        { ... actionProps }
+        data-secondary={props.secondaryAction}
+        data-display={props.display || props.value || props.id }
+        data-value={props.value || props.id}
+        data-action={props.action}
         data-active={props.isActive ? true : undefined}
+        data-held={held}
         live={props.live}
         ref={ref}
+        id={props.buttonId}
       >
         {
           props.children
@@ -91,8 +113,8 @@ const Cell = React.forwardRef((props, ref) => {
           : (
             <>
               {props.isActive && props.activeChildren}
-              { (!props.isActive || !props.activeChildren) && 
-                <span>{props.id}{props.value}</span>
+              { (!props.isActive || !props.activeChildren) && props.id && 
+                <span>{props.id}</span>
               }
             </>
           )

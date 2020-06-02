@@ -30,34 +30,36 @@ const NoteButton = (props) => {
     if (e.buttons === 1) {
       if (debounce.current) {
         clearTimeout(debounce.current);
-        console.log('cancel', props.id);
       }
       console.log(noteRef.current);
       noteRef.current.blur();
       synthAction(props.id);
-      setPlayStatus(false);
     }
-  }, [synthAction]);
+    setPlayStatus(false);
+  }, [synthAction, setPlayStatus]);
 
   const onMouseUp = useCallback((e) => {
-      setPlayStatus(false);
-      noteRef.current.blur();
-      synthAction(props.id);
-  }, [synthAction]);
+    setPlayStatus(false);
+    noteRef.current.blur();
+    synthAction(props.id);
+  }, [synthAction, setPlayStatus]);
 
   const onMouseDown = useCallback((e) => {
     setPlayStatus(true);
     synthAction(props.id, 'attack');
-  }, [synthAction]);
+  }, [synthAction, setPlayStatus]);
 
   const actions = useMemo(() => {
     return props.onClick
       ? { onClick: props.onClick }
       : {
-        onMouseUp,
-        onMouseDown,
+        onClick: () => {
+          synthAction(props.id, 'attack', '8n');
+        },
+        onHoldRelease: onMouseUp,
+        onHold: onMouseDown,
         onMouseEnter: onDragEnter,
-        onMouseExit: onDragExit,
+        onMouseLeave: onDragExit,
       }
   }, [props.onClick]);
 
@@ -66,10 +68,11 @@ const NoteButton = (props) => {
       { ...actions }
       ref={noteRef}
       isActive={playing}
-      value={props.idx}
-    >
-      {state[SOUND] === 15 ? sounds[state[SOUND]].keys[props.idx] : props.id}
-    </Cell>
+      value={props.id}
+      display={state[SOUND] === 15 ? sounds[state[SOUND]].keys[props.idx] : props.id}
+      action={props.action}
+      // value={state[SOUND] === 15 ? sounds[state[SOUND]].keys[props.idx] : props.id}
+    />
   )
 };
 

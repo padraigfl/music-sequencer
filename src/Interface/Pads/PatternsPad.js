@@ -5,7 +5,12 @@ import React, {
   useEffect,
 } from 'react';
 import playerContext from '../../System/context';
-import { PATTERN_VIEW, PATTERN_CHAIN } from '../../System/_utils';
+import {
+  PATTERN_VIEW,
+  PATTERN_CHAIN,
+  PATTERN_SET,
+  HOLD,
+} from '../../System/_utils';
 import NumberPad from './_numberPad';
 
 // Pad for selecting patterns
@@ -31,7 +36,10 @@ const PatternsPad = () => {
   const onClick = useCallback((e) => {
     const clickValue = +e.currentTarget.dataset.value;
     if (state[HOLD] !== PATTERN_VIEW) {
-      patternSet(clickValue);
+      dispatch({
+        type: PATTERN_SET,
+        value: clickValue,
+      });
     } else {
       chainHandler(clickValue);
     }
@@ -40,8 +48,8 @@ const PatternsPad = () => {
   return state.view === PATTERN_VIEW && (
     <NumberPad
       onClick={onClick}
-      onHold={onHold}
-      onHoldCancel={onHoldCancel}
+      secondaryAction={'copy_pattern'}
+      action={PATTERN_SET}
     />
   )
 };

@@ -16,18 +16,12 @@ const Actions = () => {
   const fireDispatch = useCallback(
     (e) => {
       const dataset = e.currentTarget.dataset;
-      if (dataset.type) {
-        dispatch(dataset);
+      if (dataset.action) {
+        dispatch({ type: dataset.action});
       }
     },
     [],
   );
-
-  const onHold = useCallback((val) => {
-    dispatch({
-      type: val,
-    });
-  }, []);
 
   const onCancelHold = useCallback((val) => {
     dispatch({ type: CANCEL });
@@ -41,8 +35,6 @@ const Actions = () => {
         <Action
           {...action} 
           key={action.id}
-          onHold={onHold}
-          onCancelHold={onCancelHold}
           onClick={fireDispatch}
           isActive={action.isActive || state.view === action.id}
         />

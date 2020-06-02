@@ -10,7 +10,9 @@ const NumberPad = (props) => (
           onClick={props.onClick}
           onHold={props.onHold}
           onHoldCancel={props.onHoldCancel}
+          secondaryAction={props.secondaryAction}
           value={idx}
+          action={props.action}
         >
           { idx + 1}
         </Cell>

@@ -26,6 +26,7 @@ const NotesPad = (props) => {
             idx={idx}
             {...note}
             onClick={props.onClick}
+            action={props.onClick ? props.action : 'live'}
           />
         ))
       }

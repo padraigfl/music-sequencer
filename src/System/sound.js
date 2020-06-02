@@ -115,9 +115,11 @@ export class SoundProcessor {
         }
         this.isPlaying = state[PLAY];
         if (this.isPlaying) {
+          this.clearAllLights();
           this.sequence.start();
         } else {
           this.sequence.stop();
+          this.clearAllLights();
         }
         return;
       case BPM:

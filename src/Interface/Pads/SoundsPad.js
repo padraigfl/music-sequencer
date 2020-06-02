@@ -16,6 +16,7 @@ const SoundsPad = () => {
           <Cell
             key={note.id}
             onClick={() => dispatch({ type: SOUNDS_SET, value: note.id })}
+            action={SOUNDS_SET}
           >
             {note.name}
           </Cell>

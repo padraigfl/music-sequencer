@@ -28,6 +28,10 @@ import {
   CLEAR_VIEW,
 } from './_utils';
 import { sounds, SoundProcessor } from './sound';
+import { useMultiTouch } from '../Interface/_utils';
+
+window.Tone = Tone;
+
 
 const playerContext = createContext({});
 
@@ -66,7 +70,10 @@ const actionHandler = {
     patternType: +value === 15 ? 'drums' : 'spots',
   }),
   [PATTERN_VIEW]: state => viewHandler(state.view !== PATTERN_VIEW ? PATTERN_VIEW : null ),
-  [PATTERN_SET]: (state, value) => ({ [PATTERN_IDX]: value }),
+  [PATTERN_SET]: (state, value) => ({
+    [PATTERN_IDX]: value,
+    view: state[WRITE] || null,
+  }),
   [PATTERN_CHAIN]: (state, { idx, append }) => {
     if (state[WRITE]) {
       return { [PATTERN_IDX]: idx, view: WRITE };
@@ -76,16 +83,24 @@ const actionHandler = {
     };
   },
   [BPM]: (state, value) => ({ [BPM]: value ? value : rotateBpm(state[BPM]) }),
-  [PATTERN_UPDATE]: (state, value) => {
-    const lastKey = state[PATTERN_IDX] === 15 ? 'lastBeat' : 'lastNote';
+  [PATTERN_UPDATE]: (state, {idx, note, span }) => {
+    const lastKey = state[SOUND] === 15 ? 'lastBeat' : 'lastNote';
+    const activePattern = state[PATTERNS][state[PATTERN_IDX]];
     const updatedPatterns = [
       ...state[PATTERNS].slice(0, state[PATTERN_IDX]),
-      value,
+      {
+        ...activePattern,
+        [state.patternType]: [
+          ...activePattern[state.patternType].slice(0, idx),
+          note ? { note, span } : null,
+          ...activePattern[state.patternType].slice(idx + 1),
+        ],
+      },
       ...state[PATTERNS].slice(state[PATTERN_IDX] + 1),
     ];
     return {
       [PATTERNS]: updatedPatterns,
-      [lastKey]: value.note || state[lastKey],
+      [lastKey]: note || state[lastKey],
     };
   },
 }
@@ -97,6 +112,7 @@ const reducer = (state, action) => {
   )) {
     clearChainTimeout(state.mutable.chainTimer);
   }
+
   let stateChanges = actionHandler[action.type] ? actionHandler[action.type](state, action.value) : {};
 
   let newState = {
@@ -106,10 +122,6 @@ const reducer = (state, action) => {
   };
   return newState;
 }
-
-const chainTimeout = dispatch => setTimeout(() => {
-  dispatch({ type: PATTERN_VIEW }); 
-}, 3000);
 
 export const ToneProvider = (props) => {
   const chainTimer = useRef(null);
@@ -121,24 +133,26 @@ export const ToneProvider = (props) => {
     reducer,
     initialState,
   );
+  const [multiTouch, updateMultiTouch] = useMultiTouch(
+    [],
+    (v) => dispatch({ type: 'multi_touch', value: v }),
+  );
 
   useEffect(() => {
     soundProcessor.current.reducer(state.lastAction, state);
-  }, [state.lastAction])
+  }, [state])
 
-  const synthAction = useCallback((note, action = 'release') => {
+  const synthAction = useCallback((note, action = 'release', length) => {
     console.log(state[SOUND], note, action);
     switch(action) {
       case 'attack':
-        soundProcessor.current.sound.tone.triggerAttackRelease(note);
+        soundProcessor.current.sound.tone.triggerAttackRelease(note, length);
         return;
       default: 
         soundProcessor.current.sound.tone.triggerRelease();
         return;
     }
   }, [state[SOUND]]);
-
-  window.state = state;
 
   return (
     <playerContext.Provider
@@ -147,6 +161,7 @@ export const ToneProvider = (props) => {
         dispatch,
         synthAction,
         sounds,
+        updateMultiTouch,
       }}
     >
       {props.children}

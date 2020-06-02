@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import Actions from './Interface/Actions';
 import PlayPad from './Interface/Pads/NotesPad';
@@ -7,6 +7,8 @@ import DataView from './Interface/DataView';
 import SoundsPad from './Interface/Pads/SoundsPad';
 import StatusPad from './Interface/Pads/StatusPad';
 import PatternsPad from './Interface/Pads/PatternsPad';
+import playerContext from './System/context';
+import { PATTERN_VIEW, SOUNDS_VIEW, WRITE } from './System/_utils';
 
 const Wrapper = styled('div')`
   display: grid;
@@ -16,25 +18,20 @@ const Wrapper = styled('div')`
   grid-template-rows: repeat(3, 40px) 320px 1fr;
 `;
 
-const action = (text, values) => e => {
-  if (e && e.nativeEvent && e.nativeEvent.changedTouches && e.nativeEvent.changedTouches[0]) {
-    console.log(
-      text,
-      e.nativeEvent.changedTouches[0].clientX,
-      e.nativeEvent.changedTouches[0].clientY,
-    );
-  } else if (e && e.nativeEvent && e.nativeEvent.buttons === 1){
-    console.log(text, e.nativeEvent.clientX, e.nativeEvent.clientY);
-  } else if (text !== 'MouseMove') {
-      console.log(
-        text,
-        e && Object.entries(e).reduce((acc, v) => v[1] ? ({
-        ...acc,
-        [v[0]]: v[1]
-      }) : acc, {}));
-  } else {
-    console.log(text, e);
+const PadsRender = () => {
+  const { state } = useContext(playerContext);
+
+  if (state.view === SOUNDS_VIEW) {
+    return <SoundsPad />;
   }
+  if (state.view === PATTERN_VIEW) {
+    return <PatternsPad />
+  }
+  if (state[WRITE]) {
+    return <SequencePad />;
+  }
+
+  return <PlayPad />;
 };
 
 const UI = () => {
@@ -43,10 +40,7 @@ const UI = () => {
       <DataView />
       <Actions />
       <StatusPad />
-      <PlayPad />
-      <SequencePad />
-      <SoundsPad />
-      <PatternsPad />
+      <PadsRender />
     </Wrapper>
   )
 }
