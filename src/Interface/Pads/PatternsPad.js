@@ -50,6 +50,7 @@ const PatternsPad = () => {
       onClick={onClick}
       secondaryAction={'copy_pattern'}
       action={PATTERN_SET}
+      displayValue
     />
   )
 };

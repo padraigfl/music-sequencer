@@ -20,12 +20,14 @@ export const CLEAR_VIEW = 'clear_view';
 export const CANCEL = 'cancel';
 
 export const HOLD = 'hold_state';
+export const HOLD_ACTION = 'hold_action';
+export const HOLD_VALUE = 'hold_value';
 
 const actionButtons = [
   { id: CANCEL },
   { id: WRITE, isActive: WRITE },
   { id: SOUNDS_VIEW, value: SOUND, secondaryAction: VOLUME },
-  { id: PATTERN_VIEW, secondaryAction: 'copy_pattern' },
+  { id: PATTERN_VIEW, secondaryAction: 'chain_pattern' },
   { id: BPM, value: BPM },
   { id: PLAY, isActive: PLAY, activeChildren: 'pause' },
 ];

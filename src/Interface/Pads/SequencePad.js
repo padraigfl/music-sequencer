@@ -18,7 +18,9 @@ const SequencePad = () => {
   const { state, dispatch } = useContext(playContext);
   const [ newSequenceValue, updateNewValue ] = useState({});
   const [copyValue, setCopyValue] = useState(null);
-  const pattern = useMemo(() => state[PATTERNS][state[PATTERN_IDX]], [state[PATTERNS], state[PATTERN_IDX]]);
+  const pattern = useMemo(() => {
+    return state[PATTERNS][state[PATTERN_IDX]];
+   }, [state[PATTERNS], state[PATTERN_IDX]]);
   const patternType = state.patternType;
 
   // clear on cancel
@@ -74,6 +76,7 @@ const SequencePad = () => {
   }, [newSequenceValue]);
 
 
+  console.log(pattern[patternType])
   return state[WRITE] && (
     <Pad> 
       {typeof newSequenceValue.idx !== 'number'
@@ -87,7 +90,7 @@ const SequencePad = () => {
           // onHoldCancel={updateCopyValue}
           key={idx}
           idx={idx}
-          activeValue={note ? JSON.stringify(note)  : null}
+          display={note ? JSON.stringify(note)  : null}
           action={PATTERN_UPDATE}
           secondaryAction={'copy_note'}
         />
@@ -96,7 +99,7 @@ const SequencePad = () => {
         <NotesPad onClick={onSelectNote} action={'pattern_entry_note'} />
       )}
       {typeof newSequenceValue.idx === 'number' && newSequenceValue.note && (
-        <NumberPad onClick={onSelectLength} action={'pattern_entry_length'} />
+        <NumberPad onClick={onSelectLength} action={'pattern_entry_length'} displayValue />
       )}
     </Pad>
   );

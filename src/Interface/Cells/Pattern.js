@@ -14,12 +14,9 @@ const PatternButton = (props) => {
       onClick={props.onClick}
       value={props.idx}
       action={props.action}
-    >
-      {props.isActive && props.activeChildren}
-      { (!props.isActive || !props.activeChildren) && 
-        <span>{props.id}{props.activeValue}</span>
-      }
-    </Cell>
+      display={props.display}
+      secondaryAction={props.secondaryAction}
+    />
   )
 };
 

@@ -11,11 +11,10 @@ const NumberPad = (props) => (
           onHold={props.onHold}
           onHoldCancel={props.onHoldCancel}
           secondaryAction={props.secondaryAction}
-          value={idx}
           action={props.action}
-        >
-          { idx + 1}
-        </Cell>
+          display={props.displayValue ? (idx + 1).toString() : undefined}
+          value={idx}
+        />
       ))
     }
   </Pad>

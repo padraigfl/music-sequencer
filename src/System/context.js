@@ -26,6 +26,10 @@ import {
   PATTERN_IDX,
   PATTERN_SET,
   CLEAR_VIEW,
+  HOLD,
+  HOLD_ACTION,
+  HOLD_VALUE,
+  CANCEL,
 } from './_utils';
 import { sounds, SoundProcessor } from './sound';
 import { useMultiTouch } from '../Interface/_utils';
@@ -34,20 +38,6 @@ window.Tone = Tone;
 
 
 const playerContext = createContext({});
-
-// @todo more complex overwrites passed in by context?
-const updatePattern = (pattern, updateData, lastNote, key = 'spots') => {
-  const { note = lastNote, span, idx } = updateData;
-  const currentVal = pattern[key][idx];
-  return {
-    ...pattern,
-    [key]: [
-      ...pattern[key].slice(0, idx),
-      currentVal && currentVal.note && !updateData.note ? null : { note, span },
-      ...pattern[key].slice(idx + 1),
-    ],
-  }
-};
 
 const clearChainTimeout = ref => {
   if (ref.current) {
@@ -86,6 +76,9 @@ const actionHandler = {
   [PATTERN_UPDATE]: (state, {idx, note, span }) => {
     const lastKey = state[SOUND] === 15 ? 'lastBeat' : 'lastNote';
     const activePattern = state[PATTERNS][state[PATTERN_IDX]];
+    console.log(activePattern[state.patternType].slice(0, idx));
+    console.log(activePattern[state.patternType].slice(idx + 1));
+    console.log(idx);
     const updatedPatterns = [
       ...state[PATTERNS].slice(0, state[PATTERN_IDX]),
       {
@@ -103,6 +96,21 @@ const actionHandler = {
       [lastKey]: note || state[lastKey],
     };
   },
+  [HOLD]: (state, { action, value }) => {
+    if (state[HOLD] !== action) {
+      return { [HOLD]: action, [HOLD_VALUE]: value };
+    }
+    console.log(HOLD_ACTION, state[HOLD], state[HOLD_VALUE], value);
+    return { [HOLD]: null, [HOLD_VALUE]: null};
+  },
+  [HOLD_ACTION]: (state, value) => {
+    console.log(HOLD_ACTION, state[HOLD], state[HOLD_VALUE], value);
+    return { [HOLD]: null, [HOLD_VALUE]: null};
+  },
+  [CANCEL]: () => ({
+    [HOLD]: null,
+    [HOLD_VALUE]: null,
+  }),
 }
 
 const reducer = (state, action) => {
@@ -133,10 +141,6 @@ export const ToneProvider = (props) => {
     reducer,
     initialState,
   );
-  const [multiTouch, updateMultiTouch] = useMultiTouch(
-    [],
-    (v) => dispatch({ type: 'multi_touch', value: v }),
-  );
 
   useEffect(() => {
     soundProcessor.current.reducer(state.lastAction, state);
@@ -161,7 +165,6 @@ export const ToneProvider = (props) => {
         dispatch,
         synthAction,
         sounds,
-        updateMultiTouch,
       }}
     >
       {props.children}
