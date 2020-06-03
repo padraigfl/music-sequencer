@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const margin = 10;
+const margin = 12;
 
 const Pad = styled('div')`
   position: relative;

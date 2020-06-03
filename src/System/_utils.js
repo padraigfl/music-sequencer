@@ -77,7 +77,7 @@ export const getInitialState = ({ mutable } = {}) => ({
   [PATTERNS]: new Array(16).fill({ spots: new Array(16).fill(null), drums: new Array(16).fill(null), effects: {} }),
   [PATTERN_IDX]: 0,
   lastNote: 'C3',
-  [PATTERN_CHAIN]: [0],
+  [PATTERN_CHAIN]: [0, 1, 2, 3],
   mutable,
   patternType: 'spots',
 });

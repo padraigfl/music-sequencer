@@ -10,7 +10,20 @@ import styled from 'styled-components';
 import playerContext from '../../System/context';
 import { HOLD, HOLD_ACTION, HOLD_VALUE } from '../../System/_utils';
 
+
+const buttonLight = (color) => (
+  `background-color: ${color}; box-shadow: 0px 0px 9px ${color};`
+)
+const active = buttonLight('#aae0aa');
+const temp = buttonLight('#9999d0');
+const highlight = buttonLight('#ffe0e0');
+
 const DefaultCell = styled('button')`
+  @keyframes flash {
+    0% { box-shadow: initial; }
+    20% { box-shadow: 0px 0px 50px red; }
+    70% { box-shadow: intiial; }
+  }
   background-color: #e8e8e8;  
   margin: 5px;
   word-wrap: break-word;
@@ -22,16 +35,16 @@ const DefaultCell = styled('button')`
     : ''
   };
   &[data-active]:not(:active) {
-    box-shadow: 0px 0px 8px #ffd0d0;
+    ${active}
   }
   &:focus {
     outline: none;
   }
   &:active, &[data-active] {
-    background-color: #ffe0e0;
+    ${active}
   }
   &[data-held] {
-    background-color: #9999d0 !important;
+    ${temp}
   }
   .pad & {
     &[data-active], &:focus {
@@ -73,11 +86,11 @@ const Cell = React.forwardRef((props, ref) => {
           type: HOLD,
           value: {
             action: props.secondaryAction,
-            value: props.value || props.id,
+            value: typeof props.value !== 'undefined' ? props.value : props.id,
           },
         });
       }
-    }, 300);
+    }, 400);
   }, []);
 
   const onMouseUp = useCallback((e) => {
@@ -88,10 +101,10 @@ const Cell = React.forwardRef((props, ref) => {
 
   const onClick = useCallback((e) => {
     if (held) {
+      console.log('click on held', debounce.current);
       return;
     }
     if (state[HOLD]) {
-      console.log('test');
       dispatch({
         type: HOLD_ACTION,
         value: props.value,

@@ -98,15 +98,18 @@ const actionHandler = {
   },
   [HOLD]: (state, { action, value }) => {
     if (state[HOLD] !== action) {
+      console.log(HOLD, state[HOLD], state[HOLD_VALUE], action, value);
       return { [HOLD]: action, [HOLD_VALUE]: value };
     }
-    console.log(HOLD_ACTION, state[HOLD], state[HOLD_VALUE], value);
+    console.log(HOLD, 'cancel', state[HOLD], state[HOLD_VALUE], value);
     return { [HOLD]: null, [HOLD_VALUE]: null};
   },
+  // hold action requires it's own series of operations
   [HOLD_ACTION]: (state, value) => {
     console.log(HOLD_ACTION, state[HOLD], state[HOLD_VALUE], value);
     return { [HOLD]: null, [HOLD_VALUE]: null};
   },
+  // cancel needs it's own series of operations
   [CANCEL]: () => ({
     [HOLD]: null,
     [HOLD_VALUE]: null,

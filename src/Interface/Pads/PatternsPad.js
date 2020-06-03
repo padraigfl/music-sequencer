@@ -10,6 +10,7 @@ import {
   PATTERN_CHAIN,
   PATTERN_SET,
   HOLD,
+  PATTERN_IDX,
 } from '../../System/_utils';
 import NumberPad from './_numberPad';
 
@@ -50,6 +51,8 @@ const PatternsPad = () => {
       onClick={onClick}
       secondaryAction={'copy_pattern'}
       action={PATTERN_SET}
+      activeIdx={state[PATTERN_IDX]}
+      highlight={idx => state[PATTERN_CHAIN].includes(idx)}
       displayValue
     />
   )
