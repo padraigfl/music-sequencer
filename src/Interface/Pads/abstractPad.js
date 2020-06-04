@@ -16,9 +16,12 @@ const Pad = styled('div')`
     margin: ${margin}px;
     width: calc(25% - ${margin * 2}px);
     height: calc(${({ entries = 16 }) => (100 / (entries / 4))}% - ${margin * 2}px);
-    border: none;
   }
-  > button {
+  > button:active {
+    padding-top: 2px;
+    padding-left: 7px;
+  }
+  > buttons {
     border-bottom: 2px solid #bbb;
     border-right: 2px solid #bbb;
     &:active {

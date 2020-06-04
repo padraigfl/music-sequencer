@@ -1,4 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+export const datasetStringParse = (dataset) => (
+  Object.entries(dataset).reduce((acc, [key, val]) => {
+    let value;
+    try {
+      value = JSON.parse(val);
+    } catch {
+      if (val !== 'undefined') {
+        value = val;
+      }
+    }
+    return {
+      ...acc,
+      [key]: value,
+    };
+  }, {})
+);
 
 export const getEmptyPattern = (size = 16) => {
   return {
@@ -10,55 +25,18 @@ export const getEmptyPattern = (size = 16) => {
   };
 };
 
-// just use currentTarget?
-export const getCorrectParent = (gridRef) => (currentEl) => {
-  const gridEl = gridRef.current;
-  if (!currentEl.parentNode) {
-    throw Error('Out of range selection');
+export const getButtonData = (target) => {
+  if (target instanceof HTMLButtonElement) {
+    return datasetStringParse(target.dataset);
   }
-  if (currentEl.parentNode === gridEl) {
-    return currentEl;
+  if (target.parentNode) {
+    return getButtonData(target.parentNode);
   }
-  return getCorrectParent(gridRef)(currentEl.parentNode);
+  return null;
 }
 
-export const useMultiTouch = (initialVal = [], multiTouchAction, clearOnAction) => {
-  const [multiTouchValues, updateMultiTouchValues] = useState(initialVal);
-  const [initialHeldValue, updateFirstValue] = useState(null);
-
-  useEffect(() => {
-    if (!multiTouchValues.length && initialHeldValue) {
-      updateFirstValue(null);
-    }
-  }, []);
-
-  const updateMultiTouch = useCallback((buttonData, { clear, clearAll }) => {
-    if (clear || clearAll) {
-      updateMultiTouchValues(
-        clear
-        ? multiTouchValues.filter(v => v.action !== buttonData.action && v.value !== buttonData.value)
-        : []
-      );
-      return;
-    }
-    const inList = multiTouchValues.find(
-      v =>
-        v.action === buttonData.action
-        && v.value === buttonData.value
-    );
-    if (!inList) {
-      updateMultiTouchValues([...multiTouchValues, buttonData]);
-    } else if (inList) {
-      updateMultiTouchValues(
-        multiTouchValues.filter(
-          v => v.action !== buttonData.action
-            && v.value !== buttonData.value
-        )
-      );
-    }
-  }, [multiTouchValues]);
-
-  console.log(multiTouchValues);
-  return [multiTouchValues, updateMultiTouch];
-};
-
+export const getTouchValues = (e) => (
+  [ ...e.targetTouches ].map( ({ target }) => (
+    getButtonData(target)
+  )).filter(v => !!v)
+);

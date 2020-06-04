@@ -30,6 +30,11 @@ import {
   HOLD_ACTION,
   HOLD_VALUE,
   CANCEL,
+  SWING_SET,
+  updatePatternAtIdx,
+  updateNoteInPattern,
+  PATTERN_TYPE,
+  MULTI_TOUCH,
 } from './_utils';
 import { sounds, SoundProcessor } from './sound';
 import { useMultiTouch } from '../Interface/_utils';
@@ -47,6 +52,49 @@ const clearChainTimeout = ref => {
 }
 
 const viewHandler = (view) => ({ view });
+
+const multiTouchAction = (state, e) => {
+  return {};
+}
+
+const isInRange = (val) => val >= 0 && val < 17;
+
+const triggerHoldAction = (state, value) => {
+  switch(state[HOLD]) {
+    case VOLUME:
+      return isInRange(value)
+        ? { [VOLUME]: value }
+        : {};
+    case PATTERN_CHAIN:
+      return {
+        [PATTERN_CHAIN_NEW]: false,
+        [PATTERN_CHAIN]: state[PATTERN_CHAIN_NEW]
+          ? [...state[PATTERN_CHAIN], value]
+          : [value]
+      };
+    case SWING_SET:
+      return isInRange(value)
+        ? { [SWING]: value }
+        : {};
+    case PATTERN_COPY:
+      return isInRange(value) ? {
+        [PATTERNS]: updatePatternAtIdx(state, state[PATTERNS][state[HOLD_VALUE]], value),
+      } : {};
+    case NOTE_COPY:
+      return isInRange(value) ? {
+        [PATTERNS]: updateNoteInPattern(
+          state,
+          state[PATTERNS][state[PATTERN_IDX]][state[PATTERN_TYPE]][state[HOLD_VALUE]],
+          value,
+        ),
+      } : {};
+  }
+  return {
+    [PATTERN_CHAIN_NEW]: false,
+    [SWING_SET]: false,
+    [PATTERN_COPY]: false,
+  };
+};
 
 const actionHandler = {
   [PLAY]: state =>({ [PLAY]: !state[PLAY] }),
@@ -97,17 +145,18 @@ const actionHandler = {
     };
   },
   [HOLD]: (state, { action, value }) => {
-    if (state[HOLD] !== action) {
+    if (state[HOLD] !== action && state[HOLD_VALUE] !== value) {
       console.log(HOLD, state[HOLD], state[HOLD_VALUE], action, value);
       return { [HOLD]: action, [HOLD_VALUE]: value };
     }
-    console.log(HOLD, 'cancel', state[HOLD], state[HOLD_VALUE], value);
     return { [HOLD]: null, [HOLD_VALUE]: null};
   },
   // hold action requires it's own series of operations
   [HOLD_ACTION]: (state, value) => {
-    console.log(HOLD_ACTION, state[HOLD], state[HOLD_VALUE], value);
-    return { [HOLD]: null, [HOLD_VALUE]: null};
+    return triggerHoldAction(state, value);
+  },
+  [MULTI_TOUCH]: (state, value) => {
+    return multiTouchAction(state, value);
   },
   // cancel needs it's own series of operations
   [CANCEL]: () => ({

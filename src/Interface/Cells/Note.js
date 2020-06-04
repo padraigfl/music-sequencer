@@ -56,8 +56,8 @@ const NoteButton = (props) => {
         onClick: () => {
           synthAction(props.id, 'attack', '8n');
         },
-        onHoldRelease: onMouseUp,
         onHold: onMouseDown,
+        onRelease: onMouseUp,
         onMouseEnter: onDragEnter,
         onMouseLeave: onDragExit,
       }

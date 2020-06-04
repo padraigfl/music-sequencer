@@ -9,7 +9,7 @@ const NumberPad = (props) => (
           key={idx}
           onClick={props.onClick}
           onHold={props.onHold}
-          onHoldCancel={props.onHoldCancel}
+          onRelease={props.onRelease}
           secondaryAction={props.secondaryAction}
           action={props.action}
           display={props.displayValue ? (idx + 1).toString() : undefined}

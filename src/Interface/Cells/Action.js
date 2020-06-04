@@ -14,7 +14,7 @@ const ActionButton = (props) => {
     >
       {props.isActive && props.activeChildren}
       { (!props.isActive || !props.activeChildren) && 
-        <span>{props.id}{props.value}</span>
+        <>{props.id}{props.value}</>
       }
     </Cell>
   )

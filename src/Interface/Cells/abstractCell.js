@@ -8,7 +8,8 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import playerContext from '../../System/context';
-import { HOLD, HOLD_ACTION, HOLD_VALUE } from '../../System/_utils';
+import { HOLD, HOLD_ACTION, HOLD_VALUE, MULTI_TOUCH } from '../../System/_utils';
+import { getTouchValues } from '../_utils';
 
 
 const buttonLight = (color) => (
@@ -46,6 +47,10 @@ const DefaultCell = styled('button')`
   &[data-held] {
     ${temp}
   }
+  &[data-held][data-active] {
+    background-color: #aae0aa;
+    box-shadow: 0px 0px 9px #9999d0, inset 0px 0px 4px 4px #9999d0;
+  }
   .pad & {
     &[data-active], &:focus {
       border: none;
@@ -60,12 +65,18 @@ const DefaultCell = styled('button')`
   }
 `;
 
+const holdTime = 400;
+
+
+
+/**
+ * As desktop cannot do multitouch, a secondary system involving holding down buttons is required too
+ */
 const Cell = React.forwardRef((props, ref) => {
-  const debounce = useRef(null);
+  const holdTimer = useRef(null);
   const [held, updateHeld] = useState(undefined);
   const { state, dispatch } = useContext(playerContext);
 
-  // no multitouch on desktop so I have to include all this nonsense...
   useEffect(() => {
     if (
       props.secondaryAction
@@ -79,8 +90,9 @@ const Cell = React.forwardRef((props, ref) => {
     }
   }, [state[HOLD]]);
 
-  const onMouseDown = useCallback((e) => {
-    debounce.current = setTimeout(() => {
+  const onMouseDown = useCallback(() => {
+    console.log('md');
+    holdTimer.current = setTimeout(() => {
       if (props.secondaryAction) {
         dispatch({
           type: HOLD,
@@ -90,47 +102,62 @@ const Cell = React.forwardRef((props, ref) => {
           },
         });
       }
-    }, 400);
+      holdTimer.current = null;
+    }, holdTime);
   }, []);
 
-  const onMouseUp = useCallback((e) => {
-    if (debounce.current) {
-      clearTimeout(debounce.current);
+  const onMouseUp = useCallback(() => {
+    if (holdTimer.current && !props.onClick) {
+      clearTimeout(holdTimer.current);
+      holdTimer.current = null;
     }
   }, []);
 
   const onClick = useCallback((e) => {
-    if (held) {
-      console.log('click on held', debounce.current);
-      return;
-    }
-    if (state[HOLD]) {
+    if (state[HOLD] && holdTimer.current) {
+      clearTimeout(holdTimer.current);
       dispatch({
         type: HOLD_ACTION,
         value: props.value,
       });
-    } else if (debounce.current) {
-      clearTimeout(debounce.current);
+    } else if (holdTimer.current) {
+      console.log('click');
+      clearTimeout(holdTimer.current);
+      holdTimer.current = null;
       if (props.onClick) {
         props.onClick(e);
       }
+      return;
     }
   }, [props.onClick, state[HOLD], held]);
 
+  const onTouchStart = useCallback((e) => {
+    holdTimer.current = setTimeout(() => {
+      holdTimer.current = null;
+    }, holdTime);
+    if (held) {
+      return;
+    } else {
+      console.log(getTouchValues(e));
+      dispatch({
+        type: MULTI_TOUCH,
+        value: getTouchValues(e),
+      });
+    }
+  }, [held]);
+
   const actionProps = useMemo(() => {
     return {
-      onClick: onClick,
-      onMouseDown: props.onHold ||onMouseDown,
-      onMouseUp: props.onHoldRelease || onMouseUp,
-      onTouchStart: props.onHold,
-      onTouchEnd: props.onHoldRelease,
+      onClick,
+      onMouseDown: props.onHold || onMouseDown,
+      onMouseUp: props.onRelease || onMouseUp,
+      onTouchStart: props.onHold || onTouchStart,
+      onTouchEnd: props.onRelease || onMouseUp,
       onMouseEnter: props.onMouseEnter,
       onMouseLeave: props.onMouseLeave,
     }
   }, [
     props.onClick,
-    props.onHold,
-    props.onHoldRelease,
     props.onMouseEnter,
     props.onMouseLeave,
     state[HOLD],
