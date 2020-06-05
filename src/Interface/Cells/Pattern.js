@@ -1,10 +1,5 @@
-import React, {
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react';
+import React from 'react';
 import Cell from './abstractCell';
-import { notes } from '../../tools/_player';
 
 // @todo pattern chaining is gonna take work
 const PatternButton = (props) => {
@@ -16,6 +11,8 @@ const PatternButton = (props) => {
       action={props.action}
       display={props.display}
       secondaryAction={props.secondaryAction}
+      isActive={props.highlight}
+      idx={props.idx}
     />
   )
 };

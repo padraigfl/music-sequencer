@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import Cell from './abstractCell';
 import playerContext from '../../System/context';
-import { SOUND } from '../../System/_utils';
+import { SOUND, PATTERN_TYPE } from '../../System/_constants';
 
 const NoteButton = (props) => {
   const [playing, setPlayStatus] = useState(false);
@@ -69,8 +69,9 @@ const NoteButton = (props) => {
       ref={noteRef}
       isActive={playing}
       value={props.id}
-      display={state[SOUND] === 15 ? sounds[state[SOUND]].keys[props.idx] : props.id}
+      display={state[PATTERN_TYPE] !== 'spots'  ? sounds[state[SOUND]].keys[props.idx] : props.id}
       action={props.action}
+      idx={props.idx}
       // value={state[SOUND] === 15 ? sounds[state[SOUND]].keys[props.idx] : props.id}
     />
   )

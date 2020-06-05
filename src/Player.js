@@ -8,7 +8,8 @@ import SoundsPad from './Interface/Pads/SoundsPad';
 import StatusPad from './Interface/Pads/StatusPad';
 import PatternsPad from './Interface/Pads/PatternsPad';
 import playerContext from './System/context';
-import { PATTERN_VIEW, SOUNDS_VIEW, WRITE } from './System/_utils';
+import { PATTERN_VIEW, SOUNDS_VIEW, WRITE } from './System/_constants';
+import { DesktopEventsProvider } from './Interface/DesktopEventsContext';
 
 const Wrapper = styled('div')`
   display: grid;
@@ -38,9 +39,11 @@ const UI = () => {
   return (
     <Wrapper>
       <DataView />
-      <Actions />
-      <StatusPad />
-      <PadsRender />
+      <DesktopEventsProvider>
+        <StatusPad />
+        <Actions />
+        <PadsRender />
+      </DesktopEventsProvider>
     </Wrapper>
   )
 }

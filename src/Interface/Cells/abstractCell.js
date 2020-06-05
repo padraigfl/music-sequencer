@@ -8,8 +8,9 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import playerContext from '../../System/context';
-import { HOLD, HOLD_ACTION, HOLD_VALUE, MULTI_TOUCH } from '../../System/_utils';
-import { getTouchValues } from '../_utils';
+import { MULTI_TOUCH } from '../../System/_constants';
+import { getTouchValues, getButtonData } from '../_utils';
+import desktopEventsContext from '../DesktopEventsContext';
 
 
 const buttonLight = (color) => (
@@ -30,8 +31,7 @@ const DefaultCell = styled('button')`
   word-wrap: break-word;
   ${(props) => props.live ?
       `
-        box-shadow: inset 0 0 30px 0px lightblue;
-        border: none;
+        ${highlight};
       `
     : ''
   };
@@ -74,33 +74,27 @@ const holdTime = 400;
  */
 const Cell = React.forwardRef((props, ref) => {
   const holdTimer = useRef(null);
-  const [held, updateHeld] = useState(undefined);
-  const { state, dispatch } = useContext(playerContext);
-
-  useEffect(() => {
-    if (
+  const { dispatch } = useContext(playerContext);
+  const desktop = useContext(desktopEventsContext);
+  const isHeld = useMemo(() => {
+    const checkValue = typeof props.value !== 'undefined'
+      ? props.value
+      : (props.id || undefined)
+    return (
       props.secondaryAction
-      && state[HOLD] === props.secondaryAction
-      && state[HOLD_VALUE] === (typeof props.value !== 'undefined' ? props.value : props.id)) {
-      if (!held) {
-        updateHeld(true);
-      }
-    } else if (held) {
-      updateHeld(false);
-    }
-  }, [state[HOLD]]);
+      && desktop.held
+      && (desktop.held.secondary === props.secondaryAction)
+      && (desktop.held.value === checkValue)
+      ? true
+      : undefined
+    )
+  }, [desktop.held, props.secondaryAction, props.value]);
 
-  const onMouseDown = useCallback(() => {
-    console.log('md');
+  const onMouseDown = useCallback((e) => {
+    const buttonData = getButtonData(e.target);
     holdTimer.current = setTimeout(() => {
       if (props.secondaryAction) {
-        dispatch({
-          type: HOLD,
-          value: {
-            action: props.secondaryAction,
-            value: typeof props.value !== 'undefined' ? props.value : props.id,
-          },
-        });
+        desktop.onHold(buttonData);
       }
       holdTimer.current = null;
     }, holdTime);
@@ -114,14 +108,11 @@ const Cell = React.forwardRef((props, ref) => {
   }, []);
 
   const onClick = useCallback((e) => {
-    if (state[HOLD] && holdTimer.current) {
+    const buttonData = getButtonData(e.target);
+    if (desktop.held.secondary && holdTimer.current) {
       clearTimeout(holdTimer.current);
-      dispatch({
-        type: HOLD_ACTION,
-        value: props.value,
-      });
+      desktop.holdAction(buttonData);
     } else if (holdTimer.current) {
-      console.log('click');
       clearTimeout(holdTimer.current);
       holdTimer.current = null;
       if (props.onClick) {
@@ -129,13 +120,13 @@ const Cell = React.forwardRef((props, ref) => {
       }
       return;
     }
-  }, [props.onClick, state[HOLD], held]);
+  }, [props.onClick, desktop.held]);
 
   const onTouchStart = useCallback((e) => {
     holdTimer.current = setTimeout(() => {
       holdTimer.current = null;
     }, holdTime);
-    if (held) {
+    if (isHeld) {
       return;
     } else {
       console.log(getTouchValues(e));
@@ -144,7 +135,7 @@ const Cell = React.forwardRef((props, ref) => {
         value: getTouchValues(e),
       });
     }
-  }, [held]);
+  }, [desktop.held, isHeld]);
 
   const actionProps = useMemo(() => {
     return {
@@ -160,8 +151,7 @@ const Cell = React.forwardRef((props, ref) => {
     props.onClick,
     props.onMouseEnter,
     props.onMouseLeave,
-    state[HOLD],
-    held,
+    desktop.held,
   ]);
 
   return (
@@ -174,7 +164,8 @@ const Cell = React.forwardRef((props, ref) => {
         data-value={typeof props.value !== 'undefined' ? props.value : props.id}
         data-action={props.action}
         data-active={props.isActive ? true : undefined}
-        data-held={held ? true : undefined}
+        data-held={isHeld}
+        data-idx={props.idx}
         live={props.live}
         ref={ref}
         id={props.buttonId}

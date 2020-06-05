@@ -15,6 +15,7 @@ const NumberPad = (props) => (
           display={props.displayValue ? (idx + 1).toString() : undefined}
           isActive={props.activeIdx === idx}
           value={idx}
+          idx={props.idx}
         />
       ))
     }

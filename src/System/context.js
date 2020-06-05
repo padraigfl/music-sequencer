@@ -10,34 +10,37 @@ import React, {
 import Tone from 'tone';
 import {
   getInitialState,
-  PLAY,
-  WRITE,
-  PATTERNS,
-  BPM,
-  VOLUME,
-  SOUND,
   rotateBpm,
-  updateSingleField,
-  SOUNDS_SET,
-  SOUNDS_VIEW,
-  PATTERN_UPDATE,
-  PATTERN_VIEW,
-  PATTERN_CHAIN,
-  PATTERN_IDX,
-  PATTERN_SET,
-  CLEAR_VIEW,
-  HOLD,
-  HOLD_ACTION,
-  HOLD_VALUE,
-  CANCEL,
-  SWING_SET,
   updatePatternAtIdx,
   updateNoteInPattern,
-  PATTERN_TYPE,
-  MULTI_TOUCH,
 } from './_utils';
-import { sounds, SoundProcessor } from './sound';
-import { useMultiTouch } from '../Interface/_utils';
+
+import {
+  PLAY,
+  WRITE,
+  BPM,
+  SWING_SET,
+  SWING,
+  SOUND,
+  VOLUME,
+  SOUNDS_VIEW,
+  SOUNDS_SET,
+  PATTERNS,
+  PATTERN_VIEW,
+  PATTERN_CHAIN,
+  PATTERN_CHAIN_NEW,
+  PATTERN_SET,
+  PATTERN_COPY,
+  PATTERN_IDX,
+  PATTERN_UPDATE,
+  NOTE_COPY,
+  PATTERN_TYPE,
+  CLEAR_VIEW,
+  CANCEL,
+  MULTI_TOUCH,
+} from './_constants';
+
+import { sounds, SoundProcessor } from './audio';
 
 window.Tone = Tone;
 
@@ -53,54 +56,74 @@ const clearChainTimeout = ref => {
 
 const viewHandler = (view) => ({ view });
 
-const multiTouchAction = (state, e) => {
-  return {};
-}
+const isInRange = (val) => typeof val === 'number' && val >= 0 && val < 17;
 
-const isInRange = (val) => val >= 0 && val < 17;
+const getValueFromDataset = dataset => (
+  dataset && typeof(dataset.value) !== 'undefined'
+    ? dataset.value
+    : undefined
+);
 
-const triggerHoldAction = (state, value) => {
-  switch(state[HOLD]) {
+const multiTouchAction = (derivedAction, state, values = []) => {
+  switch(derivedAction) {
     case VOLUME:
       return isInRange(value)
         ? { [VOLUME]: value }
         : {};
-    case PATTERN_CHAIN:
-      return {
-        [PATTERN_CHAIN_NEW]: false,
-        [PATTERN_CHAIN]: state[PATTERN_CHAIN_NEW]
-          ? [...state[PATTERN_CHAIN], value]
-          : [value]
-      };
     case SWING_SET:
       return isInRange(value)
         ? { [SWING]: value }
         : {};
     case PATTERN_COPY:
-      return isInRange(value) ? {
-        [PATTERNS]: updatePatternAtIdx(state, state[PATTERNS][state[HOLD_VALUE]], value),
-      } : {};
+      let value1 = getValueFromDataset(values[0]);
+      let value2 = getValueFromDataset(values[1]);
+      return isInRange(value1) && isInRange(value2)
+        ? {
+          [PATTERNS]: updatePatternAtIdx(
+            state,
+            state[PATTERNS][value1],
+            state[PATTERNS][value2],
+          ),
+          [WRITE]: true,
+          [PATTERN_IDX]: value2,
+          view: null,
+        }
+        : {};
     case NOTE_COPY:
-      return isInRange(value) ? {
-        [PATTERNS]: updateNoteInPattern(
-          state,
-          state[PATTERNS][state[PATTERN_IDX]][state[PATTERN_TYPE]][state[HOLD_VALUE]],
-          value,
-        ),
-      } : {};
+      let note1 = getValueFromDataset(values[0]);
+      let note2 = getValueFromDataset(values[1]);
+      return isInRange(note1) && isInRange(note2)
+        ? {
+          [PATTERNS]: updateNoteInPattern(
+            state,
+            state[PATTERNS][state[PATTERN_IDX]][state[PATTERN_TYPE]][note1],
+            note2,
+          ),
+        }
+        : {};
+    case PATTERN_CHAIN:
+      if (values.length === 1) {
+        return { [PATTERN_CHAIN_NEW]: true, view: PATTERN_VIEW };
+      }
+      const value = getValueFromDataset(values[1]);
+      if (typeof value === 'undefined') {
+        return {};
+      }
+      return {
+        [PATTERN_CHAIN_NEW]: false,
+        [PATTERN_CHAIN]: state[PATTERN_CHAIN_NEW]
+          ? [value]
+          : [...state[PATTERN_CHAIN], value]
+      };
+    default:
+      return {};
   }
-  return {
-    [PATTERN_CHAIN_NEW]: false,
-    [SWING_SET]: false,
-    [PATTERN_COPY]: false,
-  };
 };
 
 const actionHandler = {
   [PLAY]: state =>({ [PLAY]: !state[PLAY] }),
-  [WRITE]: state => ({ [WRITE]: !state[WRITE], ...viewHandler(state.view === WRITE ? !state[WRITE] : state.view) }),
+  [WRITE]: state => ({ [WRITE]: !state[WRITE], ...viewHandler(state[WRITE] ? state.view : null) }),
   [CLEAR_VIEW]: () => ({ view: null }),
-  [VOLUME]: () => updateSingleField(state, action.type, action.value),
   [SOUNDS_VIEW]: state => viewHandler(state.view !== SOUNDS_VIEW ? SOUNDS_VIEW : null),
   [SOUNDS_SET]: (state, value) => ({
     view: state[WRITE] ? WRITE : null,
@@ -110,6 +133,7 @@ const actionHandler = {
   [PATTERN_VIEW]: state => viewHandler(state.view !== PATTERN_VIEW ? PATTERN_VIEW : null ),
   [PATTERN_SET]: (state, value) => ({
     [PATTERN_IDX]: value,
+    [WRITE]: true,
     view: state[WRITE] || null,
   }),
   [PATTERN_CHAIN]: (state, { idx, append }) => {
@@ -144,24 +168,15 @@ const actionHandler = {
       [lastKey]: note || state[lastKey],
     };
   },
-  [HOLD]: (state, { action, value }) => {
-    if (state[HOLD] !== action && state[HOLD_VALUE] !== value) {
-      console.log(HOLD, state[HOLD], state[HOLD_VALUE], action, value);
-      return { [HOLD]: action, [HOLD_VALUE]: value };
-    }
-    return { [HOLD]: null, [HOLD_VALUE]: null};
-  },
-  // hold action requires it's own series of operations
-  [HOLD_ACTION]: (state, value) => {
-    return triggerHoldAction(state, value);
-  },
   [MULTI_TOUCH]: (state, value) => {
-    return multiTouchAction(state, value);
+    const action = value && value[0] ? value[0].secondary : null;
+    return {
+      ...multiTouchAction(action, state, value),
+     lastAction: action,
+    };
   },
   // cancel needs it's own series of operations
   [CANCEL]: () => ({
-    [HOLD]: null,
-    [HOLD_VALUE]: null,
   }),
 }
 
@@ -178,7 +193,7 @@ const reducer = (state, action) => {
   let newState = {
     ...state,
     ...stateChanges,
-    lastAction: action.type,
+    lastAction: stateChanges.lastAction  || action.type,
   };
   return newState;
 }

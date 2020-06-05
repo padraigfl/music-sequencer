@@ -8,20 +8,39 @@ import React, {
 import PatternCell from '../Cells/Pattern';
 import playContext from '../../System/context';
 import Pad from './abstractPad';
-import { WRITE, PATTERN_UPDATE, PATTERNS, PATTERN_IDX, CANCEL } from '../../System/_utils';
+import { WRITE, PATTERN_UPDATE, PATTERNS, PATTERN_IDX, CANCEL, NOTE_COPY, PATTERN_TYPE, SOUND } from '../../System/_constants';
 import NotesPad from './NotesPad';
 import NumberPad from './_numberPad';
+import { generateKeys } from '../../System/_utils';
+
+const getNoteDisplay = (note, customKeys) => {
+  let disp = customKeys
+    ? customKeys[note.note]
+    : note.note;
+  return `${disp}${note.span ? `-${note.span}` : ''}`
+};
 
 // Primary composition pad
 // Writes 16 step sequences to loop
 const SequencePad = () => {
-  const { state, dispatch } = useContext(playContext);
+  const { state, dispatch, sounds } = useContext(playContext);
   const [ newSequenceValue, updateNewValue ] = useState({});
   const [copyValue, setCopyValue] = useState(null);
   const pattern = useMemo(() => {
     return state[PATTERNS][state[PATTERN_IDX]];
    }, [state[PATTERNS], state[PATTERN_IDX]]);
   const patternType = state.patternType;
+  const customKeys = useMemo(() => {
+    console.log(sounds[state[SOUND]])
+    if (!sounds[state[SOUND]].keys) {
+      return null;
+    }
+    return generateKeys().reduce((acc, val, idx) => ({
+      ...acc,
+      [val.id]: sounds[state[SOUND]].keys[idx]
+    }), {})
+  }, [state[SOUND]])
+  console.log(customKeys)
 
   // clear on cancel
   useEffect(() => {
@@ -75,8 +94,6 @@ const SequencePad = () => {
     updatePattern({ ...newSequenceValue, span: value });
   }, [newSequenceValue]);
 
-
-  console.log(pattern[patternType])
   return state[WRITE] && (
     <Pad> 
       {typeof newSequenceValue.idx !== 'number'
@@ -90,9 +107,10 @@ const SequencePad = () => {
           // onHoldCancel={updateCopyValue}
           key={idx}
           idx={idx}
-          display={note ? JSON.stringify(note)  : null}
+          isActive={idx === state[PATTERN_IDX]}
+          display={note ? getNoteDisplay(note, customKeys)  : null}
           action={PATTERN_UPDATE}
-          secondaryAction={'copy_note'}
+          secondaryAction={NOTE_COPY}
         />
       )}
       {typeof newSequenceValue.idx === 'number' && !newSequenceValue.note && (

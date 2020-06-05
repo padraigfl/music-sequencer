@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import playerContext from '../System/context';
-import { PATTERN_IDX, PATTERN_CHAIN, PATTERNS, PLAY, WRITE, BPM } from '../System/_utils';
+import { PATTERN_IDX, PATTERN_CHAIN, PATTERNS, PLAY, WRITE, BPM } from '../System/_constants';
 
 const DataViews = styled('div')`
   grid-column: 1/4;
@@ -32,7 +32,6 @@ const DataView = () => {
       <div className={`pattern`} />
       {state[PATTERN_IDX]} <br/>
       {state[PATTERN_CHAIN].join(',')}
-      <p>{state[PATTERNS][state[PATTERN_IDX]].spots.map(v => (v ? v.note + '-' + (v.span||'') : '_')).join(',')}</p>
     </DataViews>
   );
 }

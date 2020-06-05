@@ -2,7 +2,7 @@ import React, {
   useContext,
 } from 'react';
 import Pad from './abstractPad';
-import { SOUNDS_SET, SOUNDS_VIEW, SOUND } from '../../System/_utils';
+import { SOUNDS_SET, SOUNDS_VIEW, SOUND } from '../../System/_constants';
 import playerContext from '../../System/context';
 import Cell from '../Cells/abstractCell';
 
@@ -18,6 +18,7 @@ const SoundsPad = () => {
             onClick={() => dispatch({ type: SOUNDS_SET, value: note.id })}
             action={SOUNDS_SET}
             isActive={state[SOUND] === idx}
+            idx={idx}
           >
             {note.name}
           </Cell>

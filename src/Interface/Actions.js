@@ -5,7 +5,35 @@ import React, {
 } from 'react';
 import playerContext from '../System/context';
 import Action from './Cells/Action';
-import { getActionButtons, CANCEL } from '../System/_utils';
+
+import {
+  PLAY,
+  WRITE,
+  BPM,
+  SOUND,
+  VOLUME,
+  SOUNDS_VIEW,
+  PATTERN_VIEW,
+  PATTERN_CHAIN,
+  CANCEL,
+} from '../System/_constants';
+
+const actionButtons = [
+  { id: CANCEL },
+  { id: WRITE, isActive: WRITE },
+  { id: SOUNDS_VIEW, value: SOUND, secondaryAction: VOLUME },
+  { id: PATTERN_VIEW, secondaryAction: PATTERN_CHAIN },
+  { id: BPM, value: BPM },
+  { id: PLAY, isActive: PLAY, activeChildren: 'pause' },
+];
+
+const getActionButtons = (state) => actionButtons.map(
+  button => ({
+    ...button,
+    isActive: state[button.isActive],
+    value: state[button.value], 
+  })
+);
 
 const Actions = () => {
   const {
@@ -22,10 +50,6 @@ const Actions = () => {
     },
     [],
   );
-
-  const onCancelHold = useCallback((val) => {
-    dispatch({ type: CANCEL });
-  }, []);
 
   const actions = useMemo(() => getActionButtons(state), [state]);
 

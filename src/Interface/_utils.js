@@ -15,16 +15,6 @@ export const datasetStringParse = (dataset) => (
   }, {})
 );
 
-export const getEmptyPattern = (size = 16) => {
-  return {
-    spots: new Array(size).fill({
-      note: null,
-    }),
-    drums: new Array(size).fill({ note: null }),
-    effects: {},
-  };
-};
-
 export const getButtonData = (target) => {
   if (target instanceof HTMLButtonElement) {
     return datasetStringParse(target.dataset);
