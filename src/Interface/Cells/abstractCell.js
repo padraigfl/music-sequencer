@@ -18,7 +18,7 @@ const buttonLight = (color) => (
 )
 const active = buttonLight('#aae0aa');
 const temp = buttonLight('#9999d0');
-const highlight = buttonLight('#ffe0e0');
+const highlight = buttonLight('#ffd0d0');
 
 const DefaultCell = styled('button')`
   @keyframes flash {
@@ -29,12 +29,11 @@ const DefaultCell = styled('button')`
   background-color: #e8e8e8;  
   margin: 5px;
   word-wrap: break-word;
-  ${(props) => props.live ?
-      `
-        ${highlight};
-      `
-    : ''
-  };
+  padding: 0px;
+
+  &[data-live] {
+    ${highlight}
+  }
   &[data-active]:not(:active) {
     ${active}
   }
@@ -155,35 +154,26 @@ const Cell = React.forwardRef((props, ref) => {
   ]);
 
   return (
-    <>
-      <props.Component
-        type="button"
-        { ... actionProps }
-        data-secondary={props.secondaryAction}
-        data-display={props.display }
-        data-value={typeof props.value !== 'undefined' ? props.value : props.id}
-        data-action={props.action}
-        data-active={props.isActive ? true : undefined}
-        data-held={isHeld}
-        data-idx={props.idx}
-        live={props.live}
-        ref={ref}
-        id={props.buttonId}
-      >
-        {
-          props.children
-          ? props.children
-          : (
-            <>
-              {props.isActive && props.activeChildren}
-              { (!props.isActive || !props.activeChildren) && props.id && 
-                <span>{props.id}</span>
-              }
-            </>
-          )
-        }
-      </props.Component>
-    </>
+    <props.Component
+      type="button"
+      { ... actionProps }
+      data-secondary={props.secondaryAction}
+      data-display={props.display }
+      data-value={
+        typeof props.value !== 'undefined'
+          ? props.value
+          : props.id
+      }
+      data-action={props.action}
+      data-active={props.isActive ? true : undefined}
+      data-held={isHeld}
+      data-idx={props.idx}
+      data-live={props.highlight || undefined}
+      ref={ref}
+      id={props.buttonId}
+    >
+      { props.children }
+    </props.Component>
   )
 });
 

@@ -82,7 +82,7 @@ const multiTouchAction = (derivedAction, state, values = []) => {
           [PATTERNS]: updatePatternAtIdx(
             state,
             state[PATTERNS][value1],
-            state[PATTERNS][value2],
+            value2,
           ),
           [WRITE]: true,
           [PATTERN_IDX]: value2,
@@ -177,6 +177,7 @@ const actionHandler = {
   },
   // cancel needs it's own series of operations
   [CANCEL]: () => ({
+    view: null,
   }),
 }
 

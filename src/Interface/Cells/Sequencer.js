@@ -1,5 +1,5 @@
 import React from 'react';
-import Cell from './abstractCell';
+import Cell from './abstractCell.js';
 
 // @todo pattern chaining is gonna take work
 const PatternButton = (props) => {
@@ -11,7 +11,8 @@ const PatternButton = (props) => {
       action={props.action}
       display={props.display}
       secondaryAction={props.secondaryAction}
-      isActive={props.highlight}
+      isActive={props.isActive}
+      highlight={props.highlight}
       idx={props.idx}
     />
   )

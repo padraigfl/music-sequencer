@@ -15,7 +15,7 @@ const NotesPad = (props) => {
   const [keys, setKeys] = useState(generateKeys(props.octave));
 
   useEffect(() => {
-    const k = generateKeys(props.octave);
+    const k = generateKeys(props.octave).map((v, idx) => ({...v, idx }));
     setKeys(
       [3,2,1,0].map(v => (
         k.slice(v * 4, (v+1) * 4)
@@ -25,10 +25,9 @@ const NotesPad = (props) => {
 
   return (
     <Pad> 
-      { keys.map((note, idx) => (
+      { keys.map((note) => (
           <Note
             key={note.id}
-            idx={idx}
             {...note}
             onClick={props.onClick}
             action={props.onClick ? props.action : undefined}

@@ -11,8 +11,11 @@ import {
   PATTERN_SET,
   PATTERN_IDX,
   PATTERN_COPY,
+  PATTERNS,
 } from '../../System/_constants';
 import NumberPad from './_numberPad';
+import Pad from './abstractPad';
+import PatternCell from '../Cells/PatternCell';
 
 // Pad for selecting patterns
 // Depending on state this controls which pattern you wish to edit or how to chain them
@@ -28,14 +31,20 @@ const PatternsPad = () => {
   }, [state]);
 
   return state.view === PATTERN_VIEW && (
-    <NumberPad
-      onClick={onClick}
-      secondaryAction={PATTERN_COPY}
-      action={PATTERN_SET}
-      activeIdx={state[PATTERN_IDX]}
-      highlight={idx => state[PATTERN_CHAIN].includes(idx)}
-      displayValue
-    />
+    <Pad>
+      {state[PATTERNS].map((v, idx) => (
+        <PatternCell
+          pattern={v}
+          onClick={onClick}
+          secondaryAction={PATTERN_COPY}
+          action={PATTERN_SET}
+          activeIdx={state[PATTERN_IDX]}
+          isActive={state[PATTERN_CHAIN].includes(idx)}
+          value={idx}
+          idx={idx}
+        />
+      ))}
+    </Pad>
   )
 };
 

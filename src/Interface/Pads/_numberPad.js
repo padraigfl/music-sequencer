@@ -1,6 +1,6 @@
 import React from 'react';
 import Pad from './abstractPad';
-import Cell from '../Cells/abstractCell';
+import Cell from '../Cells/abstractCell.js';
 
 const NumberPad = (props) => (
   <Pad> 
@@ -13,7 +13,8 @@ const NumberPad = (props) => (
           secondaryAction={props.secondaryAction}
           action={props.action}
           display={props.displayValue ? (idx + 1).toString() : undefined}
-          isActive={props.activeIdx === idx}
+          isActive={idx === props.activeIdx}
+          live={props.getHighlight ? props.getHighlight(idx) : undefined}
           value={idx}
           idx={props.idx}
         />

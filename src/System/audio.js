@@ -81,7 +81,7 @@ export class SoundProcessor {
 
   updateLights = (idx, color = 'red', clearLights = true) => {
     const next = document.getElementById(`live-status--${idx % 16}`) 
-    if (clearLights) {
+    if (clearLights || idx % 16 === 0) {
       this.clearLights(color);
     }
     next.classList.add(color);
@@ -104,7 +104,13 @@ export class SoundProcessor {
   
     return new Tone.Sequence(
       (time, { patternIdx, noteIdx }) => {
-        this.updateLights(noteIdx, 'red', this.lastState[PATTERN_IDX] === patternIdx && this.lastState[WRITE] ? false : undefined);
+        this.updateLights(
+          noteIdx, 
+          'red',
+          this.lastState[PATTERN_IDX] === patternIdx && this.lastState[WRITE]
+            ? false
+            : undefined
+        );
         if (noteIdx === 0) {
           this.updateLights(patternIdx, 'green');
         }

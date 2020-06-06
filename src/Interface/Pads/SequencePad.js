@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useContext,
 } from 'react';
-import PatternCell from '../Cells/Pattern';
+import SequencerCell from '../Cells/Sequencer';
 import playContext from '../../System/context';
 import Pad from './abstractPad';
 import { WRITE, PATTERN_UPDATE, PATTERNS, PATTERN_IDX, CANCEL, NOTE_COPY, PATTERN_TYPE, SOUND } from '../../System/_constants';
@@ -100,14 +100,12 @@ const SequencePad = () => {
         && pattern
         && pattern[patternType]
         && pattern[patternType].map((note, idx) =>
-        <PatternCell
+        <SequencerCell
           {...note}
           onClick={onSelectStep}
-          // onHold={!copyValue && updateCopyValue}
-          // onHoldCancel={updateCopyValue}
           key={idx}
           idx={idx}
-          isActive={idx === state[PATTERN_IDX]}
+          highlight={idx === state[PATTERN_IDX]}
           display={note ? getNoteDisplay(note, customKeys)  : null}
           action={PATTERN_UPDATE}
           secondaryAction={NOTE_COPY}

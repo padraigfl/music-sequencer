@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 const margin = 12;
@@ -21,8 +22,8 @@ const Pad = styled('div')`
     background-color: rgba(255, 255, 255, 0.9);
   }
   > button:active {
-    padding-top: 2px;
-    padding-left: 7px;
+    padding-top: 1px;
+    padding-left: 1px;
   }
   > buttons {
     border-bottom: 2px solid #bbb;
