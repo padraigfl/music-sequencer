@@ -12,12 +12,11 @@ const ActionButton = (props) => {
       secondaryAction={props.secondaryAction}
       buttonId={`action--${props.id}`}
       idx={props.idx}
-    >
-      {props.isActive && props.activeChildren}
-      { (!props.isActive || !props.activeChildren) && 
-        <>{props.id}{props.value}</>
+      display={props.isActive && props.activeChildren
+        ? props.activeChildren
+        : (props.value || props.id)
       }
-    </Cell>
+    />
   )
 };
 

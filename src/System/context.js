@@ -193,7 +193,9 @@ const reducer = (state, action) => {
   let newState = {
     ...state,
     ...stateChanges,
-    lastAction: stateChanges.lastAction  || action.type,
+    lastAction: action.type !== MULTI_TOUCH
+      ? action.type
+      : stateChanges.lastAction || action.value[0].secondary,
   };
   return newState;
 }

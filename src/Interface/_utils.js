@@ -26,7 +26,7 @@ export const getButtonData = (target) => {
 }
 
 export const getTouchValues = (e) => (
-  [ ...e.targetTouches ].map( ({ target }) => (
+  [ ...e.touches ].map( ({ target }) => (
     getButtonData(target)
   )).filter(v => !!v)
 );
