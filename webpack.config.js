@@ -14,6 +14,7 @@ module.exports = {
           },
         ]
       },
+      { test: /\.tsx?$/, loader: "ts-loader" },
       {
         test: /\.css$/,
         use: [
@@ -44,9 +45,10 @@ module.exports = {
             options: { limit: 10000 },
           }
         ]
-      }
+      },
     ]
   },
+  resolve: { extensions: ['.ts', '.tsx', '.js']},
   plugins: [
     new HtmlWebPackPlugin({
       template: './public/index.html',
