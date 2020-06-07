@@ -12,17 +12,7 @@ import Pad from './abstractPad';
 // - Selecting notes in sequencer
 // Default displayed pad
 const NotesPad = (props) => {
-  const [keys, setKeys] = useState(generateKeys(props.octave));
-
-  useEffect(() => {
-    const k = generateKeys(props.octave).map((v, idx) => ({...v, idx }));
-    setKeys(
-      [3,2,1,0].map(v => (
-        k.slice(v * 4, (v+1) * 4)
-      )).flat(1)
-    );
-  }, [props.octave]);
-
+  const [keys, setKeys] = useState(generateKeys(props.octave).map((v, idx) => ({...v, idx })));
   return (
     <Pad> 
       { keys.map((note) => (

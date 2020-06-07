@@ -5,7 +5,7 @@ import React, {
   useState,
   useMemo,
 } from 'react';
-import Cell from './abstractCell';
+import Cell from './abstractCell.js';
 import playerContext from '../../System/context';
 import { SOUND, PATTERN_TYPE } from '../../System/_constants';
 
@@ -22,6 +22,7 @@ const NoteButton = (props) => {
         noteRef.current.focus();
         setPlayStatus(true);
         synthAction(props.id, 'attack');
+        debounce.current = null;
       }, 40);
     }
   }, [synthAction]);
@@ -30,6 +31,7 @@ const NoteButton = (props) => {
     if (e.buttons === 1) {
       if (debounce.current) {
         clearTimeout(debounce.current);
+        debounce.current = null;
       }
       console.log(noteRef.current);
       noteRef.current.blur();
@@ -54,6 +56,10 @@ const NoteButton = (props) => {
       ? { onClick: props.onClick }
       : {
         onClick: () => {
+          if (debounce.current) {
+            clearTimeout(debounce.current);
+            debounce.current = null;
+          }
           synthAction(props.id, 'attack', '8n');
         },
         onHold: onMouseDown,

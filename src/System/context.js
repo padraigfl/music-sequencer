@@ -84,9 +84,6 @@ const multiTouchAction = (derivedAction, state, values = []) => {
             state[PATTERNS][value1],
             value2,
           ),
-          [WRITE]: true,
-          [PATTERN_IDX]: value2,
-          view: null,
         }
         : {};
     case NOTE_COPY:
@@ -130,7 +127,10 @@ const actionHandler = {
     [SOUND]: value,
     patternType: +value === 15 ? 'drums' : 'spots',
   }),
-  [PATTERN_VIEW]: state => viewHandler(state.view !== PATTERN_VIEW ? PATTERN_VIEW : null ),
+  [PATTERN_VIEW]: state => ({
+    ...viewHandler(state.view !== PATTERN_VIEW ? PATTERN_VIEW : null),
+    [WRITE]: false,
+  }),
   [PATTERN_SET]: (state, value) => ({
     [PATTERN_IDX]: value,
     [WRITE]: true,
@@ -235,6 +235,7 @@ export const ToneProvider = (props) => {
         dispatch,
         synthAction,
         sounds,
+        view: state.view,
       }}
     >
       {props.children}

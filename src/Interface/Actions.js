@@ -19,12 +19,14 @@ import {
 } from '../System/_constants';
 
 const actionButtons = [
-  { id: CANCEL },
-  { id: WRITE, isActive: WRITE },
-  { id: SOUNDS_VIEW, value: SOUND, secondaryAction: VOLUME },
-  { id: PATTERN_VIEW, secondaryAction: PATTERN_CHAIN },
-  { id: BPM, value: BPM },
-  { id: PLAY, isActive: PLAY, activeChildren: 'pause' },
+  { id: PATTERN_VIEW, secondaryAction: PATTERN_CHAIN, height: 2, width: 2, display: 'Patterns' },
+  { id: 'menu', icon: '/static/icons/menu.png' },
+  { id: CANCEL, display: 'C' },
+  { id: 'mute', icon: '/static/icons/mute.png' },
+  { id: WRITE, isActive: WRITE, icon: '/static/icons/record.png' },
+  { id: BPM, value: BPM, width: 2 },
+  { id: SOUNDS_VIEW, value: SOUND, secondaryAction: VOLUME, display: 'S' },
+  { id: PLAY, isActive: PLAY, icon: '/static/icons/play.png' },
 ];
 
 const getActionButtons = (state) => actionButtons.map(
@@ -45,7 +47,7 @@ const Actions = () => {
     (e) => {
       const dataset = e.currentTarget.dataset;
       if (dataset.action) {
-        dispatch({ type: dataset.action});
+        dispatch({ type: dataset.action });
       }
     },
     [],

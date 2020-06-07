@@ -27,14 +27,20 @@ export class SoundProcessor {
   melodySound = sounds[0];
   basicDrum = sounds[15];
   lastState;
+  currentIdx = 0;
+  currentChain = [];
+  loop;
 
   constructor(initialState) {
     this.patterns = initialState[PATTERNS];
-    this.sequence = this.sequenceBuilder(initialState[PATTERN_CHAIN]);
+    this.loop = this.loopBuilder();
   }
 
   reducer(actionType, state) {
     this.lastState = state; // TODO probably unreliable
+    if (!this.currentChain.length) {
+      this.currentChain = state[PATTERN_CHAIN];
+    }
     switch(actionType) {
       case PLAY:
         if (Tone.Transport.state !== 'started') {
@@ -43,28 +49,29 @@ export class SoundProcessor {
         this.isPlaying = state[PLAY];
         if (this.isPlaying) {
           this.clearAllLights();
-          this.sequence.start();
+          this.loop.start();
         } else {
-          this.sequence.stop();
+          this.loop.stop();
+          this.currentIdx = 0;
           this.clearAllLights();
         }
         return;
       case BPM:
         Tone.Transport.bpm.rampTo(state[BPM], 2);
         return;
-      case PATTERN_CHAIN:
-        if (this.sequence.state === 'started') {
-          this.sequence.stop();
-        }
-        this.sequence.dispose();
-        this.sequence = this.sequenceBuilder(state[PATTERN_CHAIN]);
-        if (this.isPlaying) {
-          this.sequence.start();
-        }
-        return;
+      // case PATTERN_CHAIN:
+      //   const sequenceStarted = this.loop && this.loop.state === 'started';
+      //   if (!sequenceStarted) {
+      //     this.currentChain = state[PATTERN_CHAIN];
+      //   }
+      //   if (this.isPlaying) {
+      //     this.loop.start();
+      //   }
+      //   return;
       case SOUNDS_SET:
         this.sound = sounds[state[SOUND]];
         if (state[SOUND] !== 15) {
+          this.melodySound.tone.disconnect();
           this.melodySound = this.sound;
         }
         this.sound.tone.toMaster();
@@ -96,14 +103,39 @@ export class SoundProcessor {
     this.clearLights('green');
   }
 
-  sequenceBuilder = (chain) => {
-    const baseArray = new Array(16*chain.length).fill({}).map((_, idx) => ({
-      patternIdx: chain[Math.floor(idx / 16)],
-      noteIdx: idx % 16,
-    }));
+
+  updateIndex = (newIndex) => {
+    this.currentIdx = newIndex;
+    if (
+      this.currentIdx % 16 === 0
+    ) {
+      const hasUpdatedChain = this.lastState[PATTERN_CHAIN] !== this.currentChain;
+      const chainLengthChanged = hasUpdatedChain
+        && this.lastState[PATTERN_CHAIN].length !== this.currentChain.length;
+      if (hasUpdatedChain) {
+        this.currentChain = this.lastState[PATTERN_CHAIN];
+      }
+      if (chainLengthChanged) {
+        this.currentIdx = 0;
+      }
+    }
+  }
+
+  loopBuilder = () => {
+    let timeStamp = 0;
+    window.timesArr = [];
   
-    return new Tone.Sequence(
-      (time, { patternIdx, noteIdx }) => {
+    return new Tone.Loop(
+      (time) => {
+        const derivedIndex = this.currentIdx % (this.currentChain.length * 16);
+        const patternIdx = this.currentChain[Math.floor(derivedIndex / 16)];
+        const noteIdx = this.currentIdx % 16;
+        const pattern = this.patterns[patternIdx];
+
+        timeStamp = time - timeStamp;
+        timesArr = [...timesArr, timeStamp];
+        this.currentIdx += 1;
+
         this.updateLights(
           noteIdx, 
           'red',
@@ -111,10 +143,11 @@ export class SoundProcessor {
             ? false
             : undefined
         );
+
         if (noteIdx === 0) {
           this.updateLights(patternIdx, 'green');
         }
-        const pattern = this.patterns[patternIdx];
+
         if (pattern.spots[noteIdx]) {
           const span = pattern.spots[noteIdx].span + 1;
           const bars = Math.floor(span / 16);
@@ -125,8 +158,9 @@ export class SoundProcessor {
         if (pattern.drums[noteIdx]) {
           this.basicDrum.tone.triggerAttackRelease(pattern.drums[noteIdx].note)
         }
+
+        this.updateIndex(this.currentIdx);
       },
-      baseArray,
       '16n',
     );
   };

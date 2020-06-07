@@ -31,6 +31,8 @@ const DefaultCell = styled('button')`
   word-wrap: break-word;
   padding: 0px;
 
+  ${({ height }) => height ? `grid-row: span ${height};` : ''}
+  ${({ width  }) => width ? `grid-column: span ${width};` : ''}
   &[data-live] {
     ${highlight}
   }
@@ -59,9 +61,17 @@ const DefaultCell = styled('button')`
       box-shadow: 0px 0px 2px white;
     }
   }
-  &:after {
-    content: attr(data-display);
+  &::after {
+    display: inline-block;
+    content: attr(data-display);  background-repeat: no-repeat;
+    background-size: 24px;
+    background-position: center;
+    ${({ icon }) => icon  ? `background-image: url(${icon}); content: ''; width: 100%; height: 100%;` : ''}
   }
+  &:active::after {
+    transform: translate(1px, 1px);
+  }
+
 `;
 
 const holdTime = 400;
@@ -92,7 +102,7 @@ const Cell = React.forwardRef((props, ref) => {
   const onMouseDown = useCallback((e) => {
     const buttonData = getButtonData(e.target);
     holdTimer.current = setTimeout(() => {
-      if (props.secondaryAction) {
+      if (holdTimer.current && props.secondaryAction) {
         desktop.onHold(buttonData);
       }
       holdTimer.current = null;
@@ -107,7 +117,6 @@ const Cell = React.forwardRef((props, ref) => {
   }, []);
 
   const onClick = useCallback((e) => {
-    const buttonData = getButtonData(e.target);
     if (desktop.held.secondary && holdTimer.current) {
       clearTimeout(holdTimer.current);
       desktop.holdAction(buttonData);
@@ -158,7 +167,7 @@ const Cell = React.forwardRef((props, ref) => {
       type="button"
       { ... actionProps }
       data-secondary={props.secondaryAction}
-      data-display={props.display }
+      data-display={props.icon ? undefined : props.display }
       data-value={
         typeof props.value !== 'undefined'
           ? props.value
@@ -171,6 +180,9 @@ const Cell = React.forwardRef((props, ref) => {
       data-live={props.highlight || undefined}
       ref={ref}
       id={props.buttonId}
+      height={props.height}
+      width={props.width}
+      icon={props.icon}
     >
       { props.children }
     </props.Component>

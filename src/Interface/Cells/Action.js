@@ -1,5 +1,5 @@
 import React from 'react';
-import Cell from './abstractCell';
+import Cell from './abstractCell.js';
 
 const ActionButton = (props) => {
   return (
@@ -7,15 +7,17 @@ const ActionButton = (props) => {
       onClick={props.onClick}
       action={props.id}
       isActive={props.isActive}
-      width={2}
       action={props.id}
       secondaryAction={props.secondaryAction}
       buttonId={`action--${props.id}`}
       idx={props.idx}
-      display={props.isActive && props.activeChildren
-        ? props.activeChildren
-        : (props.value || props.id)
+      display={
+        props.display
+        || `${props.id}${typeof props.value !== 'undefined' ? props.value : ''}`
       }
+      height={props.height}
+      width={props.width}
+      icon={props.icon}
     />
   )
 };

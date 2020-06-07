@@ -1,16 +1,19 @@
-import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import { playerWidth, columns } from '../../Player';
 
-const margin = 12;
+const margin = 8;
+const pw = 450;
+const col = 8;
 
 const Pad = styled('div')`
   position: relative;
   display: flex;
   flex-wrap: wrap;
-  width: 320px;
-  height: 320px;
-  grid-column: 1/5;
-  grid-row: 4 / 9;
+  width: 100%;
+  height: 100vw;
+  max-height: ${pw}px;
+  grid-column: 1 / ${col + 1};
+  grid-row: 4 / 5;
   justify-content: space-evenly;
   > button, > .cell {
     border-radius: 4px;

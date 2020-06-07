@@ -11,13 +11,26 @@ import playerContext from './System/context';
 import { PATTERN_VIEW, SOUNDS_VIEW, WRITE } from './System/_constants';
 import { DesktopEventsProvider } from './Interface/DesktopEventsContext';
 
+
+export const playerWidth = 450;
+export const columns = 8;
+export const rows = 11;
+export const maxHeight = (450 / columns) * rows;
+
 const Wrapper = styled('div')`
   display: grid;
-  max-width: 320px;
-  max-height: 100vh;
-  grid-template-columns: repeat(4, 25%);
-  grid-template-rows: repeat(3, 40px) 320px 1fr;
+  max-width: ${playerWidth}px;
+  width: 100%;
+  max-height: -webkit-fill-available;
+  grid-template-columns: repeat(${columns}, ${100/columns}%);
+  grid-template-rows: repeat(3, ${100 / columns}vw) auto;
+  touch-action: none;
+  @media only screen and (min-width: ${playerWidth}px) {
+    height: ${maxHeight}px;
+    grid-template-rows: repeat(3, ${100 / rows}%) auto;
+  }
 `;
+
 
 const PadsRender = () => {
   const { state } = useContext(playerContext);

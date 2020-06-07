@@ -38,8 +38,8 @@ const PatternsPad = () => {
           onClick={onClick}
           secondaryAction={PATTERN_COPY}
           action={PATTERN_SET}
-          activeIdx={state[PATTERN_IDX]}
-          isActive={state[PATTERN_CHAIN].includes(idx)}
+          isActive={state[PATTERN_IDX] === idx}
+          highlight={state[PATTERN_CHAIN].includes(idx)}
           value={idx}
           idx={idx}
         />

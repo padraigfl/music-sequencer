@@ -26,6 +26,8 @@ const PatternView = styled('span')`
   height: 100%;
   grid: repeat(4, 24%) / repeat(4, 24%);
   border-radius: 4px;
+  user-select: none;
+  pointer-event: none;
 `
 
 const PatternCell = ({ pattern, ...props}) => {
