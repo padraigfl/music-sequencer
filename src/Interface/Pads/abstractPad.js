@@ -37,6 +37,12 @@ const Pad = styled('div')`
       border-left: 1px solid #222;
     }
   }
+  ${({ bold }) => bold ? ` *::after { font-weight: bold }` : ''}
+  ${({ italic }) => italic ? ` *::after { font-style: italic; }` : ''}
+  ${({ activeChildIdx }) => typeof activeChildIdx === 'number'
+    ? `>*:nth-child(${activeChildIdx + 1}) { box-shadow: inset 0px 0px 4px 2px blue; } `
+    : ''
+  }
 `;
 
 export default Pad;

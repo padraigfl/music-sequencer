@@ -14,7 +14,7 @@ import Pad from './abstractPad';
 const NotesPad = (props) => {
   const [keys, setKeys] = useState(generateKeys(props.octave).map((v, idx) => ({...v, idx })));
   return (
-    <Pad> 
+    <Pad bold={props.bold} italic={props.italic} activeChildIdx={props.activeChildIdx}> 
       { keys.map((note) => (
           <Note
             key={note.id}

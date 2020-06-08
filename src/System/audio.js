@@ -23,7 +23,7 @@ sounds[0].tone.toMaster();
 export class SoundProcessor {
   isPlaying;
   lastSound = 0;
-  sound = sounds[0];
+  sound = generateInstrument(soundSources[0]);
   melodySound = sounds[0];
   basicDrum = sounds[15];
   lastState;
@@ -34,10 +34,13 @@ export class SoundProcessor {
   constructor(initialState) {
     this.patterns = initialState[PATTERNS];
     this.loop = this.loopBuilder();
+    this.sound.tone.toMaster();
+    this.basicDrum.tone.toMaster();
   }
 
   reducer(actionType, state) {
     this.lastState = state; // TODO probably unreliable
+    console.log(this.sound.name)
     if (!this.currentChain.length) {
       this.currentChain = state[PATTERN_CHAIN];
     }
@@ -59,22 +62,18 @@ export class SoundProcessor {
       case BPM:
         Tone.Transport.bpm.rampTo(state[BPM], 2);
         return;
-      // case PATTERN_CHAIN:
-      //   const sequenceStarted = this.loop && this.loop.state === 'started';
-      //   if (!sequenceStarted) {
-      //     this.currentChain = state[PATTERN_CHAIN];
-      //   }
-      //   if (this.isPlaying) {
-      //     this.loop.start();
-      //   }
-      //   return;
       case SOUNDS_SET:
-        this.sound = sounds[state[SOUND]];
+        const newPlaySound = generateInstrument(soundSources[state[SOUND]]);
+        newPlaySound.tone.toMaster();
+        this.sound.tone.disconnect();
+        this.sound = newPlaySound;
+
         if (state[SOUND] !== 15) {
+          const melodySound = sounds[state[SOUND]];
+          melodySound.tone.toMaster();
           this.melodySound.tone.disconnect();
-          this.melodySound = this.sound;
+          this.melodySound = melodySound;
         }
-        this.sound.tone.toMaster();
         return;
       case PATTERN_UPDATE:
       case NOTE_COPY:

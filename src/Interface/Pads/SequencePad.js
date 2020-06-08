@@ -112,10 +112,10 @@ const SequencePad = () => {
         />
       )}
       {typeof newSequenceValue.idx === 'number' && !newSequenceValue.note && (
-        <NotesPad onClick={onSelectNote} action={'pattern_entry_note'} />
+        <NotesPad activeChildIdx={newSequenceValue.idx} italic bold onClick={onSelectNote} action={'pattern_entry_note'} />
       )}
       {typeof newSequenceValue.idx === 'number' && newSequenceValue.note && (
-        <NumberPad onClick={onSelectLength} action={'pattern_entry_length'} displayValue />
+        <NumberPad activeChildIdx={newSequenceValue.idx} italic bold onClick={onSelectLength} action={'pattern_entry_length'} displayValue />
       )}
     </Pad>
   );

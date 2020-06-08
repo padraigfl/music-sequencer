@@ -217,7 +217,7 @@ export const ToneProvider = (props) => {
   }, [state])
 
   const synthAction = useCallback((note, action = 'release', length) => {
-    console.log(state[SOUND], note, action);
+    console.log(state[SOUND], note, action, soundProcessor.current.sound);
     switch(action) {
       case 'attack':
         soundProcessor.current.sound.tone.triggerAttackRelease(note, length);
@@ -226,7 +226,7 @@ export const ToneProvider = (props) => {
         soundProcessor.current.sound.tone.triggerRelease();
         return;
     }
-  }, [state[SOUND]]);
+  }, [state[SOUND], state[WRITE]]);
 
   return (
     <playerContext.Provider

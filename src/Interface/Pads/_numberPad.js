@@ -3,7 +3,7 @@ import Pad from './abstractPad';
 import Cell from '../Cells/abstractCell.js';
 
 const NumberPad = (props) => (
-  <Pad> 
+  <Pad bold={props.bold} italic={props.italic} activeChildIdx={props.activeChildIdx}> 
     { new Array(16).fill(null).map((_, idx) => (
         <Cell
           key={idx}
