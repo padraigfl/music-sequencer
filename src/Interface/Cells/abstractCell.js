@@ -67,6 +67,10 @@ const DefaultCell = styled('button')`
     background-size: 24px;
     background-position: center;
     ${({ icon }) => icon  ? `background-image: url(${icon}); content: ''; width: 100%; height: 100%;` : ''}
+    ${({ isDataDisplay }) => isDataDisplay
+      ? `font-family: monospace; font-size: 8px; line-height: 16px;`
+      : ''
+    }
   }
   &:active::after {
     transform: translate(1px, 1px);
@@ -184,6 +188,7 @@ const Cell = React.forwardRef((props, ref) => {
       height={props.height}
       width={props.width}
       icon={props.icon}
+      isDataDisplay={props.isDataDisplay && typeof props.display !== 'undefined'}
     >
       { props.children }
     </props.Component>
