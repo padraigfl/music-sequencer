@@ -42,7 +42,6 @@ const SequencePad = () => {
   }, [state[SOUND]])
   console.log(customKeys)
 
-  // clear on cancel
   useEffect(() => {
     if (state.lastAction === CANCEL) {
       updateNewValue({});
@@ -50,6 +49,8 @@ const SequencePad = () => {
     }
   }, [state])
 
+
+  // clear on cancel ??
   const initalPattern = useMemo(() => (
     JSON.parse(JSON.stringify(state[PATTERNS][state[PATTERN_IDX]]))
   ), [state[PATTERN_IDX]]);
@@ -95,29 +96,43 @@ const SequencePad = () => {
   }, [newSequenceValue]);
 
   return state[WRITE] && (
-    <Pad> 
-      {typeof newSequenceValue.idx !== 'number'
-        && pattern
-        && pattern[patternType]
-        && pattern[patternType].map((note, idx) =>
-        <SequencerCell
-          {...note}
-          onClick={onSelectStep}
-          key={idx}
-          idx={idx}
-          highlight={idx === state[PATTERN_IDX]}
-          display={note ? getNoteDisplay(note, customKeys)  : null}
-          action={PATTERN_UPDATE}
-          secondaryAction={NOTE_COPY}
-        />
-      )}
-      {typeof newSequenceValue.idx === 'number' && !newSequenceValue.note && (
-        <NotesPad activeChildIdx={newSequenceValue.idx} italic bold onClick={onSelectNote} action={'pattern_entry_note'} />
-      )}
-      {typeof newSequenceValue.idx === 'number' && newSequenceValue.note && (
-        <NumberPad activeChildIdx={newSequenceValue.idx} italic bold onClick={onSelectLength} action={'pattern_entry_length'} displayValue />
-      )}
-    </Pad>
+    useMemo(() => (
+      <>
+        {typeof newSequenceValue.idx !== 'number'
+          && pattern
+          && pattern[patternType]
+          && (
+            <Pad>
+              { pattern[patternType].map((note, idx) =>
+                <SequencerCell
+                  {...note}
+                  onClick={onSelectStep}
+                  key={idx}
+                  idx={idx}
+                  highlight={idx === state[PATTERN_IDX]}
+                  display={note ? getNoteDisplay(note, customKeys)  : null}
+                  action={PATTERN_UPDATE}
+                  secondaryAction={NOTE_COPY}
+                />
+              )}
+            </Pad>
+          )
+        }
+        {typeof newSequenceValue.idx === 'number' && !newSequenceValue.note && (
+          <NotesPad activeChildIdx={newSequenceValue.idx} italic bold onClick={onSelectNote} action={'pattern_entry_note'} />
+        )}
+        {typeof newSequenceValue.idx === 'number' && newSequenceValue.note && (
+          <NumberPad
+            activeChildIdx={newSequenceValue.idx}
+            onClick={onSelectLength}
+            action={'pattern_entry_length'}
+            italic
+            bold
+            displayValue
+          />
+        )}
+      </>
+    ), [newSequenceValue])
   );
 };
 

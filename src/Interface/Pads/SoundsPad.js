@@ -1,5 +1,5 @@
 import React, {
-  useContext, useCallback,
+  useContext, useCallback, useMemo,
 } from 'react';
 import Pad from './abstractPad';
 import { SOUNDS_SET, SOUNDS_VIEW, SOUND } from '../../System/_constants';
@@ -17,14 +17,16 @@ const SoundsPad = () => {
   return state.view === SOUNDS_VIEW && (
     <Pad> 
       { sounds.map((sound, idx) => (
-          <Cell
-            key={sound.id}
-            onClick={fireDispatch}
-            action={SOUNDS_SET}
-            highlight={state[SOUND] === idx}
-            idx={idx}
-            display={sound.name}
-          />
+          useMemo(() => (
+            <Cell
+              key={sound.id}
+              onClick={fireDispatch}
+              action={SOUNDS_SET}
+              highlight={state[SOUND] === idx}
+              idx={idx}
+              display={sound.name}
+            />
+          ), [state[SOUND], sounds])
         ))
       }
     </Pad>

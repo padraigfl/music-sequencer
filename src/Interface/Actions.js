@@ -53,18 +53,19 @@ const Actions = () => {
     [],
   );
 
-  const actions = useMemo(() => getActionButtons(state), [state]);
-
   return (
     <>
-      {actions.map(action => (
-        <Action
-          {...action} 
-          key={action.id}
-          onClick={fireDispatch}
-          isActive={action.isActive || state.view === action.id}
-        />
-      ))}
+      {actionButtons.map((action) =>
+        useMemo(() => (
+          <Action
+            {...action}
+            key={action.id}
+            onClick={fireDispatch}
+            isActive={state[action.isActive] || state.view === action.id}
+            value={state[action.value]}
+          />
+        ), [state[action.isActive], state.view, state[action.value]])
+      )}
     </>
   );
 }

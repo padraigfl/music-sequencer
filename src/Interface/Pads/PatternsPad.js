@@ -1,8 +1,7 @@
 import React, {
   useContext,
   useCallback,
-  useRef,
-  useEffect,
+  useMemo,
 } from 'react';
 import playerContext from '../../System/context';
 import {
@@ -13,7 +12,6 @@ import {
   PATTERN_COPY,
   PATTERNS,
 } from '../../System/_constants';
-import NumberPad from './_numberPad';
 import Pad from './abstractPad';
 import PatternCell from '../Cells/PatternCell';
 
@@ -33,16 +31,19 @@ const PatternsPad = () => {
   return state.view === PATTERN_VIEW && (
     <Pad>
       {state[PATTERNS].map((v, idx) => (
-        <PatternCell
-          pattern={v}
-          onClick={onClick}
-          secondaryAction={PATTERN_COPY}
-          action={PATTERN_SET}
-          isActive={state[PATTERN_IDX] === idx}
-          highlight={state[PATTERN_CHAIN].includes(idx)}
-          value={idx}
-          idx={idx}
-        />
+        useMemo(() => (
+          <PatternCell
+            key={idx}
+            pattern={v}
+            onClick={onClick}
+            secondaryAction={PATTERN_COPY}
+            action={PATTERN_SET}
+            isActive={state[PATTERN_IDX] === idx}
+            highlight={state[PATTERN_CHAIN].includes(idx)}
+            value={idx}
+            idx={idx}
+          />
+        ), [state[PATTERNS][idx], state[PATTERN_IDX], state[PATTERN_CHAIN]])
       ))}
     </Pad>
   )
