@@ -32,7 +32,7 @@ export const pianoSource = [1,2,,3,4,5,6,7,8]
     { ...acc, [`C${val}`]: `C${val}.[mp3|ogg]`}
     ), {});
 
-export const soundSources: instrumentBuildParams[]  = [
+export const melodySoundSources: instrumentBuildParams[]  = [
   { instrument: Tone.Synth },
   { instrument: Tone.DuoSynth },
   { instrument: Tone.MembraneSynth },
@@ -153,12 +153,19 @@ export const soundSources: instrumentBuildParams[]  = [
     { release: 1, baseUrl: '/static/sampler/'}
     ],
   },
-  { instrument: DrumMachine, title: 'basicDrum',
-    toneParams: [{
+];
+
+export const generateDrumMachine = (startNote = 'c3', idx?: number) => {
+  return {
+    name: 'basicDrum',
+    tone: new DrumMachine({
       sources: demoDrum,
       baseUrl: '/static/demoDrum/',
-    }],
-    customKeys: demoDrum.map(({ name }) => name),
-  }
-];
+      startNote,
+    }),
+    keys: demoDrum.map(({ name }) => name),
+    idx,
+  };
+};
+
   

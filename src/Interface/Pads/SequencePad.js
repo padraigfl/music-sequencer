@@ -23,7 +23,7 @@ const getNoteDisplay = (note, customKeys) => {
 // Primary composition pad
 // Writes 16 step sequences to loop
 const SequencePad = () => {
-  const { state, dispatch, sounds } = useContext(playContext);
+  const { state, dispatch, sounds, startNote } = useContext(playContext);
   const [ newSequenceValue, updateNewValue ] = useState({});
   const [copyValue, setCopyValue] = useState(null);
   const pattern = useMemo(() => {
@@ -35,7 +35,7 @@ const SequencePad = () => {
     if (!sounds[state[SOUND]].keys) {
       return null;
     }
-    return generateKeys().reduce((acc, val, idx) => ({
+    return generateKeys(+startNote[1]).reduce((acc, val, idx) => ({
       ...acc,
       [val.id]: sounds[state[SOUND]].keys[idx]
     }), {})

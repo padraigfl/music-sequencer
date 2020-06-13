@@ -7,8 +7,9 @@ export class DrumMachine extends Tone.Players {
   overlap = false;
   keyMap = {};
   baseVolume = 0;
+  name = 'basicDrum'
 
-  constructor({ sources, baseUrl }) {
+  constructor({ sources, baseUrl, startNote = 'c3' }) {
     let beatArray = [];
     let customKeys = [];
 
@@ -19,7 +20,7 @@ export class DrumMachine extends Tone.Players {
   
     super(beatArray);
 
-    generateKeys().forEach((key, idx) => {
+    generateKeys(+startNote[1]).forEach((key, idx) => {
       this.keyMap[key.id] = {
         player: this.get(idx),
         data: sources[idx],

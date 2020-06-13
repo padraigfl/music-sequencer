@@ -1,6 +1,6 @@
 import Tone from 'tone';
-import { generateInstrument } from './_utils';
-import { soundSources } from './_sources';
+import { generateInstrument } from '../_utils';
+import { melodySoundSources, generateDrumMachine } from '../_sources';
 
 import {
   PLAY,
@@ -14,24 +14,59 @@ import {
   NOTE_COPY,
   PATTERN_IDX,
   WRITE,
-} from './_constants';
-
-export const sounds = soundSources.map((v, idx) => ({ ...generateInstrument(v), id: idx }));
-
-sounds[0].tone.toMaster();
+  PATTERN_TYPE,
+} from '../_constants';
 
 export class SoundProcessor {
+  static startNote = 'c1';
+  static sounds = [
+    ...melodySoundSources.map((v, idx) => ({ ...generateInstrument(v), id: idx })),
+    generateDrumMachine(SoundProcessor.startNote, melodySoundSources.length),
+  ];
+
+  static customReducer = {
+    [SOUNDS_SET]: (state, value) => ({
+      view: state[WRITE] ? WRITE : null,
+      [SOUND]: value,
+      [PATTERN_TYPE]: +value === 15 ? 'drums' : 'spots',
+    }),
+    [PATTERN_UPDATE]: (state, {idx, note, span }) => {
+      const lastKey = state[SOUND] === 15 ? 'lastBeat' : 'lastNote';
+      const activePattern = state[PATTERNS][state[PATTERN_IDX]];
+      console.log(activePattern[state.patternType].slice(0, idx));
+      console.log(activePattern[state.patternType].slice(idx + 1));
+      console.log(idx);
+      const updatedPatterns = [
+        ...state[PATTERNS].slice(0, state[PATTERN_IDX]),
+        {
+          ...activePattern,
+          [state.patternType]: [
+            ...activePattern[state.patternType].slice(0, idx),
+            note ? { note, span } : null,
+            ...activePattern[state.patternType].slice(idx + 1),
+          ],
+        },
+        ...state[PATTERNS].slice(state[PATTERN_IDX] + 1),
+      ];
+      return {
+        [PATTERNS]: updatedPatterns,
+        [lastKey]: note || state[lastKey],
+      };
+    },
+  };
+
   isPlaying;
   lastSound = 0;
-  sound = generateInstrument(soundSources[0]);
-  melodySound = sounds[0];
-  basicDrum = sounds[15];
+  sound = generateInstrument(melodySoundSources[0]);
+  melodySound = SoundProcessor.sounds[0];
+  basicDrum = SoundProcessor.sounds[15];
   lastState;
   currentIdx = 0;
   currentChain = [];
   loop;
 
   constructor(initialState) {
+    SoundProcessor.sounds[0].tone.toMaster();
     this.patterns = initialState[PATTERNS];
     this.loop = this.loopBuilder();
     this.sound.tone.toMaster();
@@ -63,13 +98,15 @@ export class SoundProcessor {
         Tone.Transport.bpm.rampTo(state[BPM], 2);
         return;
       case SOUNDS_SET:
-        const newPlaySound = generateInstrument(soundSources[state[SOUND]]);
-        newPlaySound.tone.toMaster();
+        if (state[SOUND] === this.sound.idx) {
+          return;
+        } 
+        const newPlaySound = this.getNewPlaysound(state[SOUND]);
         this.sound.tone.disconnect();
         this.sound = newPlaySound;
 
         if (state[SOUND] !== 15) {
-          const melodySound = sounds[state[SOUND]];
+          const melodySound = SoundProcessor.sounds[state[SOUND]];
           melodySound.tone.toMaster();
           this.melodySound.tone.disconnect();
           this.melodySound = melodySound;
@@ -83,6 +120,15 @@ export class SoundProcessor {
       default:
         return;
     }
+  }
+
+  getNewPlaysound = (idx) => {
+    let newPlaySound = idx < 15
+      ? generateInstrument(melodySoundSources[idx])
+      : generateDrumMachine(SoundProcessor.startNote, idx);
+
+    newPlaySound.tone.toMaster();
+    return newPlaySound;
   }
 
   updateLights = (idx, color = 'red', clearLights = true) => {

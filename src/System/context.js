@@ -40,7 +40,7 @@ import {
   MULTI_TOUCH,
 } from './_constants';
 
-import { sounds, SoundProcessor } from './audio';
+import { sounds, SoundProcessor } from './players/melody';
 
 window.Tone = Tone;
 
@@ -93,7 +93,7 @@ const multiTouchAction = (derivedAction, state, values = []) => {
         ? {
           [PATTERNS]: updateNoteInPattern(
             state,
-            state[PATTERNS][state[PATTERN_IDX]][state[PATTERN_TYPE]][note1],
+            state[PATTERNS][state[PATTERN_IDX]][state[PATTERN_TYPE] || state[SOUND]][note1],
             note2,
           ),
         }
@@ -117,7 +117,7 @@ const multiTouchAction = (derivedAction, state, values = []) => {
   }
 };
 
-const actionHandler = {
+const defaultActionHandlers = {
   [PLAY]: state =>({ [PLAY]: !state[PLAY] }),
   [WRITE]: state => ({ [WRITE]: !state[WRITE], ...viewHandler(state[WRITE] ? state.view : null) }),
   [CLEAR_VIEW]: () => ({ view: null }),
@@ -125,7 +125,7 @@ const actionHandler = {
   [SOUNDS_SET]: (state, value) => ({
     view: state[WRITE] ? WRITE : null,
     [SOUND]: value,
-    patternType: +value === 15 ? 'drums' : 'spots',
+    [PATTERN_TYPE]: value,
   }),
   [PATTERN_VIEW]: state => ({
     ...viewHandler(state.view !== PATTERN_VIEW ? PATTERN_VIEW : null),
@@ -146,26 +146,22 @@ const actionHandler = {
   },
   [BPM]: (state, value) => ({ [BPM]: value ? value : rotateBpm(state[BPM]) }),
   [PATTERN_UPDATE]: (state, {idx, note, span }) => {
-    const lastKey = state[SOUND] === 15 ? 'lastBeat' : 'lastNote';
     const activePattern = state[PATTERNS][state[PATTERN_IDX]];
-    console.log(activePattern[state.patternType].slice(0, idx));
-    console.log(activePattern[state.patternType].slice(idx + 1));
-    console.log(idx);
     const updatedPatterns = [
       ...state[PATTERNS].slice(0, state[PATTERN_IDX]),
       {
         ...activePattern,
-        [state.patternType]: [
-          ...activePattern[state.patternType].slice(0, idx),
+        [state[SOUND]]: [
+          ...activePattern[state[SOUND]].slice(0, idx),
           note ? { note, span } : null,
-          ...activePattern[state.patternType].slice(idx + 1),
+          ...activePattern[state[SOUND]].slice(idx + 1),
         ],
       },
       ...state[PATTERNS].slice(state[PATTERN_IDX] + 1),
     ];
     return {
       [PATTERNS]: updatedPatterns,
-      [lastKey]: note || state[lastKey],
+      lastNote: note || state.lastNote,
     };
   },
   [MULTI_TOUCH]: (state, value) => {
@@ -181,7 +177,7 @@ const actionHandler = {
   }),
 }
 
-const reducer = (state, action) => {
+const generateReducer = (actionHandler = defaultActionHandler) => (state, action) => {
   if (state.mutable.chainTimer.current && (
     [ SOUNDS_VIEW, CLEAR_VIEW, PATTERN_VIEW ].includes(action.type)
     || state[WRITE]
@@ -205,16 +201,16 @@ export const ToneProvider = (props) => {
   const chainTimer = useRef(null);
   const initialState = useMemo(() => getInitialState({
     mutable: { chainTimer },
-  }), [])
+  }), []);
   const soundProcessor = useRef(new SoundProcessor(initialState));
   const [state, dispatch] = useReducer(
-    reducer,
+    generateReducer({ ...defaultActionHandlers, ...SoundProcessor.customReducer }),
     initialState,
   );
 
   useEffect(() => {
     soundProcessor.current.reducer(state.lastAction, state);
-  }, [state])
+  }, [state]);
 
   const synthAction = useCallback((note, action = 'release', length) => {
     console.log(state[SOUND], note, action, soundProcessor.current.sound);
@@ -222,7 +218,7 @@ export const ToneProvider = (props) => {
       case 'attack':
         soundProcessor.current.sound.tone.triggerAttackRelease(note, length);
         return;
-      default: 
+      default:
         soundProcessor.current.sound.tone.triggerRelease();
         return;
     }
@@ -234,8 +230,9 @@ export const ToneProvider = (props) => {
         state,
         dispatch,
         synthAction,
-        sounds,
+        sounds: SoundProcessor.sounds,
         view: state.view,
+        startNote: SoundProcessor.startNote,
       }}
     >
       {props.children}

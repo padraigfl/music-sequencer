@@ -51,7 +51,7 @@ export const getInitialState = ({ mutable }: { mutable?: any } = {}): ContextSta
   [PATTERNS]: new Array(16).fill({ spots: new Array(16).fill(null), drums: new Array(16).fill(null), effects: {} }),
   [PATTERN_IDX]: 0,
   lastNote: 'C3',
-  [PATTERN_CHAIN]: [0, 3],
+  [PATTERN_CHAIN]: [0, 1],
   mutable,
   patternType: 'spots',
 });
