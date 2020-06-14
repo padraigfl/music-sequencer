@@ -6,9 +6,9 @@ import React, {
   useContext,
 } from 'react';
 import SequencerCell from '../Cells/Sequencer';
-import playContext from '../../System/context';
+import playContext from '../../Core/context';
 import Pad from './abstractPad';
-import { WRITE, PATTERN_UPDATE, PATTERNS, PATTERN_IDX, CANCEL, NOTE_COPY, PATTERN_TYPE, SOUND } from '../../System/_constants';
+import { WRITE, PATTERN_UPDATE, PATTERNS, PATTERN_IDX, CANCEL, NOTE_COPY, PATTERN_TYPE, SOUND } from '../../Core/_constants';
 import NotesPad from './NotesPad';
 import NumberPad from './_numberPad';
 import { generateKeys } from '../../System/_utils';
@@ -29,7 +29,8 @@ const SequencePad = () => {
   const pattern = useMemo(() => {
     return state[PATTERNS][state[PATTERN_IDX]];
    }, [state[PATTERNS], state[PATTERN_IDX]]);
-  const patternType = state.patternType;
+  const patternType = state[PATTERN_TYPE];
+  console.log(patternType);
   const customKeys = useMemo(() => {
     console.log(sounds[state[SOUND]])
     if (!sounds[state[SOUND]].keys) {
@@ -132,7 +133,7 @@ const SequencePad = () => {
           />
         )}
       </>
-    ), [newSequenceValue])
+    ), [newSequenceValue, state[PATTERNS]])
   );
 };
 

@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
-import playerContext from '../System/context';
-import { PATTERN_IDX, PATTERN_CHAIN, SOUND, WRITE, BPM } from '../System/_constants';
+import playerContext from '../Core/context';
+import { PATTERN_IDX, PATTERN_CHAIN, SOUND, WRITE, BPM } from '../Core/_constants';
 
 const border = '1px dotted black';
 
@@ -108,7 +108,7 @@ const DataView = (props) => {
       <GridCell row={5} column={1} data-display={'sw'} align="end" />
       {!props.viewLog && log.length ? (
         <LogView>
-          {log.map(v => <li>{v}</li>)}
+          {log.map((v, idx) => <li key={v+idx+'log'}>{v}</li>)}
         </LogView>
       ) : null}
       <GridCell row={6} column={2} width={6} data-display={getView(state)} />

@@ -3,7 +3,7 @@ import React, {
   useContext,
   useMemo,
 } from 'react';
-import playerContext from '../System/context';
+import playerContext from '../Core/context';
 import Action from './Cells/Action';
 
 import {
@@ -16,7 +16,7 @@ import {
   PATTERN_VIEW,
   PATTERN_CHAIN,
   CANCEL,
-} from '../System/_constants';
+} from '../Core/_constants';
 
 const actionButtons = [
   { id: PATTERN_VIEW, secondaryAction: PATTERN_CHAIN, height: 2, width: 2, display: 'Patterns' },

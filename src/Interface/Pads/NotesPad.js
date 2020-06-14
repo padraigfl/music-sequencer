@@ -5,7 +5,7 @@ import React, {
 import Note from '../Cells/Note';
 import { generateKeys } from '../../System/_utils';
 import Pad from './abstractPad';
-import playerContext from '../../System/context';
+import playerContext from '../../Core/context';
 
 // Lists available notes in selected sound
 // Used for:
@@ -14,7 +14,7 @@ import playerContext from '../../System/context';
 // Default displayed pad
 const NotesPad = (props) => {
   const { startNote } = useContext(playerContext);
-  const [keys, setKeys] = useState(generateKeys(+startNote[1]).map((v, idx) => ({...v, idx })));
+  const [keys] = useState(generateKeys(+startNote[1]).map((v, idx) => ({...v, idx })));
   return (
     <Pad bold={props.bold} italic={props.italic} activeChildIdx={props.activeChildIdx}> 
       { keys.map((note) => (

@@ -2,13 +2,11 @@ import React, {
   useContext,
   useCallback,
   useRef,
-  useState,
-  useEffect,
   useMemo,
 } from 'react';
 import styled from 'styled-components';
-import playerContext from '../../System/context';
-import { MULTI_TOUCH } from '../../System/_constants';
+import playerContext from '../../Core/context';
+import { MULTI_TOUCH } from '../../Core/_constants';
 import { getTouchValues, getButtonData } from '../_utils';
 import desktopEventsContext from '../DesktopEventsContext';
 
@@ -155,8 +153,8 @@ const Cell = React.forwardRef((props, ref) => {
       onClick,
       onMouseDown: props.onHold || onMouseDown,
       onMouseUp: props.onRelease || onMouseUp,
-      onTouchStart: props.onHold || onTouchStart,
-      onTouchEnd: props.onRelease || onMouseUp,
+      onTouchStart: props.noTouch ? undefined : (props.onHold || onTouchStart),
+      onTouchEnd: props.noTouch ? undefined : (props.onRelease || onMouseUp),
       onMouseEnter: props.onMouseEnter,
       onMouseLeave: props.onMouseLeave,
     }

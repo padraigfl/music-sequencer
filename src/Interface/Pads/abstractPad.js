@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { playerWidth, columns } from '../../Player';
+import { playerWidth, columns } from '../Player';
 
 const margin = 8;
 const pw = 450;

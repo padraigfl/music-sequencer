@@ -2,12 +2,11 @@ import React, {
   createContext,
   useCallback,
   useReducer,
-  useRef,
+  useState,
   useEffect,
   useMemo,
 } from 'react';
 
-import Tone from 'tone';
 import {
   getInitialState,
   rotateBpm,
@@ -40,21 +39,7 @@ import {
   MULTI_TOUCH,
 } from './_constants';
 
-import { sounds, SoundProcessor } from './players/melody';
-
-window.Tone = Tone;
-
-
 const playerContext = createContext({});
-
-const clearChainTimeout = ref => {
-  if (ref.current) {
-    clearTimeout(ref.current);
-  }
-  ref.current = null;
-}
-
-const viewHandler = (view) => ({ view });
 
 const isInRange = (val) => typeof val === 'number' && val >= 0 && val < 17;
 
@@ -119,16 +104,21 @@ const multiTouchAction = (derivedAction, state, values = []) => {
 
 const defaultActionHandlers = {
   [PLAY]: state =>({ [PLAY]: !state[PLAY] }),
-  [WRITE]: state => ({ [WRITE]: !state[WRITE], ...viewHandler(state[WRITE] ? state.view : null) }),
+  [WRITE]: state => ({
+    [WRITE]: !state[WRITE],
+    view: (state[WRITE] ? state.view : null),
+  }),
   [CLEAR_VIEW]: () => ({ view: null }),
-  [SOUNDS_VIEW]: state => viewHandler(state.view !== SOUNDS_VIEW ? SOUNDS_VIEW : null),
+  [SOUNDS_VIEW]: state => ({
+    view: (state.view !== SOUNDS_VIEW ? SOUNDS_VIEW : null),
+  }),
   [SOUNDS_SET]: (state, value) => ({
     view: state[WRITE] ? WRITE : null,
     [SOUND]: value,
     [PATTERN_TYPE]: value,
   }),
   [PATTERN_VIEW]: state => ({
-    ...viewHandler(state.view !== PATTERN_VIEW ? PATTERN_VIEW : null),
+    view: (state.view !== PATTERN_VIEW ? PATTERN_VIEW : null),
     [WRITE]: false,
   }),
   [PATTERN_SET]: (state, value) => ({
@@ -178,13 +168,6 @@ const defaultActionHandlers = {
 }
 
 const generateReducer = (actionHandler = defaultActionHandler) => (state, action) => {
-  if (state.mutable.chainTimer.current && (
-    [ SOUNDS_VIEW, CLEAR_VIEW, PATTERN_VIEW ].includes(action.type)
-    || state[WRITE]
-  )) {
-    clearChainTimeout(state.mutable.chainTimer);
-  }
-
   let stateChanges = actionHandler[action.type] ? actionHandler[action.type](state, action.value) : {};
 
   let newState = {
@@ -198,31 +181,36 @@ const generateReducer = (actionHandler = defaultActionHandler) => (state, action
 }
 
 export const ToneProvider = (props) => {
-  const chainTimer = useRef(null);
   const initialState = useMemo(() => getInitialState({
-    mutable: { chainTimer },
+    customState: props.AudioProcessor.customState,
   }), []);
-  const soundProcessor = useRef(new SoundProcessor(initialState));
+  const coreReducer = useMemo(() => (
+    generateReducer({
+      ...defaultActionHandlers,
+      ...props.AudioProcessor.customReducer,
+    })
+  ), []);
+  const soundProcessor = useMemo(() => new props.AudioProcessor(initialState), []);
+
   const [state, dispatch] = useReducer(
-    generateReducer({ ...defaultActionHandlers, ...SoundProcessor.customReducer }),
+    coreReducer,
     initialState,
   );
 
   useEffect(() => {
-    soundProcessor.current.reducer(state.lastAction, state);
+    soundProcessor.reducer(state.lastAction, state);
   }, [state]);
 
   const synthAction = useCallback((note, action = 'release', length) => {
-    console.log(state[SOUND], note, action, soundProcessor.current.sound);
     switch(action) {
       case 'attack':
-        soundProcessor.current.sound.tone.triggerAttackRelease(note, length);
+        soundProcessor.sound.tone.triggerAttackRelease(note, length);
         return;
       default:
-        soundProcessor.current.sound.tone.triggerRelease();
+        soundProcessor.sound.tone.triggerRelease();
         return;
     }
-  }, [state[SOUND], state[WRITE]]);
+  }, [state[SOUND]]);
 
   return (
     <playerContext.Provider
@@ -230,14 +218,14 @@ export const ToneProvider = (props) => {
         state,
         dispatch,
         synthAction,
-        sounds: SoundProcessor.sounds,
+        sounds: props.AudioProcessor.sounds,
         view: state.view,
-        startNote: SoundProcessor.startNote,
+        startNote: props.AudioProcessor.startNote,
       }}
     >
       {props.children}
     </playerContext.Provider>
-  )
+  );
 }
 
 export default playerContext;

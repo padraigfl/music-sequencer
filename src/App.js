@@ -1,11 +1,17 @@
 import React from 'react';
-import Player from './Player';
-import { ToneProvider } from './System/context';
+import Tone from 'tone';
+import Player from './Interface';
+import { ToneProvider } from './Core/context';
+import { MelodyPlayer, BassPlayer } from './System/players';
+window.Tone = Tone;
+
+let AudioProcessor = BassPlayer;
+AudioProcessor = MelodyPlayer;
 
 const App = () => {
   return (
-    <ToneProvider>
-      <Player />
+    <ToneProvider AudioProcessor={AudioProcessor}>
+      <Player colorFilter={AudioProcessor.colorFilter} />
     </ToneProvider>
   );
 }

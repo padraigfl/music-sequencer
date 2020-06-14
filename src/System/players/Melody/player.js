@@ -1,6 +1,7 @@
 import Tone from 'tone';
-import { generateInstrument } from '../_utils';
-import { melodySoundSources, generateDrumMachine } from '../_sources';
+import { generateInstrument } from '../../_utils';
+import { melodySoundSources } from './sources';
+import { generateDrumMachine } from '../../Instruments/_sources';
 
 import {
   PLAY,
@@ -15,15 +16,20 @@ import {
   PATTERN_IDX,
   WRITE,
   PATTERN_TYPE,
-} from '../_constants';
+} from '../../../Core/_constants';
 
-export class SoundProcessor {
-  static startNote = 'c1';
+export default class SoundProcessor {
+  static startNote = 'c3';
   static sounds = [
     ...melodySoundSources.map((v, idx) => ({ ...generateInstrument(v), id: idx })),
-    generateDrumMachine(SoundProcessor.startNote, melodySoundSources.length),
+    generateDrumMachine(this.startNote, melodySoundSources.length),
   ];
 
+  static customState = {
+    [PATTERN_TYPE]: 'spots',
+  };
+
+  // only allows two sound settings at a time, one of which is always the drums
   static customReducer = {
     [SOUNDS_SET]: (state, value) => ({
       view: state[WRITE] ? WRITE : null,
@@ -33,17 +39,14 @@ export class SoundProcessor {
     [PATTERN_UPDATE]: (state, {idx, note, span }) => {
       const lastKey = state[SOUND] === 15 ? 'lastBeat' : 'lastNote';
       const activePattern = state[PATTERNS][state[PATTERN_IDX]];
-      console.log(activePattern[state.patternType].slice(0, idx));
-      console.log(activePattern[state.patternType].slice(idx + 1));
-      console.log(idx);
       const updatedPatterns = [
         ...state[PATTERNS].slice(0, state[PATTERN_IDX]),
         {
           ...activePattern,
-          [state.patternType]: [
-            ...activePattern[state.patternType].slice(0, idx),
+          [state[PATTERN_TYPE]]: [
+            ...activePattern[state[PATTERN_TYPE]].slice(0, idx),
             note ? { note, span } : null,
-            ...activePattern[state.patternType].slice(idx + 1),
+            ...activePattern[state[PATTERN_TYPE]].slice(idx + 1),
           ],
         },
         ...state[PATTERNS].slice(state[PATTERN_IDX] + 1),
@@ -57,17 +60,23 @@ export class SoundProcessor {
 
   isPlaying;
   lastSound = 0;
-  sound = generateInstrument(melodySoundSources[0]);
-  melodySound = SoundProcessor.sounds[0];
-  basicDrum = SoundProcessor.sounds[15];
   lastState;
   currentIdx = 0;
   currentChain = [];
   loop;
 
   constructor(initialState) {
-    SoundProcessor.sounds[0].tone.toMaster();
+    this.startNote = SoundProcessor.startNote
+    this.playerSounds = SoundProcessor.sounds;
+    this.sound = generateInstrument(melodySoundSources[0]);
+    this.melodySound = this.playerSounds[0];
+    this.basicDrum = this.playerSounds[15];
     this.patterns = initialState[PATTERNS];
+    this.instantiate();
+  }
+
+  instantiate() {
+    this.playerSounds[0].tone.toMaster();
     this.loop = this.loopBuilder();
     this.sound.tone.toMaster();
     this.basicDrum.tone.toMaster();
@@ -106,7 +115,7 @@ export class SoundProcessor {
         this.sound = newPlaySound;
 
         if (state[SOUND] !== 15) {
-          const melodySound = SoundProcessor.sounds[state[SOUND]];
+          const melodySound = this.playerSounds[state[SOUND]];
           melodySound.tone.toMaster();
           this.melodySound.tone.disconnect();
           this.melodySound = melodySound;
@@ -197,8 +206,9 @@ export class SoundProcessor {
           const span = pattern.spots[noteIdx].span + 1;
           const bars = Math.floor(span / 16);
           const quarters = (pattern.spots[noteIdx].span + 1) - bars;
-          console.log(bars, quarters)
           this.melodySound.tone.triggerAttackRelease(pattern.spots[noteIdx].note, `0:${bars}:${quarters}`);
+          console.log(derivedIndex);
+          console.log(noteIdx);
         }
         if (pattern.drums[noteIdx]) {
           this.basicDrum.tone.triggerAttackRelease(pattern.drums[noteIdx].note)

@@ -9,7 +9,7 @@ export class DrumMachine extends Tone.Players {
   baseVolume = 0;
   name = 'basicDrum'
 
-  constructor({ sources, baseUrl, startNote = 'c3' }) {
+  constructor({ sources, baseUrl, startNote = 'c3', baseVolume = 0 }) {
     let beatArray = [];
     let customKeys = [];
 
@@ -19,6 +19,7 @@ export class DrumMachine extends Tone.Players {
     });
   
     super(beatArray);
+    this.baseVolume = baseVolume;
 
     generateKeys(+startNote[1]).forEach((key, idx) => {
       this.keyMap[key.id] = {
