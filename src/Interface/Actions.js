@@ -22,20 +22,12 @@ const actionButtons = [
   { id: PATTERN_VIEW, secondaryAction: PATTERN_CHAIN, height: 2, width: 2, display: 'Patterns' },
   { id: 'menu', icon: '/static/icons/menu.png' },
   { id: CANCEL, display: 'C' },
-  { id: 'mute', icon: '/static/icons/mute.png' },
+  { id: 'mute', secondaryAction: VOLUME, icon: '/static/icons/mute.png' },
   { id: WRITE, isActive: WRITE, icon: '/static/icons/record.png' },
-  { id: BPM, value: BPM, width: 2 },
-  { id: SOUNDS_VIEW, value: SOUND, secondaryAction: VOLUME, display: 'S' },
+  { id: BPM, value: BPM, width: 2 }, // secondary = swing?
+  { id: SOUNDS_VIEW, value: SOUND, display: 'S' },
   { id: PLAY, isActive: PLAY, icon: '/static/icons/play.png' },
 ];
-
-const getActionButtons = (state) => actionButtons.map(
-  button => ({
-    ...button,
-    isActive: state[button.isActive],
-    value: state[button.value], 
-  })
-);
 
 const Actions = () => {
   const {

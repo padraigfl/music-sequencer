@@ -199,6 +199,9 @@ export const ToneProvider = (props) => {
 
   useEffect(() => {
     soundProcessor.reducer(state.lastAction, state);
+    if (state.lastAction === 'menu'&& !props.history.location.pathname.match(/.*\/menu$/)) {
+      props.history.push(`${props.history.location.pathname}/menu`);
+    }
   }, [state]);
 
   const synthAction = useCallback((note, action = 'release', length) => {
