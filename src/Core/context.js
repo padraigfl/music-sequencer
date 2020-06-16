@@ -2,7 +2,6 @@ import React, {
   createContext,
   useCallback,
   useReducer,
-  useState,
   useEffect,
   useMemo,
 } from 'react';
@@ -37,6 +36,7 @@ import {
   CLEAR_VIEW,
   CANCEL,
   MULTI_TOUCH,
+  MUTE,
 } from './_constants';
 
 const playerContext = createContext({});
@@ -108,6 +108,7 @@ const defaultActionHandlers = {
     [WRITE]: !state[WRITE],
     view: (state[WRITE] ? state.view : null),
   }),
+  [MUTE]: state => ({ [MUTE]: !state[MUTE] }),
   [CLEAR_VIEW]: () => ({ view: null }),
   [SOUNDS_VIEW]: state => ({
     view: (state.view !== SOUNDS_VIEW ? SOUNDS_VIEW : null),
@@ -180,7 +181,7 @@ const generateReducer = (actionHandler = defaultActionHandler) => (state, action
   return newState;
 }
 
-export const ToneProvider = (props) => {
+export const CoreProvider = (props) => {
   const initialState = useMemo(() => getInitialState({
     customState: props.AudioProcessor.customState,
   }), []);
@@ -203,6 +204,7 @@ export const ToneProvider = (props) => {
       props.history.push(`${props.history.location.pathname}/menu`);
     }
   }, [state]);
+  useEffect(() => soundProcessor.unmount, []);
 
   const synthAction = useCallback((note, action = 'release', length) => {
     switch(action) {

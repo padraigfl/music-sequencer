@@ -1,20 +1,18 @@
 import React from 'react';
-import Tone from 'tone';
-import { Router, Switch, Route } from 'react-router';
+import { Router, Route } from 'react-router';
 import Player from './Interface';
 import { createBrowserHistory } from 'history';
-import { ToneProvider } from './Core/context';
+import { CoreProvider } from './Core/context';
 import { MelodyPlayer, BassPlayer } from './System/players';
-window.Tone = Tone;
 
 let AudioProcessor = BassPlayer;
 AudioProcessor = MelodyPlayer;
 
 const getSoloPlayerComponent = soundProcessor => (props) => {
   return (
-    <ToneProvider AudioProcessor={soundProcessor} history={props.history}>
+    <CoreProvider AudioProcessor={soundProcessor} {...props}>
       <Player colorFilter={soundProcessor.colorFilter} />
-    </ToneProvider>
+    </CoreProvider>
   );
 }
 
@@ -32,7 +30,6 @@ const App = () => {
         <button onClick={() => history.push('/bass')}>Bass</button>
         <button onClick={() => history.push('/melody')}>Melody</button>
       </Route>
-      <Route path="/" exact>{history.push('/melody') }</Route>
     </Router>
   );
 }

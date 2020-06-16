@@ -53,7 +53,15 @@ const IOSAlert = styled('div')`
   text-align: right;
   align-self: start;
   &::after {
-    content: 'Needs silent off';
+    ${({ lastAction }) => {
+      if (!lastAction) {
+        return 'content: \'Press unmute to begin\';';
+      }
+      if (/iPhone|iPod|iPad/.test(navigator.platform)) {
+        return 'content: \'iOS needs silent off\';';
+      }
+      return '';
+    }}
   }
 `
 
@@ -96,7 +104,6 @@ const DataView = (props) => {
     setLog([...log.slice(log.length - actionListLimit + 1), state.lastAction])
   }, [state.lastAction]);
   const { sound, ...rest} = state;
-  const bools = Object.entries(rest).filter(([_, val]) => typeof val === 'boolean');
   return (
     <DataViews>
       <GridCell data-display={state[PATTERN_IDX].toString().padStart(2, '0')} />
@@ -105,7 +112,7 @@ const DataView = (props) => {
         {' ^^'}
       </PatternData>
       <GridCell row={6} column={1} data-display={state[BPM].toString().padStart(3, '0')} />
-      <GridCell row={5} column={1} data-display={'sw'} align="end" />
+      <GridCell row={5} column={1} data-display={'S00'} align="end" />
       {!props.viewLog && log.length ? (
         <LogView>
           {log.map((v, idx) => <li key={v+idx+'log'}>{v}</li>)}
@@ -113,9 +120,7 @@ const DataView = (props) => {
       ) : null}
       <GridCell row={6} column={2} width={6} data-display={getView(state)} />
       <GridCell row={6} column={8} data-display={state[SOUND].toString().padStart(2, '0')} />
-      { state.lastAction === 'mute' && (
-        <IOSAlert />
-      )}
+      { <IOSAlert lastAction={state.lastAction} />}
     </DataViews>
   );
 }

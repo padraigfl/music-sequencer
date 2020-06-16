@@ -16,7 +16,10 @@ import {
   PATTERN_IDX,
   WRITE,
   PATTERN_TYPE,
+  MUTE,
 } from '../../../Core/_constants';
+
+window.Tone = Tone;
 
 export default class SoundProcessor {
   static startNote = 'c3';
@@ -80,6 +83,7 @@ export default class SoundProcessor {
     this.loop = this.loopBuilder();
     this.sound.tone.toMaster();
     this.basicDrum.tone.toMaster();
+    Tone.Master.mute = true;
   }
 
   reducer(actionType, state) {
@@ -121,6 +125,8 @@ export default class SoundProcessor {
           this.melodySound = melodySound;
         }
         return;
+      case MUTE:
+        this.updateMute();
       case PATTERN_UPDATE:
       case NOTE_COPY:
       case PATTERN_COPY:
@@ -128,6 +134,15 @@ export default class SoundProcessor {
         return;
       default:
         return;
+    }
+  }
+
+  updateMute() {
+    if (this.lastState[MUTE] !== Tone.Master.mute) {
+      Tone.Master.mute = this.lastState[MUTE];
+      if (!this.lastState[MUTE] && Tone.Transport.state !== 'started') {
+        Tone.Transport.start();
+      }
     }
   }
 
@@ -219,4 +234,11 @@ export default class SoundProcessor {
       '16n',
     );
   };
+
+  unmount()  {
+    if (this && this.loop) {
+      this.loop.stop();
+      this.clearAllLights();
+    }
+  }
 }

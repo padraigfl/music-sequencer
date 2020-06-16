@@ -21,6 +21,8 @@ const NotesPad = (props) => {
           <Note
             key={note.id}
             {...note}
+            onHold={props.onHold}
+            onRelease={props.onRelease}
             onClick={props.onClick}
             action={props.onClick ? props.action : undefined}
           />

@@ -11,7 +11,7 @@ import { SOUND, PATTERN_TYPE } from '../../Core/_constants';
 
 const NoteButton = (props) => {
   const [playing, setPlayStatus] = useState(false);
-  const { synthAction, sounds, state, dispatch } = useContext(playerContext);
+  const { synthAction, sounds, state } = useContext(playerContext);
   const debounce = useRef(null);
   const noteRef = useRef(null);
 
@@ -43,7 +43,7 @@ const NoteButton = (props) => {
   const onMouseUp = useCallback((e) => {
     setPlayStatus(false);
     noteRef.current.blur();
-    synthAction(props.id);
+    synthAction(props.id, 'release');
   }, [synthAction, setPlayStatus]);
 
   const onMouseDown = useCallback((e) => {
@@ -53,14 +53,18 @@ const NoteButton = (props) => {
 
   const actions = useMemo(() => {
     return props.onClick
-      ? { onClick: props.onClick }
+      ? {
+        onClick: props.onClick,
+        onHold: props.onHold,
+        onRelease: props.onRelease,
+      }
       : {
         onClick: () => {
           if (debounce.current) {
             clearTimeout(debounce.current);
             debounce.current = null;
+            synthAction(props.id, 'attack', '8n');
           }
-          synthAction(props.id, 'attack', '8n');
         },
         onHold: onMouseDown,
         onRelease: onMouseUp,

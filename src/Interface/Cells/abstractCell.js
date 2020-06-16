@@ -130,6 +130,8 @@ const Cell = React.forwardRef((props, ref) => {
         props.onClick(e);
       }
       return;
+    } else if (props.onHold && props.onClick) {
+      props.onClick(e);
     }
   }, [props.onClick, desktop.held]);
 

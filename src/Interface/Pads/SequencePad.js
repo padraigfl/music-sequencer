@@ -3,6 +3,7 @@ import React, {
   useState,
   useEffect,
   useMemo,
+  useRef,
   useContext,
 } from 'react';
 import SequencerCell from '../Cells/Sequencer';
@@ -23,6 +24,7 @@ const getNoteDisplay = (note, customKeys) => {
 // Primary composition pad
 // Writes 16 step sequences to loop
 const SequencePad = () => {
+  const holdTimer = useRef(null);
   const { state, dispatch, sounds, startNote } = useContext(playContext);
   const [ newSequenceValue, updateNewValue ] = useState({});
   const [copyValue, setCopyValue] = useState(null);
@@ -82,22 +84,44 @@ const SequencePad = () => {
     }
   }, [copyValue, state[PATTERNS]]);
 
+  const onSimpleSetNote = useCallback((e) => {
+    const isBasicDrum = state[PATTERN_TYPE] === 'drums';
+    if (holdTimer.current || isBasicDrum) {
+      const value = e.currentTarget.dataset.value;
+      updatePattern({
+        ...newSequenceValue,
+        note: value,
+        span: !isBasicDrum ? 1 : undefined,
+      });
+      return;
+    }
+    clearTimeout(holdTimer.current);
+    holdTimer.current = null;
+  }, [newSequenceValue]);
+
   const onSelectNote = useCallback((e) => {
     const value = e.currentTarget.dataset.value;
-    if (state.patternType === 'drums') {
-      updatePattern({ ...newSequenceValue, note: value});
-    } else {
-      updateNewValue({ ...newSequenceValue, note: value });
-    }
+    console.log('a');
+    holdTimer.current = setTimeout(() => {
+      console.log('b');
+      if (state.patternType === 'drums') {
+        updatePattern({ ...newSequenceValue, note: value});
+      } else {
+        updateNewValue({ ...newSequenceValue, note: value });
+      }
+      holdTimer.current = null;
+    }, 300);
   }, [newSequenceValue]);
+
+  const clearIt = useCallback(() => clearTimeout(holdTimer.current), []);
 
   const onSelectLength = useCallback((e) => {
     const value = +e.currentTarget.dataset.value;
     updatePattern({ ...newSequenceValue, span: value });
   }, [newSequenceValue]);
 
-  return state[WRITE] && (
-    useMemo(() => (
+  return (
+    useMemo(() => state[WRITE] && (
       <>
         {typeof newSequenceValue.idx !== 'number'
           && pattern
@@ -120,7 +144,14 @@ const SequencePad = () => {
           )
         }
         {typeof newSequenceValue.idx === 'number' && !newSequenceValue.note && (
-          <NotesPad activeChildIdx={newSequenceValue.idx} italic bold onClick={onSelectNote} action={'pattern_entry_note'} />
+          <NotesPad
+            activeChildIdx={newSequenceValue.idx}
+            onClick={onSimpleSetNote}
+            onHold={onSelectNote}
+            onRelease={clearIt}
+            action={'pattern_entry_note'} 
+            italic
+            bold />
         )}
         {typeof newSequenceValue.idx === 'number' && newSequenceValue.note && (
           <NumberPad
@@ -133,7 +164,7 @@ const SequencePad = () => {
           />
         )}
       </>
-    ), [newSequenceValue, state[PATTERNS]])
+    ), [newSequenceValue, state[PATTERNS], state[WRITE]])
   );
 };
 
