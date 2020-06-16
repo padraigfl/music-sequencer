@@ -12,9 +12,10 @@ import desktopEventsContext from '../DesktopEventsContext';
 
 
 const buttonLight = (color) => (
-  `background-color: ${color}; box-shadow: 0px 0px 9px ${color};`
+  `background: ${color};
+  box-shadow: 0px 0px 9px ${color};`
 )
-const active = buttonLight('#aae0aa');
+const active = buttonLight('radial-gradient(#aaefaa 40%, rgba(255, 255, 255, 0.9) 75%)');
 const temp = buttonLight('#9999d0');
 const highlight = buttonLight('#ffd0d0');
 

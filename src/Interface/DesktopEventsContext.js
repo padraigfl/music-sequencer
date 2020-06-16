@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState, useContext, useCallback } from 'react';
 import playerContext from '../Core/context';
-import { CANCEL, MULTI_TOUCH, PATTERN_CHAIN, VOLUME_SET, PATTERN_COPY, SWING_SET, CLEAR_TEMP, NOTE_COPY } from '../Core/_constants';
+import { CANCEL, MULTI_TOUCH, PATTERN_CHAIN, VOLUME_SET, PATTERN_COPY, SWING_SET, CLEAR_TEMP, NOTE_COPY, PLAY } from '../Core/_constants';
 
 const desktopEventsContext = createContext({});
 
@@ -20,6 +20,7 @@ export const DesktopEventsProvider = (props) => {
         SWING_SET,
         NOTE_COPY,
         CLEAR_TEMP,
+        PLAY,
       ].includes(state.lastAction)
     ) {
       setHeld({});
@@ -28,14 +29,17 @@ export const DesktopEventsProvider = (props) => {
   }, [held, state.lastAction]);
 
   const holdAction = useCallback((dataset) => {
-    console.log({
-      type: MULTI_TOUCH,
-      value: [
-        held,
-        dataset,
-      ],
-    });
-    if (held.action === dataset.action && held.value === dataset.value) {
+    const basicActionButton = Object.keys(dataset).length === 1 && dataset.action;
+
+    if (basicActionButton) {
+      dispatch({ type: basicActionButton });
+    }
+
+    if (
+      held.action === dataset.action
+      && held.value === dataset.value
+      || basicActionButton
+    ) {
       dispatch({
         type: CLEAR_TEMP,
         values: held,

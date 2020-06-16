@@ -17,6 +17,8 @@ import {
   WRITE,
   PATTERN_TYPE,
   MUTE,
+  SOUNDS_VIEW,
+  PATTERN_VIEW,
 } from '../../../Core/_constants';
 
 window.Tone = Tone;
@@ -88,12 +90,21 @@ export default class SoundProcessor {
 
   reducer(actionType, state) {
     this.lastState = state; // TODO probably unreliable
-    console.log(this.sound.name)
+
+
+    // todo status lights handler
     if (!this.currentChain.length) {
       this.currentChain = state[PATTERN_CHAIN];
     }
+    if (this.patternInterval && this.lastState.view !== PATTERN_VIEW) {
+      this.stopPatternFlashing();
+    } else if (!this.patternInterval && this.lastState.view === PATTERN_VIEW && !this.lastState[PLAY]) {
+      this.patternFlashing();
+    }
+
     switch(actionType) {
       case PLAY:
+        this.stopPatternFlashing();
         if (Tone.Transport.state !== 'started') {
           Tone.Transport.start();
         }
@@ -137,6 +148,33 @@ export default class SoundProcessor {
     }
   }
 
+  patternFlashing() {
+    let idx = 0;
+    this.patternInterval = setInterval(() => {
+      const duration = this.lastState[PATTERN_CHAIN].length + 1;
+      const entry = idx % 2 === 0
+        ? this.lastState[PATTERN_CHAIN][(idx / 2) % duration]
+        : undefined;
+      if (typeof entry !== 'undefined') {
+        this.updateLights(
+          entry,
+          'bgRed',
+        );
+      } else {
+        this.clearLights('bgRed');
+      }
+      idx++;
+    }, 100); 
+  }
+
+  stopPatternFlashing() {
+    if (this.patternInterval) {
+      clearInterval(this.patternInterval);
+      this.patternInterval = null;
+      this.clearLights('bgRed');
+    }
+  }
+
   updateMute() {
     if (this.lastState[MUTE] !== Tone.Master.mute) {
       Tone.Master.mute = this.lastState[MUTE];
@@ -157,7 +195,7 @@ export default class SoundProcessor {
 
   updateLights = (idx, color = 'red', clearLights = true) => {
     const next = document.getElementById(`live-status--${idx % 16}`) 
-    if (clearLights || idx % 16 === 0) {
+    if (clearLights || (idx % 16 === 0 && idx !== 0)) {
       this.clearLights(color);
     }
     next.classList.add(color);
@@ -170,6 +208,7 @@ export default class SoundProcessor {
   clearAllLights = () => {
     this.clearLights('red');
     this.clearLights('green');
+    this.stopPatternFlashing();
   }
 
 
@@ -222,8 +261,6 @@ export default class SoundProcessor {
           const bars = Math.floor(span / 16);
           const quarters = (pattern.spots[noteIdx].span + 1) - bars;
           this.melodySound.tone.triggerAttackRelease(pattern.spots[noteIdx].note, `0:${bars}:${quarters}`);
-          console.log(derivedIndex);
-          console.log(noteIdx);
         }
         if (pattern.drums[noteIdx]) {
           this.basicDrum.tone.triggerAttackRelease(pattern.drums[noteIdx].note)
