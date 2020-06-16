@@ -29,6 +29,10 @@ const App = () => {
       <Route path="/(melody|bass)/menu">
         <button onClick={() => history.push('/bass')}>Bass</button>
         <button onClick={() => history.push('/melody')}>Melody</button>
+      </Route> 
+      <Route path="/" exact>
+        <button onClick={() => history.push('/bass')}>Bass</button>
+        <button onClick={() => history.push('/melody')}>Melody</button>
       </Route>
     </Router>
   );
