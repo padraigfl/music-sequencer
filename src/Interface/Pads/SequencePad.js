@@ -3,12 +3,13 @@ import React, {
   useState,
   useEffect,
   useMemo,
+  useRef,
   useContext,
 } from 'react';
 import SequencerCell from '../Cells/Sequencer';
-import playContext from '../../System/context';
+import playContext from '../../Core/context';
 import Pad from './abstractPad';
-import { WRITE, PATTERN_UPDATE, PATTERNS, PATTERN_IDX, CANCEL, NOTE_COPY, PATTERN_TYPE, SOUND } from '../../System/_constants';
+import { WRITE, PATTERN_UPDATE, PATTERNS, PATTERN_IDX, CANCEL, NOTE_COPY, PATTERN_TYPE, SOUND } from '../../Core/_constants';
 import NotesPad from './NotesPad';
 import NumberPad from './_numberPad';
 import { generateKeys } from '../../System/_utils';
@@ -23,26 +24,27 @@ const getNoteDisplay = (note, customKeys) => {
 // Primary composition pad
 // Writes 16 step sequences to loop
 const SequencePad = () => {
-  const { state, dispatch, sounds } = useContext(playContext);
+  const holdTimer = useRef(null);
+  const { state, dispatch, sounds, startNote } = useContext(playContext);
   const [ newSequenceValue, updateNewValue ] = useState({});
   const [copyValue, setCopyValue] = useState(null);
   const pattern = useMemo(() => {
     return state[PATTERNS][state[PATTERN_IDX]];
    }, [state[PATTERNS], state[PATTERN_IDX]]);
-  const patternType = state.patternType;
+  const patternType = state[PATTERN_TYPE];
+  console.log(patternType);
   const customKeys = useMemo(() => {
     console.log(sounds[state[SOUND]])
     if (!sounds[state[SOUND]].keys) {
       return null;
     }
-    return generateKeys().reduce((acc, val, idx) => ({
+    return generateKeys(+startNote[1]).reduce((acc, val, idx) => ({
       ...acc,
       [val.id]: sounds[state[SOUND]].keys[idx]
     }), {})
   }, [state[SOUND]])
   console.log(customKeys)
 
-  // clear on cancel
   useEffect(() => {
     if (state.lastAction === CANCEL) {
       updateNewValue({});
@@ -50,6 +52,8 @@ const SequencePad = () => {
     }
   }, [state])
 
+
+  // clear on cancel ??
   const initalPattern = useMemo(() => (
     JSON.parse(JSON.stringify(state[PATTERNS][state[PATTERN_IDX]]))
   ), [state[PATTERN_IDX]]);
@@ -80,44 +84,87 @@ const SequencePad = () => {
     }
   }, [copyValue, state[PATTERNS]]);
 
+  const onSimpleSetNote = useCallback((e) => {
+    const isBasicDrum = state[PATTERN_TYPE] === 'drums';
+    if (holdTimer.current || isBasicDrum) {
+      const value = e.currentTarget.dataset.value;
+      updatePattern({
+        ...newSequenceValue,
+        note: value,
+        span: !isBasicDrum ? 1 : undefined,
+      });
+      return;
+    }
+    clearTimeout(holdTimer.current);
+    holdTimer.current = null;
+  }, [newSequenceValue]);
+
   const onSelectNote = useCallback((e) => {
     const value = e.currentTarget.dataset.value;
-    if (state.patternType === 'drums') {
-      updatePattern({ ...newSequenceValue, note: value});
-    } else {
-      updateNewValue({ ...newSequenceValue, note: value });
-    }
+    console.log('a');
+    holdTimer.current = setTimeout(() => {
+      console.log('b');
+      if (state.patternType === 'drums') {
+        updatePattern({ ...newSequenceValue, note: value});
+      } else {
+        updateNewValue({ ...newSequenceValue, note: value });
+      }
+      holdTimer.current = null;
+    }, 300);
   }, [newSequenceValue]);
+
+  const clearIt = useCallback(() => clearTimeout(holdTimer.current), []);
 
   const onSelectLength = useCallback((e) => {
     const value = +e.currentTarget.dataset.value;
     updatePattern({ ...newSequenceValue, span: value });
   }, [newSequenceValue]);
 
-  return state[WRITE] && (
-    <Pad> 
-      {typeof newSequenceValue.idx !== 'number'
-        && pattern
-        && pattern[patternType]
-        && pattern[patternType].map((note, idx) =>
-        <SequencerCell
-          {...note}
-          onClick={onSelectStep}
-          key={idx}
-          idx={idx}
-          highlight={idx === state[PATTERN_IDX]}
-          display={note ? getNoteDisplay(note, customKeys)  : null}
-          action={PATTERN_UPDATE}
-          secondaryAction={NOTE_COPY}
-        />
-      )}
-      {typeof newSequenceValue.idx === 'number' && !newSequenceValue.note && (
-        <NotesPad activeChildIdx={newSequenceValue.idx} italic bold onClick={onSelectNote} action={'pattern_entry_note'} />
-      )}
-      {typeof newSequenceValue.idx === 'number' && newSequenceValue.note && (
-        <NumberPad activeChildIdx={newSequenceValue.idx} italic bold onClick={onSelectLength} action={'pattern_entry_length'} displayValue />
-      )}
-    </Pad>
+  return (
+    useMemo(() => state[WRITE] && (
+      <>
+        {typeof newSequenceValue.idx !== 'number'
+          && pattern
+          && pattern[patternType]
+          && (
+            <Pad>
+              { pattern[patternType].map((note, idx) =>
+                <SequencerCell
+                  {...note}
+                  onClick={onSelectStep}
+                  key={idx}
+                  idx={idx}
+                  highlight={idx === state[PATTERN_IDX]}
+                  display={note ? getNoteDisplay(note, customKeys)  : null}
+                  action={PATTERN_UPDATE}
+                  secondaryAction={NOTE_COPY}
+                />
+              )}
+            </Pad>
+          )
+        }
+        {typeof newSequenceValue.idx === 'number' && !newSequenceValue.note && (
+          <NotesPad
+            activeChildIdx={newSequenceValue.idx}
+            onClick={onSimpleSetNote}
+            onHold={onSelectNote}
+            onRelease={clearIt}
+            action={'pattern_entry_note'} 
+            italic
+            bold />
+        )}
+        {typeof newSequenceValue.idx === 'number' && newSequenceValue.note && (
+          <NumberPad
+            activeChildIdx={newSequenceValue.idx}
+            onClick={onSelectLength}
+            action={'pattern_entry_length'}
+            italic
+            bold
+            displayValue
+          />
+        )}
+      </>
+    ), [newSequenceValue, state[PATTERNS], state[WRITE]])
   );
 };
 

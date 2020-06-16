@@ -1,15 +1,14 @@
 import React, { createContext, useEffect, useState, useContext, useCallback } from 'react';
-import playerContext from '../System/context';
-import { CANCEL, MULTI_TOUCH, PATTERN_CHAIN, VOLUME_SET, PATTERN_COPY, SWING_SET, CLEAR_TEMP, NOTE_COPY } from '../System/_constants';
+import playerContext from '../Core/context';
+import { CANCEL, MULTI_TOUCH, PATTERN_CHAIN, VOLUME_SET, PATTERN_COPY, SWING_SET, CLEAR_TEMP, NOTE_COPY } from '../Core/_constants';
 
 const desktopEventsContext = createContext({});
-
 
 // as this is primarily a mobile touch screen, multitouch actions are used a lot
 // this is an attempt to push all the mouse handling nonsense into one spot and convert it to match
 export const DesktopEventsProvider = (props) => {
   const [held, setHeld] = useState({});
-  const { dispatch, state } = useContext(props.context);
+  const { dispatch, state } = useContext(playerContext);
 
   useEffect(() => {
     if (

@@ -5,40 +5,53 @@ import { generateKeys } from '../_utils';
 export class DrumMachine extends Tone.Players {
   playing = [];
   overlap = false;
-  keyMap;
+  keyMap = {};
   baseVolume = 0;
+  name = 'basicDrum'
 
-  constructor({ beats, baseUrl, customKeys }) {
-    let beatArray = beats.map(v => `${baseUrl}${v}`)
+  constructor({ sources, baseUrl, startNote = 'c3', baseVolume = 0 }) {
+    let beatArray = [];
+    let customKeys = [];
+
+    sources.forEach(({ name, src }) => {
+      beatArray.push(`${baseUrl}${src}`);
+      customKeys.push(name);
+    });
+  
     super(beatArray);
-    this.keyMap = generateKeys().reduce((acc, key, idx) => ({
-      ...acc,
-      [key.id]: this.get(idx),
-    }), {});
-    if (customKeys) {
+    this.baseVolume = baseVolume;
+
+    generateKeys(+startNote[1]).forEach((key, idx) => {
+      this.keyMap[key.id] = {
+        player: this.get(idx),
+        data: sources[idx],
+      };
+    });
+
+    if (customKeys.filter(v => !!v).length) {
       this.customKeys = customKeys;
     }
   }
 
   triggerAttackRelease(note) {
-    this.setVolume(note);
-    this.keyMap[note].start();
+    const { data, player } =  this.keyMap[note];
+    this.setVolume(data);
+    player.start();
   }
 
   triggerAttack(note) {
-    this.setVolume(note);
-    this.keyMap[note].start();
+    this.triggerAttackRelease(note);
   }
 
   triggerRelease(note) {
     // this.keyMap[note].stop();
   }
-  setVolume(idx) {
-    if (this.customVolumes && this.customVolumes[idx] && this.volumne.value !== this.customVolumes[idx]) {
-      this.volume.value = this.customVolumes;
+  setVolume(data) {
+    if (data && data.volume && data.volume !== this.volume.value) {
+      this.volume.value = data.volume;
       return;
     }
-    if (this.volume.value !== this.baseVolume) {
+    if (typeof data.volume === 'undefined' && this.volume.value !== this.baseVolume) {
       this.volume.value = this.baseVolume;
     }
   }

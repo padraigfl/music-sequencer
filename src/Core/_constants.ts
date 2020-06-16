@@ -1,6 +1,7 @@
 
-export const PLAY = 'play';
-export const WRITE = 'write';
+export const PLAY = 'play_toggle';
+export const WRITE = 'write_toggle';
+export const MUTE = 'mute_toggle';
 
 export const BPM = 'bpm';
 export const SWING_SET = 'swing_set';

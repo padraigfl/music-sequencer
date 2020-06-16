@@ -2,13 +2,11 @@ import React, {
   useContext,
   useCallback,
   useRef,
-  useState,
-  useEffect,
   useMemo,
 } from 'react';
 import styled from 'styled-components';
-import playerContext from '../../System/context';
-import { MULTI_TOUCH } from '../../System/_constants';
+import playerContext from '../../Core/context';
+import { MULTI_TOUCH } from '../../Core/_constants';
 import { getTouchValues, getButtonData } from '../_utils';
 import desktopEventsContext from '../DesktopEventsContext';
 
@@ -67,6 +65,10 @@ const DefaultCell = styled('button')`
     background-size: 24px;
     background-position: center;
     ${({ icon }) => icon  ? `background-image: url(${icon}); content: ''; width: 100%; height: 100%;` : ''}
+    ${({ isDataDisplay }) => isDataDisplay
+      ? `font-family: monospace; font-size: 8px; line-height: 16px;`
+      : ''
+    }
   }
   &:active::after {
     transform: translate(1px, 1px);
@@ -128,6 +130,8 @@ const Cell = React.forwardRef((props, ref) => {
         props.onClick(e);
       }
       return;
+    } else if (props.onHold && props.onClick) {
+      props.onClick(e);
     }
   }, [props.onClick, desktop.held]);
 
@@ -151,8 +155,8 @@ const Cell = React.forwardRef((props, ref) => {
       onClick,
       onMouseDown: props.onHold || onMouseDown,
       onMouseUp: props.onRelease || onMouseUp,
-      onTouchStart: props.onHold || onTouchStart,
-      onTouchEnd: props.onRelease || onMouseUp,
+      onTouchStart: props.noTouch ? undefined : (props.onHold || onTouchStart),
+      onTouchEnd: props.noTouch ? undefined : (props.onRelease || onMouseUp),
       onMouseEnter: props.onMouseEnter,
       onMouseLeave: props.onMouseLeave,
     }
@@ -184,6 +188,7 @@ const Cell = React.forwardRef((props, ref) => {
       height={props.height}
       width={props.width}
       icon={props.icon}
+      isDataDisplay={props.isDataDisplay && typeof props.display !== 'undefined'}
     >
       { props.children }
     </props.Component>

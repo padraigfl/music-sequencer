@@ -1,31 +1,13 @@
-import Tone from 'tone';
-import DrumMachine from './Instruments/DrumMachine';
+import * as Tone from 'tone';
+import { instrumentBuildParams } from '../../_types';
 
-export const demoDrum = {
-  kick1: 'acoustic-k-1.mp3',
-  kick2: 'CYCdh_Kurz08-Kick01.[ogg|mp3]',
-  tom1: 'CYCdh_Kurz08-Tom02.[ogg|mp3]',
-  tom2: 'CYCdh_Kurz08-Tom04.[ogg|mp3]',
-  snare1: 'acoustic-s-1.mp3',
-  snare2: 'CYCdh_Kurz08-Snr01.[ogg|mp3]',
-  sdSt: 'CYCdh_Kurz08-SdSt02.[ogg|mp3]',
-  scratch: 'CYCdh_Kurz08-Scratch02.[ogg|mp3]',
-  hat1: 'acoustic-h-1.mp3',
-  hat2: 'acoustic-h-2.mp3',
-  pdHat: 'CYCdh_Kurz08-PdHat.[ogg|mp3]',
-  opHat: 'CYCdh_Kurz08-OpHat.[ogg|mp3]',
-  clap: 'CYCdh_Kurz08-clap.[ogg|mp3]',
-  crash: 'CYCdh_Kurz08-Crash01.[ogg|mp3]',
-  perc1: 'CYCdh_Kurz08-Perc01.[ogg|mp3]',
-  perc3: 'CYCdh_Kurz08-Perc04.[ogg|mp3]',
-};
 
 export const pianoSource = [1,2,,3,4,5,6,7,8]
   .reduce((acc, val) => (
     { ...acc, [`C${val}`]: `C${val}.[mp3|ogg]`}
     ), {});
 
-export const soundSources = [
+export const melodySoundSources: instrumentBuildParams[]  = [
   { instrument: Tone.Synth },
   { instrument: Tone.DuoSynth },
   { instrument: Tone.MembraneSynth },
@@ -146,12 +128,4 @@ export const soundSources = [
     { release: 1, baseUrl: '/static/sampler/'}
     ],
   },
-  { instrument: DrumMachine, title: 'basicDrum',
-    toneParams: [{
-    beats: Object.values(demoDrum),
-    baseUrl: '/static/demoDrum/',
-    }],
-    customKeys: Object.keys(demoDrum),
-  }
 ];
-  
