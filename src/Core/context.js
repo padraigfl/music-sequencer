@@ -5,12 +5,14 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
+import { useHistory } from 'react-router-dom';
 
 import {
   getInitialState,
   rotateBpm,
   updatePatternAtIdx,
   updateNoteInPattern,
+  setLocalStorage,
 } from './_utils';
 
 import {
@@ -157,6 +159,7 @@ const defaultActionHandlers = {
     };
   },
   [MULTI_TOUCH]: (state, value) => {
+    const hasCancel = value[0].action === CANCEL || value[1].action === CANCEL;
     const action = value && value[0] ? value[0].secondary : null;
     return {
       ...multiTouchAction(action, state, value),
@@ -183,8 +186,10 @@ const generateReducer = (actionHandler = defaultActionHandler) => (state, action
 }
 
 export const CoreProvider = (props) => {
+  const history = useHistory();
   const initialState = useMemo(() => getInitialState({
     customState: props.AudioProcessor.customState,
+    pathname: history.location.pathname,
   }), []);
   const coreReducer = useMemo(() => (
     generateReducer({
@@ -202,9 +207,12 @@ export const CoreProvider = (props) => {
   useEffect(() => {
     soundProcessor.reducer(state.lastAction, state);
     if (state.lastAction === 'menu'&& !props.history.location.pathname.match(/.*\/menu$/)) {
-      props.history.push(`${props.history.location.pathname}/menu`);
+      history.push(`${history.location.pathname}/menu`);
     }
   }, [state]);
+  useEffect(() => {
+    setLocalStorage(state, history.location.pathname);
+  }, [state[PATTERNS]]);
   useEffect(() => soundProcessor.unmount, []);
 
   const synthAction = useCallback((note, action = 'release', length) => {
@@ -216,7 +224,7 @@ export const CoreProvider = (props) => {
         soundProcessor.sound.tone.triggerRelease();
         return;
     }
-  }, [state[SOUND]]);
+  }, [state[SOUND], state[MUTE]]);
 
   return (
     <playerContext.Provider

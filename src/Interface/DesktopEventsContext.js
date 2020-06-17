@@ -45,6 +45,13 @@ export const DesktopEventsProvider = (props) => {
         values: held,
       });
     } else if (held.action) {
+      console.log({
+        type: MULTI_TOUCH,
+        value: [
+          held,
+          dataset,
+        ],
+      })
       dispatch({
         type: MULTI_TOUCH,
         value: [
