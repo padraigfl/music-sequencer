@@ -121,8 +121,15 @@ const Cell = React.forwardRef((props, ref) => {
 
   const onClick = useCallback((e) => {
     const buttonData = getButtonData(e.target);
-    if (desktop.held.secondary && holdTimer.current) {
+    if (
+      desktop.held.secondary
+      && (
+        holdTimer.current
+        || (desktop.held.secondary !== buttonData.secondary)
+      )
+    ) {
       clearTimeout(holdTimer.current);
+      holdTimer.current = null;
       desktop.holdAction(buttonData);
     } else if (holdTimer.current) {
       clearTimeout(holdTimer.current);

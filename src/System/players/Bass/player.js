@@ -6,26 +6,22 @@ import { generateDrumMachine } from '../../Instruments/_sources';
 class LazyBass extends MelodyPlayer {
   static colorFilter = 'hue-rotate(90deg) saturate(5)';
   static startNote = 'c1';
+  static sources = bassSoundSources;
   static sounds = [
-    ...bassSoundSources.map((v, idx) => ({ ...generateInstrument(v), id: idx })),
-    generateDrumMachine(LazyBass.startNote, bassSoundSources.length),
+    ...LazyBass.sources.map((v, idx) => ({ ...generateInstrument(v), id: idx })),
+    generateDrumMachine(LazyBass.startNote, LazyBass.sources.length),
   ];
 
   constructor(...params) {
-    super(...params);
+    super(...params, LazyBass);
     window.playa = this;
-    this.startNote = LazyBass.startNote
-    this.playerSounds = LazyBass.sounds;
-    this.sound = generateInstrument(bassSoundSources[0]);
-    this.melodySound = this.playerSounds[0];
-    this.basicDrum = this.playerSounds[15];
-    this.instantiate();
+    this.startNote = LazyBass.startNote;
   }
 
   getNewPlaysound = (idx) => {
     let newPlaySound = idx < 15
       ? generateInstrument(bassSoundSources[idx])
-      : generateDrumMachine(this.startNote, idx);
+      : generateDrumMachine(LazyBass.startNote, idx);
 
     newPlaySound.tone.toMaster();
     return newPlaySound;

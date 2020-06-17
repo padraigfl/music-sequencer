@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState, useContext, useCallback } from 'react';
 import playerContext from '../Core/context';
-import { CANCEL, MULTI_TOUCH, PATTERN_CHAIN, VOLUME_SET, PATTERN_COPY, SWING_SET, CLEAR_TEMP, NOTE_COPY, PLAY } from '../Core/_constants';
+import { CANCEL, MULTI_TOUCH, PATTERN_CHAIN, VOLUME_SET, PATTERN_COPY, SWING_SET, CLEAR_TEMP, NOTE_COPY, PLAY, VOLUME } from '../Core/_constants';
 
 const desktopEventsContext = createContext({});
 
@@ -15,7 +15,7 @@ export const DesktopEventsProvider = (props) => {
       held.secondary
       && [
         CANCEL,
-        VOLUME_SET,
+        VOLUME,
         PATTERN_COPY,
         SWING_SET,
         NOTE_COPY,

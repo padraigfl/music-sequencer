@@ -52,8 +52,9 @@ const getValueFromDataset = dataset => (
 const multiTouchAction = (derivedAction, state, values = []) => {
   switch(derivedAction) {
     case VOLUME:
-      return isInRange(value)
-        ? { [VOLUME]: value }
+      const volume = values[1].idx;
+      return isInRange(volume)
+        ? { [VOLUME]: volume - 8, [MUTE]: false }
         : {};
     case SWING_SET:
       return isInRange(value)
