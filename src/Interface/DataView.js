@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import playerContext from '../Core/context';
-import { PATTERN_IDX, PATTERN_CHAIN, SOUND, WRITE, BPM } from '../Core/_constants';
+import { PATTERN_IDX, PATTERN_CHAIN, SOUND, WRITE, BPM, VOLUME } from '../Core/_constants';
 
 const border = '1px dotted black';
 
@@ -119,6 +119,7 @@ const DataView = (props) => {
         </LogView>
       ) : null}
       <GridCell row={6} column={2} width={6} data-display={getView(state)} />
+      <GridCell row={5} column={8} data-display={`${Math.floor(state[VOLUME] + 8)}`.padStart(2, '0')} />
       <GridCell row={6} column={8} data-display={state[SOUND].toString().padStart(2, '0')} />
       { <IOSAlert lastAction={state.lastAction} />}
     </DataViews>

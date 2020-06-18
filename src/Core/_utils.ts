@@ -15,7 +15,11 @@ import {
 import { ContextState, Pattern, PatternStep } from '../Core/_types';
 
 
-export const getInitialState = ({ mutable, customState }: { mutable?: any, customState?: any }): ContextState => ({
+export const getEmptyPattern = () => (
+  { spots: new Array(16).fill(null), drums: new Array(16).fill(null), effects: new Array(16).fill(null) }
+);
+
+const genericInitialState = {
   [PLAY]: false,
   [WRITE]: false,
   [PATTERN_VIEW]: false,
@@ -23,15 +27,84 @@ export const getInitialState = ({ mutable, customState }: { mutable?: any, custo
   [BPM]: 120,
   [VOLUME]: 1,
   [SOUND]: 0,
-  [PATTERNS]: new Array(16).fill({ spots: new Array(16).fill(null), drums: new Array(16).fill(null), effects: {} }),
+  [PATTERNS]: new Array(16).fill(getEmptyPattern()),
   [PATTERN_IDX]: 0,
   lastNote: 'C3',
   [PATTERN_CHAIN]: [0, 1],
-  [MUTE]: true,
-  mutable,
   [PATTERN_TYPE]: 0,
-  ...(customState || {}),
-});
+  [MUTE]: true,
+};
+
+const formatPathname = (pathname = '') => (
+  pathname.split('/').filter(v => v).slice(0, 2).join('/')
+)
+
+const getLocalStorage = (pathname, customState = {}) => {
+  const formattedData = {};
+  if (!pathname) {
+    return formattedData;
+  }
+  const savedJson = window.localStorage.getItem(
+    formatPathname(pathname)
+  );
+
+  if (!savedJson) {
+    return {};
+  }
+
+  const savedState = JSON.parse(savedJson);
+
+  formattedData[PATTERNS] = genericInitialState[PATTERNS].map(
+    (v, idx) => savedState[PATTERNS] && savedState[PATTERNS][idx]
+      ? savedState[PATTERNS][idx]
+      : (customState[PATTERNS] || v)
+  );
+
+  [PATTERN_CHAIN, VOLUME, SOUND, PATTERN_TYPE, BPM].forEach(
+    (v) => {
+      formattedData[v] = savedState[v] || customState[v] || genericInitialState[v];
+    }
+  );
+
+  return formattedData;
+}
+
+export const setLocalStorage = (state: ContextState, locationPathname?: string) => {
+  const pathname = locationPathname || window.location.pathname;
+  const formattedData = {
+    [VOLUME]: state[VOLUME],
+    [BPM]: state[BPM],
+    [SOUND]: state[SOUND],
+    [PATTERN_TYPE]: state[PATTERN_TYPE],
+    [PATTERN_CHAIN]: state[PATTERN_CHAIN],
+    [PATTERNS]: state[PATTERNS].reduce((acc, val: Pattern, idx) => {
+      if (val && Object.entries(val).some(([key, values]) => Array.isArray(values) && values.some(v => !!v))) {
+        acc[idx] = val;
+      }
+      return acc;
+    }, {}),
+  };
+  window.localStorage.setItem(
+    formatPathname(pathname),
+    JSON.stringify(formattedData),
+  );
+}
+
+
+
+export const getInitialState = (
+  { mutable, customState, pathname = '' }:
+  { mutable?: any, customState?: any, pathname?: string }
+): ContextState => {
+  const localStorage = getLocalStorage(pathname, customState);
+  console.log(localStorage);
+  return {
+    ...genericInitialState,
+    mutable,
+    ...(customState || {}),
+    ...localStorage,
+  }
+};
 
 // if working from a base you have limited control of BPM
 const getSyncBpmOptions = (base: number): number[] => [base/4, base/2, base, base * 2, base * 4].filter(v => v > 30 && v < 320);

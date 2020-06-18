@@ -32,9 +32,7 @@ const SequencePad = () => {
     return state[PATTERNS][state[PATTERN_IDX]];
    }, [state[PATTERNS], state[PATTERN_IDX]]);
   const patternType = state[PATTERN_TYPE];
-  console.log(patternType);
   const customKeys = useMemo(() => {
-    console.log(sounds[state[SOUND]])
     if (!sounds[state[SOUND]].keys) {
       return null;
     }
@@ -42,8 +40,7 @@ const SequencePad = () => {
       ...acc,
       [val.id]: sounds[state[SOUND]].keys[idx]
     }), {})
-  }, [state[SOUND]])
-  console.log(customKeys)
+  }, [state[SOUND]]);
 
   useEffect(() => {
     if (state.lastAction === CANCEL) {
@@ -85,6 +82,7 @@ const SequencePad = () => {
   }, [copyValue, state[PATTERNS]]);
 
   const onSimpleSetNote = useCallback((e) => {
+    console.log(e);
     const isBasicDrum = state[PATTERN_TYPE] === 'drums';
     if (holdTimer.current || isBasicDrum) {
       const value = e.currentTarget.dataset.value;

@@ -82,7 +82,7 @@ const NoteButton = (props) => {
       display={state[PATTERN_TYPE] !== 'spots'  ? sounds[state[SOUND]].keys[props.idx] : props.id}
       action={props.action}
       idx={props.idx}
-      noTouch
+      noTouch={!props.onHold}
       // value={state[SOUND] === 15 ? sounds[state[SOUND]].keys[props.idx] : props.id}
     />
   )

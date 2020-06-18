@@ -5,6 +5,11 @@ const margin = 8;
 const pw = 450;
 const col = 8;
 
+const padActiveTransparent = 'radial-gradient(#efaaaa 40%, #e8e8e8 75%)';
+
+// buttons located in the pad need some translucency to allow fiddling with the StatusPad colors underneath
+// pretty hacky but I think it opens up some design freedom that can be totally divorced from reach
+// and that's kinda neat???
 const Pad = styled('div')`
   position: relative;
   display: flex;
@@ -22,11 +27,14 @@ const Pad = styled('div')`
     height: calc(${({ entries = 16 }) => (100 / (entries / 4))}% - ${margin * 2}px);
   }
   > button {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.7);  
   }
   > button:active {
     padding-top: 1px;
     padding-left: 1px;
+  }
+  > button[data-active] {
+    background: ${padActiveTransparent};
   }
   > buttons {
     border-bottom: 2px solid #bbb;

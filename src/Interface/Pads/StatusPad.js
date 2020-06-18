@@ -25,6 +25,11 @@ const multiOutline = (outlines) => {
 const StatusCell = styled('div')`
   box-shadow: ${multiOutline([{ o: 3, c: greenLow }, { o: 3, c: redLow }])};
   pointer-events: none;
+  background-color: rgba(255, 255, 255, 0.7);
+  transition: all ease-out 200ms;
+  &.red, &.green {
+    transition: none;
+  }
   &.green {
     box-shadow: ${multiOutline([{ o: 4, c: green }, { o: 2, c: redLow }])};
   }
@@ -36,6 +41,10 @@ const StatusCell = styled('div')`
   }
   &.live {
     background-color: white;
+  }
+  &.bgRed {
+    background-color: red;
+    transition: none;
   }
 `;
 

@@ -10,11 +10,11 @@ import { MULTI_TOUCH } from '../../Core/_constants';
 import { getTouchValues, getButtonData } from '../_utils';
 import desktopEventsContext from '../DesktopEventsContext';
 
-
 const buttonLight = (color) => (
-  `background-color: ${color}; box-shadow: 0px 0px 9px ${color};`
+  `background: ${color};
+  box-shadow: 0px 0px 9px ${color};`
 )
-const active = buttonLight('#aae0aa');
+const active = buttonLight('radial-gradient(#efaaaa 40%, #e8e8e8 75%)');
 const temp = buttonLight('#9999d0');
 const highlight = buttonLight('#ffd0d0');
 
@@ -120,8 +120,15 @@ const Cell = React.forwardRef((props, ref) => {
 
   const onClick = useCallback((e) => {
     const buttonData = getButtonData(e.target);
-    if (desktop.held.secondary && holdTimer.current) {
+    if (
+      desktop.held.secondary
+      && (
+        holdTimer.current
+        || (desktop.held.secondary !== buttonData.secondary)
+      )
+    ) {
       clearTimeout(holdTimer.current);
+      holdTimer.current = null;
       desktop.holdAction(buttonData);
     } else if (holdTimer.current) {
       clearTimeout(holdTimer.current);
