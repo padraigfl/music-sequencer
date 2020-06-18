@@ -13,6 +13,7 @@ import {
   updatePatternAtIdx,
   updateNoteInPattern,
   setLocalStorage,
+  getEmptyPattern,
 } from './_utils';
 
 import {
@@ -105,6 +106,22 @@ const multiTouchAction = (derivedAction, state, values = []) => {
   }
 };
 
+const canceLActionHandler = (state, dataset) => {
+  switch (dataset.secondary) {
+    case PATTERN_COPY:
+      return {
+        [PATTERNS]: updatePatternAtIdx(
+          state,
+          getEmptyPattern(),
+          dataset.idx,
+        ),
+        lastAction: PATTERN_UPDATE,
+      }
+    default:
+      return {};
+  }
+}
+
 const defaultActionHandlers = {
   [PLAY]: state =>({ [PLAY]: !state[PLAY] }),
   [WRITE]: state => ({
@@ -159,7 +176,10 @@ const defaultActionHandlers = {
     };
   },
   [MULTI_TOUCH]: (state, value) => {
-    const hasCancel = value[0].action === CANCEL || value[1].action === CANCEL;
+    const hasCancel = value.findIndex(v => v.action === CANCEL);
+    if (hasCancel !== -1) {
+      return canceLActionHandler(state, value.find(v => v.action !== CANCEL));
+    }
     const action = value && value[0] ? value[0].secondary : null;
     return {
       ...multiTouchAction(action, state, value),

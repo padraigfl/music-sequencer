@@ -14,6 +14,11 @@ import {
 } from '../Core/_constants';
 import { ContextState, Pattern, PatternStep } from '../Core/_types';
 
+
+export const getEmptyPattern = () => (
+  { spots: new Array(16).fill(null), drums: new Array(16).fill(null), effects: new Array(16).fill(null) }
+);
+
 const genericInitialState = {
   [PLAY]: false,
   [WRITE]: false,
@@ -22,7 +27,7 @@ const genericInitialState = {
   [BPM]: 120,
   [VOLUME]: 1,
   [SOUND]: 0,
-  [PATTERNS]: new Array(16).fill({ spots: new Array(16).fill(null), drums: new Array(16).fill(null), effects: new Array(16).fill(null) }),
+  [PATTERNS]: new Array(16).fill(getEmptyPattern()),
   [PATTERN_IDX]: 0,
   lastNote: 'C3',
   [PATTERN_CHAIN]: [0, 1],
