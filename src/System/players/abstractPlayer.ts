@@ -1,4 +1,4 @@
-import Tone from 'tone';
+import * as Tone from 'tone';
 import { generateInstrument } from '../_utils';
 
 import {
@@ -8,8 +8,11 @@ import {
   WRITE,
   MUTE,
 } from '../../Core/_constants';
+import { Pattern, ContextState } from '../../Core/_types';
+import { Context } from 'vm';
+import { instrumentBuildParams, Sound } from '../_types';
 
-window.Tone = Tone;
+(window as any).Tone = Tone;
 
 /**
  * 
@@ -24,22 +27,54 @@ window.Tone = Tone;
  * 
  */
 
-export default class AbstractSoundProcessor {
-  static startNote;
-  static sounds;
-  static customState;
-  static customReducer;// = {};
+export type StaticValues = {
+  startNote?: string;
+  sounds: Sound[];
+  customState: any;
+  customReducer: (...params: any) => void;
+  sources: any;
+};
 
-  isPlaying;
-  lastSound;
-  lastState;
+interface Processor {
+  isPlaying?: boolean;
+  lastSound: string;
+  lastState: Context;
+  currentIdx: number;
+  currentChain: number[];
+  loop: Tone.Loop;
+
+  static: StaticValues;
+  sound: Sound[];
+  sources: instrumentBuildParams[];
+  playerSounds: Sound[];
+  patterns: Pattern[];
+  patternInterval: any; // timeout
+  loopAction: (patternIdx: number, currentIdx: number) => any;
+  players?: any[];
+}
+
+export default class AbstractSoundProcessor implements Processor {
+  static startNote?: string;
+  static sounds: Sound[];
+  static customState: any;
+  static customReducer: (...params: any) => void;// = {};
+
   currentIdx = 0;
   currentChain = [];
+
+  static;
+  playerSounds;
+  sources;
+  patterns;
+  sound;
   loop;
+  lastState;
+  lastSound;
+  patternInterval;
+  players;
 
-  constructor(initialValues, staticValues) {
+  constructor(initialValues: ContextState, staticValues: StaticValues) {
     this.static = staticValues;
-
     this.playerSounds = this.static.sounds;
     this.sources = this.static.sources;
     this.patterns = initialValues[PATTERNS];
@@ -108,7 +143,7 @@ export default class AbstractSoundProcessor {
     this.stopPatternFlashing();
   }
 
-  updateIndex = (newIndex) => {
+  updateIndex = (newIndex: number) => {
     this.currentIdx = newIndex;
     if (
       this.currentIdx % 16 === 0
@@ -129,12 +164,16 @@ export default class AbstractSoundProcessor {
   loopNestAction(parentIdx, parentChain) {
     // TODO
     // calulate the bits and pieces to have the sequences pair consistently
-    return this.loopAction(calculatedPattern, calculatedNote);
+    // return this.loopAction(calculatedPattern, calculatedNote);
+  }
+
+  loopAction(currentIdx, noteIdx) {
+    throw new Error("Please implement action is child");
   }
 
   loopBuilder = () => {
     let timeStamp = 0;
-    window.timesArr = [];
+    let timesArr = [];
   
     return new Tone.Loop(
       (time) => {

@@ -10,12 +10,12 @@ Key Functions
 - [x] Has drum mode
 - [x] Multiple patterns
 - [x] Chains patterns
-- [] Volume controls
-- [] Preserve chains (localStorage)
+- [x] Volume controls
+- [x] Preserve chains (localStorage)
 - [] Cancel button as universal reset
 - [] Effects
 - [] Multiple "instruments"
-- [] Split Tone.js from interface
+- [x] Split Tone.js from interface
 
 UI
 
@@ -24,8 +24,8 @@ UI
 
 Bugs
 
-- [] iOS only plays when silent switch is off
-- [] occasional lag on mobile
+- [] iOS only plays when silent switch is off (may not be resolvable)
+- [x] occasional lag on mobile (number of elements being rendered)
 - [] double play of notes
 - [] all samples have release value of 1 ??
 
