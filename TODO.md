@@ -32,10 +32,11 @@ Bugs
 Tidyup
 
 - [] Typescript
+- [] Swap switch statements with indexed objects
 - [] Tests of operations
 - [] Tutorial (react joyride or custom?)
 
 Expanded
 
-- [] Network interplay
 - [] Multiple instruments
+- [] Network interplay

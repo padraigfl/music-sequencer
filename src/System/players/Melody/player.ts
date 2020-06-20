@@ -1,4 +1,4 @@
-import Tone from 'tone';
+import * as Tone from 'tone';
 import { generateInstrument } from '../../_utils';
 import { melodySoundSources } from './sources';
 import { generateDrumMachine } from '../../Instruments/_sources';
@@ -20,16 +20,20 @@ import {
   PATTERN_VIEW,
   VOLUME,
 } from '../../../Core/_constants';
-import AbstractSoundProcessor from '../abstractPlayer';
+import AbstractSoundProcessor, { StaticValues, ProcessorInterface } from '../abstractPlayer';
+import { Sound } from '../../_types';
 
-window.Tone = Tone;
+interface BasicPlayerInterface extends ProcessorInterface {
+  melodySound: Sound;
+  basicDrum: Sound;
+}
 
-export default class MelodyPlayer extends AbstractSoundProcessor {
+export default class MelodyPlayer extends AbstractSoundProcessor implements BasicPlayerInterface {
   static startNote = 'c3';
   static sources = melodySoundSources;
   static sounds = [
     ...MelodyPlayer.sources.map((v, idx) => ({ ...generateInstrument(v), id: idx })),
-    generateDrumMachine(this.startNote, MelodyPlayer.sources.length),
+    generateDrumMachine(MelodyPlayer.startNote, MelodyPlayer.sources.length),
   ];
   static customState = {
     [PATTERN_TYPE]: 'spots',
@@ -61,11 +65,13 @@ export default class MelodyPlayer extends AbstractSoundProcessor {
       };
     },
   };
+  melodySound;
+  basicDrum;
 
-  constructor(initialState, childStaticValues = {}) {
-    const playerSounds = childStaticValues.sounds || MelodyPlayer.sounds;
+  constructor(initialState, childStaticValues: StaticValues) {
     super(initialState, { ...MelodyPlayer, ...childStaticValues });
 
+    const playerSounds = childStaticValues?.sounds || MelodyPlayer.sounds;
     this.melodySound = playerSounds[0];
     this.basicDrum = playerSounds[15],
     this.basicDrum.tone.toMaster();

@@ -7,7 +7,7 @@ const SoloPlayerComponent = React.lazy(() => import('./SoloPlayer'));
 const history = createBrowserHistory();
 
 const getLazyPlayer = (player) => (props) => (
-  <React.Suspense fallback={() => 'HI'}>
+  <React.Suspense fallback={'HI'}>
     <SoloPlayerComponent player={player} {...props} />
   </React.Suspense>
 )

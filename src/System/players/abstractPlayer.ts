@@ -31,12 +31,12 @@ export type StaticValues = {
   startNote?: string;
   sounds: Sound[];
   customState: any;
-  customReducer: (...params: any) => void;
+  customReducer: Object;
   sources: any;
 };
 
-interface Processor {
-  isPlaying?: boolean;
+export interface ProcessorInterface {
+  isPlaying: boolean;
   lastSound: string;
   lastState: Context;
   currentIdx: number;
@@ -51,16 +51,20 @@ interface Processor {
   patternInterval: any; // timeout
   loopAction: (patternIdx: number, currentIdx: number) => any;
   players?: any[];
+
+  reducer: (action: string, state: ContextState) => void;
+  getNewPlaysound: (idx: number) => void;
 }
 
-export default class AbstractSoundProcessor implements Processor {
+export default class AbstractSoundProcessor implements ProcessorInterface {
   static startNote?: string;
   static sounds: Sound[];
   static customState: any;
-  static customReducer: (...params: any) => void;// = {};
+  static customReducer: Object;// = {};
 
   currentIdx = 0;
   currentChain = [];
+  isPlaying = false;
 
   static;
   playerSounds;
@@ -85,7 +89,7 @@ export default class AbstractSoundProcessor implements Processor {
     this.loop = this.loopBuilder();
   }
 
-  reducer() {
+  reducer(action, state) {
     throw new Error('Classes should define a reducer');
   }
 
@@ -158,6 +162,10 @@ export default class AbstractSoundProcessor implements Processor {
         this.currentIdx = 0;
       }
     }
+  }
+
+  getNewPlaysound(idx) {
+    throw new Error("Please implement action in child");
   }
 
   // means of sequencing multiple players on the one loop... probably gonna be a nightmare

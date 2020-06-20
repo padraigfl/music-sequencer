@@ -12,10 +12,8 @@ class LazyBass extends MelodyPlayer {
     generateDrumMachine(LazyBass.startNote, LazyBass.sources.length),
   ];
 
-  constructor(...params) {
-    super(...params, LazyBass);
-    window.playa = this;
-    this.startNote = LazyBass.startNote;
+  constructor(initalValues) {
+    super(initalValues, LazyBass);
   }
 
   getNewPlaysound = (idx) => {
