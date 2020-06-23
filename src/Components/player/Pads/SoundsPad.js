@@ -2,8 +2,8 @@ import React, {
   useContext, useCallback, useMemo,
 } from 'react';
 import Pad from './abstractPad';
-import { SOUNDS_SET, SOUNDS_VIEW, SOUND } from '../../Core/_constants';
-import playerContext from '../../Core/context';
+import { SOUNDS_SET, SOUNDS_VIEW, SOUND } from '../../../Core/_constants';
+import playerContext from '../../../Core/context';
 import Cell from '../Cells/abstractCell.js';
 
 // Selects the sound to work with live

@@ -5,8 +5,8 @@ import React, {
   useMemo,
 } from 'react';
 import styled from 'styled-components';
-import playerContext from '../../Core/context';
-import { MULTI_TOUCH } from '../../Core/_constants';
+import playerContext from '../../../Core/context';
+import { MULTI_TOUCH } from '../../../Core/_constants';
 import { getTouchValues, getButtonData } from '../_utils';
 import desktopEventsContext from '../DesktopEventsContext';
 

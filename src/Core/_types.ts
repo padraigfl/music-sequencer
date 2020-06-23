@@ -17,11 +17,26 @@ export type PatternStep = {
   span?: number;
 } | null;
 
+type PatternSteps = [
+  PatternStep, PatternStep, PatternStep, PatternStep,
+  PatternStep, PatternStep, PatternStep, PatternStep,
+  PatternStep, PatternStep, PatternStep, PatternStep,
+  PatternStep, PatternStep, PatternStep, PatternStep,
+];
+
 export type Pattern = {
   effects: any[];
-  spots: PatternStep[];
-  drums: PatternStep[];
+  spots: PatternSteps;
+  drums: PatternSteps;
 };
+
+// TODO make this the standard
+export type Pattern16 = [
+  PatternSteps, PatternSteps, PatternSteps, PatternSteps,
+  PatternSteps, PatternSteps, PatternSteps, PatternSteps,
+  PatternSteps, PatternSteps, PatternSteps, PatternSteps,
+  PatternSteps, PatternSteps, PatternSteps, PatternSteps,
+] & { effects: any[] };
 
 export type ContextState = {
   [PLAY]: boolean;
@@ -38,3 +53,5 @@ export type ContextState = {
   mutable?: any;
   [PATTERN_TYPE]: string | number;
 }
+
+export enum MuteStatus { MUTE_OFF, MUTE_ALL, MUTE_OTHER, MUTE_ME };

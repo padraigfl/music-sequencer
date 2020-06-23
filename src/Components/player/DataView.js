@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
-import playerContext from '../Core/context';
-import { PATTERN_IDX, PATTERN_CHAIN, SOUND, WRITE, BPM, VOLUME } from '../Core/_constants';
+import playerContext from '../../Core/context';
+import { PATTERN_IDX, PATTERN_CHAIN, SOUND, WRITE, BPM, VOLUME } from '../../Core/_constants';
 
 const border = '1px dotted black';
 

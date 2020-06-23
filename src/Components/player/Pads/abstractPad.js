@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import { playerWidth, columns } from '../Player';
 
@@ -53,4 +54,8 @@ const Pad = styled('div')`
   }
 `;
 
-export default Pad;
+const AbstractPad = (props) => (
+  <Pad {...props} className={`Pad ${props.className || ''}`} />
+);
+
+export default AbstractPad;

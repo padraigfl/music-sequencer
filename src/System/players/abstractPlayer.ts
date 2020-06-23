@@ -7,6 +7,7 @@ import {
   PATTERN_IDX,
   WRITE,
   MUTE,
+  SOUND,
 } from '../../Core/_constants';
 import { Pattern, ContextState } from '../../Core/_types';
 import { Context } from 'vm';
@@ -35,6 +36,12 @@ export type StaticValues = {
   sources: any;
 };
 
+export type NestedUpdateObject = {
+  [SOUND]: number;
+  [PATTERNS]: Pattern;
+  [PATTERN_CHAIN]: number[]; 
+};
+
 export interface ProcessorInterface {
   isPlaying: boolean;
   lastSound: string;
@@ -53,6 +60,7 @@ export interface ProcessorInterface {
   players?: any[];
 
   reducer: (action: string, state: ContextState) => void;
+  receivedUpdates: (updateObject: NestedUpdateObject) => void;
   getNewPlaysound: (idx: number) => void;
 }
 
@@ -91,6 +99,11 @@ export default class AbstractSoundProcessor implements ProcessorInterface {
 
   reducer(action, state) {
     throw new Error('Classes should define a reducer');
+  }
+
+  receivedUpdates(updateObject) {
+    // checks for updates in object and applies them
+    throw new Error("This will apply updates from a parent reducer")
   }
 
   updateMute() {

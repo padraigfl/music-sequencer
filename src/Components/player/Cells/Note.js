@@ -6,8 +6,8 @@ import React, {
   useMemo,
 } from 'react';
 import Cell from './abstractCell.js';
-import playerContext from '../../Core/context';
-import { SOUND, PATTERN_TYPE } from '../../Core/_constants';
+import playerContext from '../../../Core/context';
+import { SOUND, PATTERN_TYPE } from '../../../Core/_constants';
 
 const NoteButton = (props) => {
   const [playing, setPlayStatus] = useState(false);
@@ -79,7 +79,10 @@ const NoteButton = (props) => {
       ref={noteRef}
       isActive={playing}
       value={props.id}
-      display={state[PATTERN_TYPE] !== 'spots'  ? sounds[state[SOUND]].keys[props.idx] : props.id}
+      display={(
+        sounds[state[SOUND]].keys
+        && sounds[state[SOUND]].keys[props.idx]
+      ) || props.id}
       action={props.action}
       idx={props.idx}
       noTouch={!props.onHold}

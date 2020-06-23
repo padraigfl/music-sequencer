@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState, useContext, useCallback } from 'react';
-import playerContext from '../Core/context';
-import { CANCEL, MULTI_TOUCH, PATTERN_CHAIN, VOLUME_SET, PATTERN_COPY, SWING_SET, CLEAR_TEMP, NOTE_COPY, PLAY, VOLUME } from '../Core/_constants';
+import playerContext from '../../Core/context';
+import { CANCEL, MULTI_TOUCH, PATTERN_CHAIN, PATTERN_COPY, SWING_SET, CLEAR_TEMP, NOTE_COPY, PLAY, VOLUME } from '../../Core/_constants';
 
 const desktopEventsContext = createContext({});
 

@@ -3,9 +3,9 @@ import React, {
   useContext,
 } from 'react';
 import Note from '../Cells/Note';
-import { generateKeys } from '../../System/_utils';
+import { generateKeys } from '../../../System/_utils';
 import Pad from './abstractPad';
-import playerContext from '../../Core/context';
+import playerContext from '../../../Core/context';
 
 // Lists available notes in selected sound
 // Used for:

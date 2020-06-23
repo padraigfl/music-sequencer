@@ -46,6 +46,7 @@ export class DrumMachine extends Tone.Players {
   triggerRelease(note) {
     // this.keyMap[note].stop();
   }
+
   setVolume(data) {
     if (data && data.volume && data.volume !== this.volume.value) {
       this.volume.value = data.volume;

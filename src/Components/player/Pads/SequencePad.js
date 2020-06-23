@@ -7,12 +7,12 @@ import React, {
   useContext,
 } from 'react';
 import SequencerCell from '../Cells/Sequencer';
-import playContext from '../../Core/context';
+import playContext from '../../../Core/context';
 import Pad from './abstractPad';
-import { WRITE, PATTERN_UPDATE, PATTERNS, PATTERN_IDX, CANCEL, NOTE_COPY, PATTERN_TYPE, SOUND } from '../../Core/_constants';
+import { WRITE, PATTERN_UPDATE, PATTERNS, PATTERN_IDX, CANCEL, NOTE_COPY, PATTERN_TYPE, SOUND } from '../../../Core/_constants';
 import NotesPad from './NotesPad';
 import NumberPad from './_numberPad';
-import { generateKeys } from '../../System/_utils';
+import { generateKeys } from '../../../System/_utils';
 
 const getNoteDisplay = (note, customKeys) => {
   let disp = customKeys
@@ -31,7 +31,7 @@ const SequencePad = () => {
   const pattern = useMemo(() => {
     return state[PATTERNS][state[PATTERN_IDX]];
    }, [state[PATTERNS], state[PATTERN_IDX]]);
-  const patternType = state[PATTERN_TYPE];
+  const patternType = useMemo(() => state[PATTERN_TYPE], [state[PATTERN_TYPE]]);
   const customKeys = useMemo(() => {
     if (!sounds[state[SOUND]].keys) {
       return null;
@@ -102,7 +102,7 @@ const SequencePad = () => {
     console.log('a');
     holdTimer.current = setTimeout(() => {
       console.log('b');
-      if (state.patternType === 'drums') {
+      if (state[PATTERN_TYPE] === 'drums') {
         updatePattern({ ...newSequenceValue, note: value});
       } else {
         updateNewValue({ ...newSequenceValue, note: value });

@@ -1,29 +1,26 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Router, Route } from 'react-router';
 import { createBrowserHistory } from 'history';
+import Menu from './Components/Menu';
 
 const SoloPlayerComponent = React.lazy(() => import('./SoloPlayer'));
 
 const history = createBrowserHistory();
 
-const getLazyPlayer = (player) => (props) => (
+const LazyPlayer = (props) => (
   <React.Suspense fallback={'HI'}>
-    <SoloPlayerComponent player={player} {...props} />
+    <SoloPlayerComponent {...props} />
   </React.Suspense>
 )
 
 const App = () => {
   return (
     <Router history={history}>
-      <Route path="/bass" component={getLazyPlayer('bass')} />
-      <Route path="/melody" component={getLazyPlayer()} />
-      <Route path="/(melody|bass)/menu">
-        <button onClick={() => history.push('/bass')}>Bass</button>
-        <button onClick={() => history.push('/melody')}>Melody</button>
-      </Route> 
+      <Route path="/solo/:player/:variant">
+        <LazyPlayer />
+      </Route>
       <Route path="/" exact>
-        <button onClick={() => history.push('/bass')}>Bass</button>
-        <button onClick={() => history.push('/melody')}>Melody</button>
+        <Menu />
       </Route>
     </Router>
   );

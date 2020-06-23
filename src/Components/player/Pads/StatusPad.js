@@ -50,7 +50,7 @@ const StatusCell = styled('div')`
 
 const StatusPad = (props) => {
   return (
-    <Pad entries={16}>
+    <Pad entries={16} id="Pad--status-pad">
       {cells.map((_, idx) => <StatusCell className="cell" id={`live-status--${idx}`} idx={idx} key={idx} />)}
     </Pad>
   )

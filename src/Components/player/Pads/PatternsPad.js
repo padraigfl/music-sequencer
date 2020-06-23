@@ -3,7 +3,7 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-import playerContext from '../../Core/context';
+import playerContext from '../../../Core/context';
 import {
   PATTERN_VIEW,
   PATTERN_CHAIN,
@@ -11,7 +11,7 @@ import {
   PATTERN_IDX,
   PATTERN_COPY,
   PATTERNS,
-} from '../../Core/_constants';
+} from '../../../Core/_constants';
 import Pad from './abstractPad';
 import PatternCell from '../Cells/PatternCell';
 
