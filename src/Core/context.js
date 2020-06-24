@@ -106,7 +106,7 @@ const multiTouchAction = (derivedAction, state, values = []) => {
   }
 };
 
-const canceLActionHandler = (state, dataset) => {
+const canceLActionHandler = (state, dataset = {}) => {
   switch (dataset.secondary) {
     case PATTERN_COPY:
       return {
@@ -226,8 +226,8 @@ export const CoreProvider = (props) => {
 
   useEffect(() => {
     soundProcessor.reducer(state.lastAction, state);
-    if (state.lastAction === 'menu'&& !history.location.pathname.match(/.*\/menu$/)) {
-      history.push(`${history.location.pathname}/menu`);
+    if (state.lastAction === 'menu') {
+      history.push(`/`);
     }
   }, [state]);
   useEffect(() => {

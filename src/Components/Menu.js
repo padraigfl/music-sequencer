@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useLocation, useHistory } from 'react-router-dom';
+import { NavLink, useLocation, useHistory, useParams } from 'react-router-dom';
 import Wrapper from './Wrapper';
 import styled from 'styled-components';
 
@@ -28,6 +28,7 @@ const NavAction = styled(NavLink)`
 const Menu = () => {
   const location = useLocation();
   const history = useHistory();
+  const { player = 'melody' } = useParams();
 
   if (location.pathname === '/' && location.search.match(/\?tutorial/)) {
     history.replace('/solo/melody/tutorial');
@@ -39,7 +40,7 @@ const Menu = () => {
       <NavAction to="/solo/melody/normal">Melody Solo</NavAction>
       <NavAction to="/solo/bass/normal">Bass Solo</NavAction>
       <NavAction to="/simultaneous">Simultaneous</NavAction>
-      <NavAction to="/tutorial">Help</NavAction>
+      <NavAction to={`/solo/${player}/tutorial`}>Help</NavAction>
     </Wrapper>
   );
 };
