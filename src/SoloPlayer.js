@@ -8,7 +8,6 @@ import Tutorial from './Components/Tutorial';
 const SoloPlayerComponent = (props) => {
   const { player, variant } = useParams();
   const soundProcessor = player === 'bass' ? BassPlayer : MelodyPlayer;
-  debugger;
   return (
     <CoreProvider AudioProcessor={soundProcessor} {...props}>
       <Player colorFilter={soundProcessor.colorFilter} />

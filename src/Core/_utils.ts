@@ -35,9 +35,13 @@ const genericInitialState = {
   [MUTE]: true,
 };
 
-const formatPathname = (pathname = '') => (
-  pathname.split('/').filter(v => v).slice(0, 2).join('/')
-)
+const formatPathname = (pathname = '') => {
+  const parts = pathname.split('/').filter(v => v);
+  if (parts.find(v => v.toLowerCase() === 'tutorial')) {
+    return;
+  }
+  return parts.slice(0, 2).join('/');
+};
 
 const getLocalStorage = (pathname, customState = {}) => {
   const formattedData = {};
@@ -71,6 +75,10 @@ const getLocalStorage = (pathname, customState = {}) => {
 
 export const setLocalStorage = (state: ContextState, locationPathname?: string) => {
   const pathname = locationPathname || window.location.pathname;
+  const formattedPathname = formatPathname(pathname);
+  if (!formattedPathname) {
+    return;
+  }
   const formattedData = {
     [VOLUME]: state[VOLUME],
     [BPM]: state[BPM],

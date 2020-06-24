@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { Router, Route } from 'react-router';
+import { Router, Route, Redirect } from 'react-router';
 import { createBrowserHistory } from 'history';
 import Menu from './Components/Menu';
+import Tutorial from './Components/Tutorial';
 
 const SoloPlayerComponent = React.lazy(() => import('./SoloPlayer'));
 
@@ -16,7 +17,7 @@ const LazyPlayer = (props) => (
 const App = () => {
   return (
     <Router history={history}>
-      <Route path="/solo/:player/:variant">
+      <Route path={['/solo/:player/:variant', '/solo/:player']}>
         <LazyPlayer />
       </Route>
       <Route path="/" exact>

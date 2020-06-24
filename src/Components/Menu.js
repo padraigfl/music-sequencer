@@ -21,7 +21,8 @@ const NavAction = styled(NavLink)`
     opacity: 0.05;
     width: 100%;
     content: '';
-  }
+    pointer-events: none;
+  } 
 `
 
 const Menu = () => {
@@ -29,16 +30,16 @@ const Menu = () => {
   const history = useHistory();
 
   if (location.pathname === '/' && location.search.match(/\?tutorial/)) {
-    history.replace('/melody?tutorial');
+    history.replace('/solo/melody/tutorial');
     return null;
   }
 
   return (
     <Wrapper>
-      <NavAction to="/melody">Melody Solo</NavAction>
-      <NavAction to="/bass">Bass Solo</NavAction>
+      <NavAction to="/solo/melody/normal">Melody Solo</NavAction>
+      <NavAction to="/solo/bass/normal">Bass Solo</NavAction>
       <NavAction to="/simultaneous">Simultaneous</NavAction>
-      <NavAction to="?tutorial">Help</NavAction>
+      <NavAction to="/tutorial">Help</NavAction>
     </Wrapper>
   );
 };

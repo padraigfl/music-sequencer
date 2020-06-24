@@ -55,7 +55,7 @@ const getValueFromDataset = dataset => (
 const multiTouchAction = (derivedAction, state, values = []) => {
   switch(derivedAction) {
     case VOLUME:
-      const volume = values[1].idx;
+      const volume = values[1] ? values[1].idx : undefined;
       return isInRange(volume)
         ? { [VOLUME]: volume - 8, [MUTE]: false }
         : {};
@@ -226,7 +226,7 @@ export const CoreProvider = (props) => {
 
   useEffect(() => {
     soundProcessor.reducer(state.lastAction, state);
-    if (state.lastAction === 'menu'&& !props.history.location.pathname.match(/.*\/menu$/)) {
+    if (state.lastAction === 'menu'&& !history.location.pathname.match(/.*\/menu$/)) {
       history.push(`${history.location.pathname}/menu`);
     }
   }, [state]);

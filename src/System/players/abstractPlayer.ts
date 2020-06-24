@@ -144,7 +144,7 @@ export default class AbstractSoundProcessor implements ProcessorInterface {
 
   updateLights = (idx, color = 'red', clearLights = true) => {
     const next = document.getElementById(`live-status--${idx % 16}`) 
-    if (clearLights || (idx % 16 === 0 && idx !== 0)) {
+    if (clearLights) {
       this.clearLights(color);
     }
     next.classList.add(color);
@@ -210,7 +210,7 @@ export default class AbstractSoundProcessor implements ProcessorInterface {
           noteIdx, 
           'red',
           this.lastState[PATTERN_IDX] === patternIdx && this.lastState[WRITE]
-            ? false
+            ? (noteIdx % 16 === 0)
             : undefined
         );
 
