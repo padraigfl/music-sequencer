@@ -34,6 +34,7 @@ export type StaticValues = {
   customState: any;
   customReducer: Object;
   sources: any;
+  colorFilter?: string;
 };
 
 export type NestedUpdateObject = {

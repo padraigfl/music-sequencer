@@ -11,7 +11,7 @@ import playContext from '../../../Core/context';
 import Pad from './abstractPad';
 import { WRITE, PATTERN_UPDATE, PATTERNS, PATTERN_IDX, CANCEL, NOTE_COPY, PATTERN_TYPE, SOUND } from '../../../Core/_constants';
 import NotesPad from './NotesPad';
-import NumberPad from './_numberPad';
+import NumberPad from './NumberPad';
 import { generateKeys } from '../../../System/_utils';
 
 const getNoteDisplay = (note, customKeys) => {

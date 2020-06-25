@@ -1,8 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useMemo,
-} from 'react';
+import * as React from 'react';
 import playerContext from '../../Core/context';
 import Action from './Cells/Action';
 
@@ -30,13 +26,13 @@ const actionButtons = [
   { id: PLAY, isActive: PLAY, icon: '/static/icons/play.png' },
 ];
 
-const Actions = () => {
+const Actions: React.FC<null> = () => {
   const {
     state,
     dispatch,
-  } = useContext(playerContext);
+  } = React.useContext(playerContext);
 
-  const fireDispatch = useCallback(
+  const fireDispatch = React.useCallback(
     (e) => {
       const dataset = e.currentTarget.dataset;
       if (dataset.action) {
@@ -49,7 +45,7 @@ const Actions = () => {
   return (
     <>
       {actionButtons.map((action) =>
-        useMemo(() => (
+        React.useMemo(() => (
           <Action
             {...action}
             key={action.id}

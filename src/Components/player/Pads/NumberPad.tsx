@@ -1,8 +1,23 @@
-import React from 'react';
+import * as React from 'react';
 import Pad from './abstractPad';
 import Cell from '../Cells/abstractCell.js';
 
-const NumberPad = (props) => (
+type PadProps = {
+  italic?: boolean;
+  bold?: boolean;
+  onClick?: Function;
+  onHold?: Function;
+  onRelease?: Function;
+  secondaryAction?: string;
+  action?: string;
+  displayValue?: boolean;
+  activeIdx?: number;
+  activeChildIdx?: number;
+  getHighlight?: Function;
+  idx: number;
+}
+
+const NumberPad: React.FC<PadProps> = (props) => (
   <Pad bold={props.bold} italic={props.italic} activeChildIdx={props.activeChildIdx}> 
     { new Array(16).fill(null).map((_, idx) => (
         <Cell

@@ -1,7 +1,4 @@
-import React, {
-  useState,
-  useContext,
-} from 'react';
+import * as React from 'react';
 import Note from '../Cells/Note';
 import { generateKeys } from '../../../System/_utils';
 import Pad from './abstractPad';
@@ -12,9 +9,21 @@ import playerContext from '../../../Core/context';
 // - Live playing
 // - Selecting notes in sequencer
 // Default displayed pad
-const NotesPad = (props) => {
-  const { startNote } = useContext(playerContext);
-  const [keys] = useState(generateKeys(+startNote[1]).map((v, idx) => ({...v, idx })));
+
+interface NotePadProps {
+  bold?: boolean;
+  italic?: boolean;
+  activeChildIdx?: number;
+  keys: any[];
+  onHold?: Function;
+  onRelease?: Function;
+  onClick?: Function;
+  action?: string;
+};
+
+const NotesPad: React.FC<NotePadProps> = (props) => {
+  const { startNote } = React.useContext(playerContext);
+  const [keys] = React.useState(generateKeys(+startNote[1]).map((v, idx) => ({...v, idx })));
   return (
     <Pad bold={props.bold} italic={props.italic} activeChildIdx={props.activeChildIdx}> 
       { keys.map((note) => (

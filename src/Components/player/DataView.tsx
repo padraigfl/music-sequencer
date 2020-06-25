@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 import playerContext from '../../Core/context';
 import { PATTERN_IDX, PATTERN_CHAIN, SOUND, WRITE, BPM, VOLUME } from '../../Core/_constants';
@@ -87,10 +87,10 @@ const LogView = styled('ul')`
 
 const actionListLimit = 7;
 
-const DataView = (props) => {
-  const { state } = useContext(playerContext);
-  const [log, setLog] = useState([]);
-  useEffect(() => {
+const DataView: React.FC<any> = (props) => {
+  const { state } = React.useContext(playerContext);
+  const [log, setLog] = React.useState([]);
+  React.useEffect(() => {
     if (props.viewLog) {
       return;
     }

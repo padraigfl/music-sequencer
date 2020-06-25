@@ -1,24 +1,23 @@
-import React from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
-import { playerWidth, columns } from '../Player';
 
 const margin = 8;
-const pw = 450;
-const col = 8;
+const playerWidth = 450;
+const columns = 8;
 
 const padActiveTransparent = 'radial-gradient(#efaaaa 40%, #e8e8e8 75%)';
 
 // buttons located in the pad need some translucency to allow fiddling with the StatusPad colors underneath
 // pretty hacky but I think it opens up some design freedom that can be totally divorced from reach
 // and that's kinda neat???
-const Pad = styled('div')`
+const Pad: React.FC<any> = styled('div')`
   position: relative;
   display: flex;
   flex-wrap: wrap;
   width: 100%;
   height: 100vw;
-  max-height: ${pw}px;
-  grid-column: 1 / ${col + 1};
+  max-height: ${playerWidth}px;
+  grid-column: 1 / ${columns + 1};
   grid-row: 4 / 5;
   justify-content: space-evenly;
   > button, > .cell {
@@ -54,7 +53,7 @@ const Pad = styled('div')`
   }
 `;
 
-const AbstractPad = (props) => (
+const AbstractPad = (props: any) => (
   <Pad {...props} className={`Pad ${props.className || ''}`} />
 );
 

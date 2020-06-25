@@ -1,8 +1,4 @@
-import React, {
-  useContext,
-  useCallback,
-  useMemo,
-} from 'react';
+import * as React from 'react';
 import playerContext from '../../../Core/context';
 import {
   PATTERN_VIEW,
@@ -18,10 +14,10 @@ import PatternCell from '../Cells/PatternCell';
 // Pad for selecting patterns
 // Depending on state this controls which pattern you wish to edit or how to chain them
 const PatternsPad = () => {
-  const { dispatch, state } = useContext(playerContext);
+  const { dispatch, state } = React.useContext(playerContext);
 
-  const onClick = useCallback((e) => {
-    const clickValue = +e.currentTarget.dataset.value;
+  const onClick = React.useCallback((e: MouseEvent | TouchEvent) => {
+    const clickValue = +(e.currentTarget as HTMLElement).dataset.value;
     dispatch({
       type: PATTERN_SET,
       value: clickValue,
@@ -31,7 +27,7 @@ const PatternsPad = () => {
   return state.view === PATTERN_VIEW && (
     <Pad>
       {state[PATTERNS].map((v, idx) => (
-        useMemo(() => (
+        React.useMemo(() => (
           <PatternCell
             key={idx}
             pattern={v}

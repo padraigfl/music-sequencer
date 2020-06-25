@@ -1,6 +1,4 @@
-import React, {
-  useState,
-} from 'react';
+import * as React from 'react';
 import Pad from './abstractPad';
 import styled from 'styled-components';
 
@@ -11,7 +9,7 @@ const greenLow = '#008800';
 const red = '#FF0000';
 const redLow = '#880000';
 
-const multiOutline = (outlines) => {
+const multiOutline = (outlines: any[]): string => {
   let i = 0;
   const multi = outlines.map(({ o = 0, b = 0, c = green }) => {
     const edge = i+o;
@@ -48,12 +46,12 @@ const StatusCell = styled('div')`
   }
 `;
 
-const StatusPad = (props) => {
+const StatusPad: React.FC<null> = () => {
   return (
     <Pad entries={16} id="Pad--status-pad">
       {cells.map((_, idx) => <StatusCell className="cell" id={`live-status--${idx}`} idx={idx} key={idx} />)}
     </Pad>
-  )
+  );
 };
 
 export default StatusPad;

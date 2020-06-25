@@ -1,8 +1,18 @@
-import React from 'react';
+import * as React from 'react';
 import Cell from './abstractCell.js';
 
+type StepSequenceButtonProps = {
+  onClick: Function;
+  action: string;
+  secondaryAction: string;
+  isActive?: boolean;
+  highlight?: boolean;
+  idx: number;
+  display?: any;
+};
+
 // @todo pattern chaining is gonna take work
-const PatternButton = (props) => {
+const PatternButton: React.FC<StepSequenceButtonProps> = (props) => {
   return (
     <Cell
       type="button"
