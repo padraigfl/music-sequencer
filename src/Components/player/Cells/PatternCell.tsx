@@ -29,7 +29,7 @@ type PatternCellProps = {
 
 const PatternCell: React.FC<PatternCellProps> = ({ pattern, ...props}) => {
   return (
-    <Cell {...props} display={getDisplay(pattern)} isDataDisplay/>
+    <Cell {...props} display={getDisplay(pattern) || undefined} isDataDisplay/>
   );
 };
 

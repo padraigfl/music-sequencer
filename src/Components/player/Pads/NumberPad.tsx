@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Pad from './abstractPad';
-import Cell from '../Cells/abstractCell.js';
+import Cell from '../Cells/abstractCell';
 
 type PadProps = {
   italic?: boolean;
@@ -14,7 +14,6 @@ type PadProps = {
   activeIdx?: number;
   activeChildIdx?: number;
   getHighlight?: Function;
-  idx: number;
 }
 
 const NumberPad: React.FC<PadProps> = (props) => (
@@ -29,9 +28,8 @@ const NumberPad: React.FC<PadProps> = (props) => (
           action={props.action}
           display={props.displayValue ? (idx + 1).toString() : undefined}
           isActive={idx === props.activeIdx}
-          live={props.getHighlight ? props.getHighlight(idx) : undefined}
+          highlight={props.getHighlight ? props.getHighlight(idx) : undefined}
           value={idx}
-          idx={props.idx}
         />
       ))
     }

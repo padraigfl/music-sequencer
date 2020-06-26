@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import * as React from 'react';
 import Actions from './Actions';
 import Wrapper, { playerWidth } from '../Wrapper';
 import PlayPad from './Pads/NotesPad';
@@ -28,9 +28,9 @@ const gridStyles = css`
 `;
 
 const PadsRender = () => {
-  const { state } = useContext(playerContext);
+  const { state } = React.useContext(playerContext);
 
-  return useMemo(() => {
+  return React.useMemo(() => {
     if (state.view === SOUNDS_VIEW) {
       return <SoundsPad />;
     }

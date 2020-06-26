@@ -1,8 +1,7 @@
-import React, { useMemo } from 'react';
-import { Router, Route, Redirect } from 'react-router';
+import * as React from 'react';
+import { Router, Route } from 'react-router';
 import { createBrowserHistory } from 'history';
 import Menu from './Components/Menu';
-import Tutorial from './Components/Tutorial';
 import styled, { keyframes } from 'styled-components';
 
 const SoloPlayerComponent = React.lazy(() => import('./SoloPlayer'));

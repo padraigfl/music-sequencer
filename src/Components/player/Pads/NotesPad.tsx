@@ -14,7 +14,6 @@ interface NotePadProps {
   bold?: boolean;
   italic?: boolean;
   activeChildIdx?: number;
-  keys: any[];
   onHold?: Function;
   onRelease?: Function;
   onClick?: Function;

@@ -1,16 +1,22 @@
-import React, { createContext, useEffect, useState, useContext, useCallback } from 'react';
+import * as React from 'react';
 import playerContext from '../../Core/context';
 import { CANCEL, MULTI_TOUCH, PATTERN_CHAIN, PATTERN_COPY, SWING_SET, CLEAR_TEMP, NOTE_COPY, PLAY, VOLUME } from '../../Core/_constants';
 
-const desktopEventsContext = createContext({});
+const desktopEventsContext = React.createContext({});
 
-// as this is primarily a mobile touch screen, multitouch actions are used a lot
+interface HeldState {
+  action?: string;
+  secondary?: string;
+  value?: string;
+};
+
+// as this is primarily a mobile touch screen, multitouch actions are React.used a lot
 // this is an attempt to push all the mouse handling nonsense into one spot and convert it to match
 export const DesktopEventsProvider = (props) => {
-  const [held, setHeld] = useState({});
-  const { dispatch, state } = useContext(playerContext);
+  const [held, setHeld]: [HeldState, React.Dispatch<React.SetStateAction<HeldState>>] = React.useState({});
+  const { dispatch, state } = React.useContext(props.context);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (
       held.secondary
       && [
@@ -28,7 +34,7 @@ export const DesktopEventsProvider = (props) => {
     }
   }, [held, state.lastAction]);
 
-  const holdAction = useCallback((dataset) => {
+  const holdAction = React.useCallback((dataset) => {
     const basicActionButton = Object.keys(dataset).length === 1 && dataset.action;
 
     if (basicActionButton) {
@@ -62,7 +68,7 @@ export const DesktopEventsProvider = (props) => {
     }
   }, [held]);
 
-  const onHold = useCallback((dataset) => {
+  const onHold = React.useCallback((dataset) => {
     if (
       dataset.secondary
       && dataset.secondary !== held.secondary

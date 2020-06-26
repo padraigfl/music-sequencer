@@ -1,9 +1,4 @@
-import React, {
-  useContext,
-  useCallback,
-  useRef,
-  useMemo,
-} from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 import playerContext from '../../../Core/context';
 import { MULTI_TOUCH } from '../../../Core/_constants';
@@ -18,7 +13,7 @@ const active = buttonLight('radial-gradient(#efaaaa 40%, #e8e8e8 75%)');
 const temp = buttonLight('#9999d0');
 const highlight = buttonLight('#ffd0d0');
 
-const DefaultCell = styled('button')`
+const DefaultCell: React.FC<any> = styled('button')`
   @keyframes flash {
     0% { box-shadow: initial; }
     20% { box-shadow: 0px 0px 50px red; }
@@ -78,16 +73,40 @@ const DefaultCell = styled('button')`
 
 const holdTime = 400;
 
+type GenericEventFunction = (e: Event) => any;
 
+interface CellProps {
+  value?: string | number;
+  id?: string;
+  action: string;
+  secondaryAction?: string;
+  onHold?: Function;
+  onRelease?: Function;
+  onClick: Function;
+  onMouseEnter?: GenericEventFunction;
+  onMouseLeave?: GenericEventFunction;
+  noTouch?: boolean;
+  Component?: any;
+  icon?: string;
+  isActive?: boolean;
+  display?: string;
+  highlight?: boolean;
+  isDataDisplay?: boolean;
+  buttonId?: string;
+  idx?: number;
+  ref?: any; // TODO: resolve
+  height?: number;
+  width?: number;
+}
 
 /**
  * As desktop cannot do multitouch, a secondary system involving holding down buttons is required too
  */
-const Cell = React.forwardRef((props, ref) => {
-  const holdTimer = useRef(null);
-  const { dispatch } = useContext(playerContext);
-  const desktop = useContext(desktopEventsContext);
-  const isHeld = useMemo(() => {
+const Cell: React.FC<CellProps> = React.forwardRef((props, ref) => {
+  const holdTimer = React.useRef(null);
+  const { dispatch } = React.useContext(playerContext);
+  const desktop: any = React.useContext(desktopEventsContext);
+  const isHeld = React.useMemo(() => {
     const checkValue = typeof props.value !== 'undefined'
       ? props.value
       : (props.id || undefined)
@@ -101,7 +120,7 @@ const Cell = React.forwardRef((props, ref) => {
     )
   }, [desktop.held, props.secondaryAction, props.value]);
 
-  const onMouseDown = useCallback((e) => {
+  const onMouseDown = React.useCallback((e) => {
     const buttonData = getButtonData(e.target);
     holdTimer.current = setTimeout(() => {
       if (holdTimer.current && props.secondaryAction) {
@@ -111,14 +130,14 @@ const Cell = React.forwardRef((props, ref) => {
     }, holdTime);
   }, []);
 
-  const onMouseUp = useCallback(() => {
+  const onMouseUp = React.useCallback(() => {
     if (holdTimer.current && !props.onClick) {
       clearTimeout(holdTimer.current);
       holdTimer.current = null;
     }
   }, []);
 
-  const onClick = useCallback((e) => {
+  const onClick = React.useCallback((e) => {
     const buttonData = getButtonData(e.target);
     if (
       desktop.held.secondary
@@ -142,7 +161,7 @@ const Cell = React.forwardRef((props, ref) => {
     }
   }, [props.onClick, desktop.held]);
 
-  const onTouchStart = useCallback((e) => {
+  const onTouchStart = React.useCallback((e) => {
     holdTimer.current = setTimeout(() => {
       holdTimer.current = null;
     }, holdTime);
@@ -157,7 +176,7 @@ const Cell = React.forwardRef((props, ref) => {
     }
   }, [desktop.held, isHeld]);
 
-  const actionProps = useMemo(() => {
+  const actionProps = React.useMemo(() => {
     return {
       onClick,
       onMouseDown: props.onHold || onMouseDown,

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { NavLink, useLocation, useHistory, useParams } from 'react-router-dom';
 import Wrapper from './Wrapper';
 import styled from 'styled-components';
@@ -25,7 +25,7 @@ const NavAction = styled(NavLink)`
   } 
 `
 
-const Menu = () => {
+const Menu: React.FC<{}> = () => {
   const location = useLocation();
   const history = useHistory();
   const { player = 'melody' } = useParams();

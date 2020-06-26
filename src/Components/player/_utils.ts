@@ -16,7 +16,7 @@ export const datasetStringParse = (dataset = {}): Object => (
   }, {})
 );
 
-export const getButtonData = (target: HTMLElement): Object => {
+export const getButtonData = (target: HTMLElement): { action?: string, secondary?: string, value?: string } => {
   if (target instanceof HTMLButtonElement) {
     return datasetStringParse(target.dataset);
   }

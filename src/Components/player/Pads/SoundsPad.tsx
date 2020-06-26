@@ -2,10 +2,10 @@ import * as React from 'react';
 import Pad from './abstractPad';
 import { SOUNDS_SET, SOUNDS_VIEW, SOUND } from '../../../Core/_constants';
 import playerContext from '../../../Core/context';
-import Cell from '../Cells/abstractCell.js';
+import Cell from '../Cells/abstractCell';
 
 // Selects the sound to work with live
-const SoundsPad: React.FC<null> = () => {
+const SoundsPad: React.FC<{}> = () => {
   const { sounds, state, dispatch } = React.useContext(playerContext);
   const fireDispatch = React.useCallback((e) => {
     const idx = +e.currentTarget.dataset.idx;
@@ -21,7 +21,6 @@ const SoundsPad: React.FC<null> = () => {
               onClick={fireDispatch}
               action={SOUNDS_SET}
               highlight={state[SOUND] === idx}
-              idx={idx}
               display={sound.name}
             />
           ))),

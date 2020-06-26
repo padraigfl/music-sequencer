@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Joyride from 'react-joyride';
 import playerContext from '../Core/context';
-import { MUTE, WRITE, SOUNDS_VIEW, PATTERN_UPDATE, MULTI_TOUCH, PATTERN_COPY, NOTE_COPY, PATTERN_VIEW, PLAY, BPM, SOUNDS_SET, PATTERN_CHAIN } from '../Core/_constants';
+import { MUTE, WRITE, SOUNDS_VIEW, PATTERN_UPDATE, MULTI_TOUCH, PATTERN_COPY, NOTE_COPY, PATTERN_VIEW, PLAY, BPM, SOUNDS_SET, PATTERN_CHAIN, CANCEL } from '../Core/_constants';
 import styled from 'styled-components';
 
 const Shell = styled('div')`
@@ -23,33 +23,39 @@ const getSteps = (dispatch, sounds, setOverlay) => [{
       </>
     ),
     callback: () => dispatch({ type: MUTE }),
+    undo: () => dispatch({ type: MUTE }),
   }, {
     target: '#live-status--0',
     content: (<><p>Click a note to test audio</p></>),
     callback: () => {
       sounds[0].tone.triggerAttack('c3');
     },
+    undo: () => sounds[0].tone.triggerRelease(),
   },  {
     target: '#live-status--0',
     content: (<><p>A sample sound should be playing, click next to stop</p></>),
     callback: () => {
       sounds[0].tone.triggerRelease();
     },
+    undo: () => sounds[0].tone.triggerAttack('c3'),
   }, {
     target: `.Pad`,
     content: (<><p>This 16 grid pad covers a range of functions depending on the current view and settings.</p><p> From left to right, top to bottom each button represents an incrementing value for the relevant field (in this case notes to play)</p></>),
     callback: () => {
       dispatch({ type: SOUNDS_VIEW });
     },
+    undo: () => dispatch({ type: CANCEL }),
   }, {
     target: `#action--${SOUNDS_VIEW}`,
     content: (<><p>Switches to instrument selection view, here you select the current sound you are playing with live and editing sequences for.</p><p> Select an instrument to exit.</p></>),
   }, {
     target: '.Pad',
     content: (<><p>Here you select the instrument you want to work with, w/e of the last instrument (for basic drum beats), you can only have one active instrument at a time in the current system.</p><p> When you change instrument the sound in the sequence will update to use the new instrument</p></>),
-    callback: () => {
+    callback: (a, b) => {
+      console.log(a, b)
       dispatch({ type: PATTERN_VIEW });
-    }, 
+    },
+    undo: () => dispatch({ type: SOUNDS_VIEW }),
   }, {
     target: `#action--${PATTERN_VIEW}`,
     content: (<><p>Switches to pattern view</p></>),
@@ -60,6 +66,7 @@ const getSteps = (dispatch, sounds, setOverlay) => [{
       dispatch({ type: PATTERN_VIEW });
       dispatch({ type: WRITE });
     }, 
+    undo: () => { dispatch({ type: PATTERN_VIEW }); dispatch({ type: WRITE }); },
   }, {
     target: `#action--${WRITE}`,
     content: (<><p>When this is on, the default view allows editing of the currently active pattern sequence</p></>),
@@ -67,6 +74,10 @@ const getSteps = (dispatch, sounds, setOverlay) => [{
       dispatch({ type: WRITE });
       dispatch({ type: PLAY });
     }, 
+    undo: () => {
+      dispatch({ type: PLAY });
+      dispatch({ type: WRITE });
+    },
   }, {
     target: `#action--${PLAY}`,
     content: (<><p>Toggles whether the active sequence is playing or not, updates you do to patterns should apply live.</p><p>The green light represents the current pattern and the red one represents the index within that pattern.</p></>),
@@ -75,12 +86,15 @@ const getSteps = (dispatch, sounds, setOverlay) => [{
       timeout = setInterval(() => {
         dispatch({ type: BPM });
         i++;
-        if (i > 10) {
+        if (i > 5) {
           clearInterval(timeout);
           timeout = null;
         }
-      }, 4000);
+      }, 3000);
     }, 
+    undo: () => {
+      clearInterval(timeout);
+    }
   }, {
     target: `#action--${BPM}`,
     content: (<><p>This changes the speed of the pattern, press to go between speeds</p></>),
@@ -92,6 +106,7 @@ const getSteps = (dispatch, sounds, setOverlay) => [{
     target: `#action--${WRITE}`,
     content: (<><p>Switches to composition mode</p></>),
     callback: () => dispatch({ type: WRITE }),
+    undo: () => dispatch({ type: WRITE }),
   }, {
     target: `.Pad`,
     content: (<><p>On this display, when the UI reads "compose" you sequence 16 step patterns</p></>),
@@ -99,22 +114,21 @@ const getSteps = (dispatch, sounds, setOverlay) => [{
     target: `[data-idx="0"]`,
     content: (<><p>Click an entry to select a note, hold a note to select the duration of the note (defaults to a quarter)</p></>),
     callback: () => dispatch({ type: PATTERN_UPDATE, value: { idx: 0, note: 'C3', span: 4 }}),
-  }, {
-    target: `[data-idx="0"]`,
-    content: (<><p>Click an entry to select a note, hold a note to select the duration of the note (defaults to a quarter)</p></>),
-    callback: () => dispatch({ type: PATTERN_UPDATE, value: { idx: 0, note: 'C3', span: 4 }}),
+    undo: () => dispatch({ type: PATTERN_UPDATE, value: { idx: 0 } }),
   }, {
     target: `[data-idx="6"]`,
     content: (<><p>Copy a note by holding it and pressing another square (or click it again to wipe)</p></>),
     callback: () => {
       dispatch({ type: MULTI_TOUCH, value: [ { secondary: NOTE_COPY, value: 0 }, { value: 6 }]});
-    }
+    },
+    undo: () => dispatch({ type: PATTERN_UPDATE, value: { idx: 6 } }),
   }, {
     target: `#action--${SOUNDS_VIEW}`,
     content: (<><p>By selecting option 16 from the sounds view, you can add a basic drum beat to your pattern too</p></>),
     callback: () => {
       dispatch({ type: SOUNDS_SET, value: 15 });
-    }, 
+    },
+    undo: () => dispatch({ type: SOUNDS_SET, value: 1 }),
   }, {
     target: `[data-idx="0"]`,
     content: (<><p>Drum beats add in the same manner</p></>),
@@ -123,19 +137,26 @@ const getSteps = (dispatch, sounds, setOverlay) => [{
       dispatch({ type: PATTERN_UPDATE, value: { idx: 4, note: 'F3' }});
       dispatch({ type: PATTERN_UPDATE, value: { idx: 8, note: 'C3' }});
       dispatch({ type: PATTERN_UPDATE, value: { idx: 12, note: 'C4' }});
-    }
+    },
+    undo: () => {
+      [0, 4, 8, 12].forEach(v => 
+        dispatch({ type: PATTERN_UPDATE, value: { idx: v } })
+      )
+    },
   },  {
     target: `#action--${PATTERN_VIEW}`,
     content: (<><p>Returning to pattern view will now show data relating to the changes for pattern 1</p></>),
     callback: () => {
       dispatch({ type: PATTERN_VIEW });
     }, 
+    undo: () => dispatch({ type: PATTERN_VIEW }),
   },  {
     target: `.Pad`,
     content: (<><p>To copy a pattern, hold the pattern and then touch another pattern (or cancel to erase)</p></>),
     callback: () => {
       dispatch({ type: MULTI_TOUCH, value: [{ secondary: PATTERN_COPY, idx: 0, value: 0 }, { idx: 1, value: 1 }] });
     }, 
+    undo: () => dispatch({ type: MULTI_TOUCH, value:  [{ secondary: PATTERN_COPY, idx: 5, value: 5 }, { idx: 1, value: 1 }] }),
   }, {
     target: `.Pad`,
     content: (<><p>Now you can edit the pattern to create a second variant quickly</p></>),
@@ -143,6 +164,11 @@ const getSteps = (dispatch, sounds, setOverlay) => [{
     target: `#action--${SOUNDS_VIEW}`,
     content: (<><p>You can change the sound live (behaviour may be different on different players)</p></>),
     callback: () => {
+      dispatch({ type: SOUNDS_VIEW });
+      dispatch({ type: SOUNDS_SET, value: 14 });
+      dispatch({ type: WRITE });
+    }, 
+    undo: () => {
       dispatch({ type: SOUNDS_VIEW });
       dispatch({ type: SOUNDS_SET, value: 1 });
       dispatch({ type: WRITE });
@@ -154,13 +180,15 @@ const getSteps = (dispatch, sounds, setOverlay) => [{
       dispatch({ type: PATTERN_UPDATE, value: { idx: 4, note: 'A2', span: 1 }});
       dispatch({ type: PATTERN_UPDATE, value: { idx: 5, note: 'b2', span: 1 }});
     }, 
+    undo: () => {
+      dispatch({ type: PATTERN_UPDATE, value: { idx: 4 }});
+      dispatch({ type: PATTERN_UPDATE, value: { idx: 5 }});
+    }, 
   }, {
     target: `.Pad`,
     content: (<><p>You should now be hearing two unique patterns play</p></>),
-    callback: () => {
-      debugger;
-      dispatch({ type: PATTERN_VIEW });
-    }, 
+    callback: () => dispatch({ type: PATTERN_VIEW }),
+    undo: () => dispatch({ type: PATTERN_VIEW }),
   }, {
     target: `#action-${PATTERN_VIEW}`,
     content: (<><p>To alter the sequence of patterns, hold the patterns button and type the buttons in the order you wish to sequence them (in this case we will try 0 1 0 2)</p></>),
@@ -183,8 +211,16 @@ const getSteps = (dispatch, sounds, setOverlay) => [{
 ];
 
 const fireCallbackOnStepEnd = (state: any): void => {
-  if (state.lifecycle === 'complete' && state.step.callback) {
+  console.log(state);
+  if (!state.step.callback) {
+    return;
+  }
+  if (state.lifecycle === 'complete') {
     state.step.callback();
+    return;
+  }
+  if (state.action === 'prev' && state.lifecycle === 'ready' && state.step.undo) {
+    state.step.undo(state.action);
   }
   // TODO reverse action
 };
@@ -192,7 +228,13 @@ const fireCallbackOnStepEnd = (state: any): void => {
 const Tutorial: React.FC<null> = () => {
   const [overlay, setOverlay] = React.useState(true);
   const { dispatch, sounds } = React.useContext(playerContext);
-  const steps = React.useMemo(() => getSteps(dispatch, sounds, setOverlay), [dispatch, sounds]);
+  const steps = React.useMemo(() => (
+    getSteps(dispatch, sounds, setOverlay)
+      // .map(v => ({
+      //   ...v,
+      //   placement: v.target === '.Pad' ? ('top' as any) : undefined
+      // }))
+  ), [dispatch, sounds]);
   return React.useMemo(() => {
     const Wrapper = overlay ? Shell : React.Fragment;
     return (
@@ -200,7 +242,6 @@ const Tutorial: React.FC<null> = () => {
         <Joyride
           steps={steps}
           callback={fireCallbackOnStepEnd}
-          hideBackButton
           disableOverlayClose
           disableCloseOnEsc
           continuous

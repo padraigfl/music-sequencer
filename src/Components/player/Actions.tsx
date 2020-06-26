@@ -26,7 +26,7 @@ const actionButtons = [
   { id: PLAY, isActive: PLAY, icon: '/static/icons/play.png' },
 ];
 
-const Actions: React.FC<null> = () => {
+const Actions: React.FC<{}> = () => {
   const {
     state,
     dispatch,
@@ -51,7 +51,7 @@ const Actions: React.FC<null> = () => {
             key={action.id}
             onClick={fireDispatch}
             isActive={state[action.isActive] || state.view === action.id}
-            value={state[action.value]}
+            display={`${action.display || action.id}${state[action.value] || ''}`}
           />
         ), [state[action.isActive], state.view, state[action.value]])
       )}

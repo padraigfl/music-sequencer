@@ -1,11 +1,4 @@
-import React, {
-  useCallback,
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-  useContext,
-} from 'react';
+import * as React from 'react';
 import SequencerCell from '../Cells/Sequencer';
 import playContext from '../../../Core/context';
 import Pad from './abstractPad';
@@ -21,18 +14,20 @@ const getNoteDisplay = (note, customKeys) => {
   return `${disp}${note.span ? `-${note.span}` : ''}`
 };
 
+type NewSequence = { idx?: number; note?: string; span?: number };
+
 // Primary composition pad
 // Writes 16 step sequences to loop
 const SequencePad = () => {
-  const holdTimer = useRef(null);
-  const { state, dispatch, sounds, startNote } = useContext(playContext);
-  const [ newSequenceValue, updateNewValue ] = useState({});
-  const [copyValue, setCopyValue] = useState(null);
-  const pattern = useMemo(() => {
+  const holdTimer = React.useRef(null);
+  const { state, dispatch, sounds, startNote } = React.useContext(playContext);
+  const [ newSequenceValue, updateNewValue ]: [NewSequence, React.Dispatch<React.SetStateAction<NewSequence>>] = React.useState({});
+  const [copyValue, setCopyValue] = React.useState(null);
+  const pattern = React.useMemo(() => {
     return state[PATTERNS][state[PATTERN_IDX]];
    }, [state[PATTERNS], state[PATTERN_IDX]]);
-  const patternType = useMemo(() => state[PATTERN_TYPE], [state[PATTERN_TYPE]]);
-  const customKeys = useMemo(() => {
+  const patternType = React.useMemo(() => state[PATTERN_TYPE], [state[PATTERN_TYPE]]);
+  const customKeys = React.useMemo(() => {
     if (!sounds[state[SOUND]].keys) {
       return null;
     }
@@ -42,7 +37,7 @@ const SequencePad = () => {
     }), {})
   }, [state[SOUND]]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (state.lastAction === CANCEL) {
       updateNewValue({});
       setCopyValue(null);
@@ -51,15 +46,15 @@ const SequencePad = () => {
 
 
   // clear on cancel ??
-  const initalPattern = useMemo(() => (
+  const initalPattern = React.useMemo(() => (
     JSON.parse(JSON.stringify(state[PATTERNS][state[PATTERN_IDX]]))
   ), [state[PATTERN_IDX]]);
 
-  const updateCopyValue = useCallback((value) => {
+  const updateCopyValue = React.useCallback((value) => {
     setCopyValue(value);
   }, []);
 
-  const updatePattern = useCallback(({ idx, note, span }) => {
+  const updatePattern = React.useCallback(({ idx, note, span }) => {
     dispatch({
       type: PATTERN_UPDATE,
       value: {
@@ -69,7 +64,7 @@ const SequencePad = () => {
     updateNewValue({});
   }, [state[PATTERNS], state[PATTERN_IDX]]);
 
-  const onSelectStep = useCallback((e) => {
+  const onSelectStep = React.useCallback((e) => {
     const idx = +e.currentTarget.dataset.value;
     const currentPattern = state[PATTERNS][state[PATTERN_IDX]];
     if (copyValue) {
@@ -81,7 +76,7 @@ const SequencePad = () => {
     }
   }, [copyValue, state[PATTERNS]]);
 
-  const onSimpleSetNote = useCallback((e) => {
+  const onSimpleSetNote = React.useCallback((e) => {
     console.log(e);
     const isBasicDrum = state[PATTERN_TYPE] === 'drums';
     if (holdTimer.current || isBasicDrum) {
@@ -97,7 +92,7 @@ const SequencePad = () => {
     holdTimer.current = null;
   }, [newSequenceValue]);
 
-  const onSelectNote = useCallback((e) => {
+  const onSelectNote = React.useCallback((e) => {
     const value = e.currentTarget.dataset.value;
     console.log('a');
     holdTimer.current = setTimeout(() => {
@@ -111,15 +106,15 @@ const SequencePad = () => {
     }, 300);
   }, [newSequenceValue]);
 
-  const clearIt = useCallback(() => clearTimeout(holdTimer.current), []);
+  const clearIt = React.useCallback(() => clearTimeout(holdTimer.current), []);
 
-  const onSelectLength = useCallback((e) => {
+  const onSelectLength = React.useCallback((e) => {
     const value = +e.currentTarget.dataset.value;
     updatePattern({ ...newSequenceValue, span: value });
   }, [newSequenceValue]);
 
   return (
-    useMemo(() => state[WRITE] && (
+    React.useMemo(() => state[WRITE] && (
       <>
         {typeof newSequenceValue.idx !== 'number'
           && pattern
@@ -131,7 +126,6 @@ const SequencePad = () => {
                   {...note}
                   onClick={onSelectStep}
                   key={idx}
-                  idx={idx}
                   highlight={idx === state[PATTERN_IDX]}
                   display={note ? getNoteDisplay(note, customKeys)  : null}
                   action={PATTERN_UPDATE}

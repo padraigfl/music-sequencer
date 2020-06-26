@@ -46,10 +46,10 @@ const StatusCell = styled('div')`
   }
 `;
 
-const StatusPad: React.FC<null> = () => {
+const StatusPad: React.FC<{}> = () => {
   return (
     <Pad entries={16} id="Pad--status-pad">
-      {cells.map((_, idx) => <StatusCell className="cell" id={`live-status--${idx}`} idx={idx} key={idx} />)}
+      {cells.map((_, idx) => <StatusCell className="cell" id={`live-status--${idx}`} key={idx} />)}
     </Pad>
   );
 };

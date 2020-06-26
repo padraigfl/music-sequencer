@@ -1,16 +1,15 @@
 import * as React from 'react';
-import Cell from './abstractCell.js';
+import Cell from './abstractCell';
 
 type ActionButtonProps = {
   onClick: Function;
-  secondaryAction?: string;
   id: string;
   height?: number;
   width?: number;
   icon?: string;
   display?: any;
-  value?: any;
   isActive?: boolean;
+  secondaryAction?: string;
 };
 
 const ActionButton: React.FC<ActionButtonProps> = (props) => {
@@ -21,10 +20,7 @@ const ActionButton: React.FC<ActionButtonProps> = (props) => {
       isActive={props.isActive}
       secondaryAction={props.secondaryAction}
       buttonId={`action--${props.id}`}
-      display={
-        props.display
-        || `${props.id}${typeof props.value !== 'undefined' ? props.value : ''}`
-      }
+      display={props.display}
       height={props.height}
       width={props.width}
       icon={props.icon}
