@@ -6,15 +6,19 @@
 
 Originally I was just going to do a straight up replica of a Teenage Engineering Pocket Operator, but as I was using it very early on I realised it'd be way more fun to make something based on that kind of premise but designed to work on a mobile phone. 
 
-It's a 16 step sequencer which lets you save 16 patterns which you can then chain in whatever order you like. Each pattern contains two parts, the melody and a simple beat.
-
-You can choose from 15 different presets (sounds 1-15) for the melody and from 16 samples for the beat (sound 16)
+- 16 step sequencer
+- 16 instrument options
+- Save 16 sixteen step patterns
+- Which you can then chain in whatever order you like
+- (On the existing players) each pattern contains two parts, the melody (played with a selected instrument from options 1-15) and a simple beat (using instrument 16).
 
 There's a largely redundant space at the top of the screen that will be used to more clearly convey what's going on when I know which bits are most confusing.
 
+It may be beneficial to watch some videos of pocket operators first to get an idea of what this would love to be.
+
 ## How it works
 
-https://padraig-operator.netlify.app/solo/melody/tutorial will hopefully explain some of it
+https://padraig-operator.netlify.app/solo/melody/tutorial will hopefully explain some of it, it's quite buggy right now unfortunately.
 
 As it was primarily designed with phones in mind, I designed everything with two point multitouch in mind. The solutions for desktop involve holding down the first value of a multitouch and then selecting the second after it turns blue.
 
@@ -50,18 +54,20 @@ MultiTouch/Hold actions:
 
 Most of this has been done primarily with the goal of just leaving the flexibility for clearer visuals later. The green/grey box at the top of the screen will be used to provide whatever data needs to be more clearly conveyed if I ever get around to figuring that out.
 
+*NOTE: I use hue-rotate to give the different devices different color schemes, so these colors are specifically for /solo/melody*
+
 #### Button backgrounds
 
 - BPM: Red middle (active)
 - Record: Red middle (in write mode)
 - S: Red middle (in sound select mode)
 - Play: Red middle (playing pattern chain)
-- Pattern: Red middle (in pattern select mode), Blue outline (pattern chain mode, desktop only)
+- Pattern: Red middle (in pattern select mode), Blue outline (pattern chain mode, desktop only), 
 
 Index buttons
 - default: Red (note playing)
 - Sequence composition: red (active pattern), blue (spot to copy, click another index button to copy this spot)
-- Patterns view: red middle (selected pattern), red (in pattern chain),  blue (pattern to copy, click another index button to copy this spot)
+- Patterns view: red middle (selected pattern), red and flashing (in pattern chain),  blue (pattern to copy, click another index button to copy this spot)
 
 #### Index button outlines
 
@@ -85,8 +91,8 @@ In composition mode when the active pattern is playing the red outlines will all
 Not sure how useful this is, I'll do a video later
 
 1. Refresh page
-1. Click record button
-1. Click any index, select a note when prompted, then select a number for how many steps you want that note to be held
+1. Click record button, this will open composition view, allowing you to edit the currently active pattern (default is the first pattern)
+1. Click any index, select a note when prompted, if you hold the note you can select how long it is played for
 1. Click sound button
 1. Select the bottom right sound option, this switches to drum mode
 1. click any index again, select a drum beat
@@ -99,3 +105,29 @@ Not sure how useful this is, I'll do a video later
 1. (while still holding patterns on mobile) click the two patterns which you've edited, if on desktop now click the patterns button again
 
 You should hear a sequence where it plays the two patterns you've created in the sequence you've chained them.
+
+
+## Weird Technical Stuff
+
+## UI
+
+So the vast majority of what happens in this is dealt with via touch and click event on buttons which do specific actions onto the global state on the basis of that button's data attrbute values. As such, a large portion of the knowledge is contained within the HTML.
+
+In a perhaps ill-advised move, the UI is heavily built upon on specific component which handles all actions in the UI. The key actions are:
+- click events
+- multi-touch events
+- touch-events
+
+### System stuff
+
+In terms of system there are two key parts
+
+- the "Core": this is basically just your Redux style global store type deal, it processes each action triggered by the UI and passes the updates both back to the UI and out to the audio player
+- the "player": located in the Systems directory, this is a class object which handles everything related to Tone.js on the basis of what has occurred in the core. Each instance of the core is initialised with a player instance, as a result of this, the player is able to pass in custom actions into the core so the player behaviour can have a greater range of variety.
+
+The code in this component is currently pretty messy to handle all the edge cases, I'll probably split out specific versions later for readabilities sake. There is a separate context within the Components directory which handles an alternative means for multi touch actions on desktop devices.
+
+## Credits
+
+- HEAVILY influenced by Teenage Engineering's Pocket Operator series, with major concessions made to fit workflow to a 320px wide screen. These are all amazing and you should buy one (I recommend PO-32 as a starting point, alternatively any of the first 3 are really fun albeit not as powerful)
+- Tone.js https://github.com/Tonejs/Tone.js for saving me a ton of time and having good documentation and responses to issues over the years

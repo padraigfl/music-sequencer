@@ -3,6 +3,8 @@ import { Router, Route } from 'react-router';
 import { createBrowserHistory } from 'history';
 import Menu from './Components/Menu';
 import styled, { keyframes } from 'styled-components';
+import Plans from './Components/Plans';
+import About from './Components/About';
 
 const SoloPlayerComponent = React.lazy(() => import('./SoloPlayer'));
 
@@ -48,6 +50,12 @@ const App = () => {
     <Router history={history}>
       <Route path={['/solo/:player/:variant', '/solo/:player']}>
         <LazyPlayer />
+      </Route>
+      <Route path="/simultaneous">
+        <Plans />
+      </Route>
+      <Route path="/about">
+        <About />
       </Route>
       <Route path="/" exact>
         <Menu />

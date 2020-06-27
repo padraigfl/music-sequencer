@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { NavLink, useLocation, useHistory, useParams } from 'react-router-dom';
 import Wrapper from './Wrapper';
-import styled from 'styled-components';
+import * as styled from 'styled-components';
 
-const NavAction = styled(NavLink)`
+const NavAction = styled.default(NavLink)`
   position: relative;
-  display: block;
   text-align: center;
   text-transform: uppercase;
-  padding: 20px;
+  padding: 20px 0px;
   margin: auto;
   color: white;
   text-decoration: none;
+  width: 100%;
   &:before {
     position: absolute;
     height: 100vh;
@@ -21,8 +21,18 @@ const NavAction = styled(NavLink)`
     opacity: 0.05;
     width: 100%;
     content: '';
-    pointer-events: none;
+    z-index: -10;
   } 
+`
+const Contents = styled.default.div`
+  display: flex;
+  flex-direction: column;
+  color: #eee;
+  h1 {
+    border-bottom: 1px solid grey;
+    margin: 0px;
+    width: 100%;
+  }
 `
 
 const Menu: React.FC<{}> = () => {
@@ -37,10 +47,14 @@ const Menu: React.FC<{}> = () => {
 
   return (
     <Wrapper>
-      <NavAction to="/solo/melody/normal">Melody Solo</NavAction>
-      <NavAction to="/solo/bass/normal">Bass Solo</NavAction>
-      <NavAction to="/simultaneous">Simultaneous</NavAction>
-      <NavAction to={`/solo/${player}/tutorial`}>Help</NavAction>
+      <Contents>
+        <h1>16step</h1>
+        <NavAction to="/about">About</NavAction>
+        <NavAction to="/solo/melody/normal">Melody Solo</NavAction>
+        <NavAction to="/solo/bass/normal">Bass Solo</NavAction>
+        <NavAction to="/simultaneous">Simultaneous</NavAction>
+        <NavAction to={`/solo/${player}/tutorial`}>Help</NavAction>
+      </Contents>
     </Wrapper>
   );
 };

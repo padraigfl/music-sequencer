@@ -8,6 +8,7 @@ export const maxHeight = (450 / columns) * rows;
 export const wrapperStyles = `
   max-width: ${playerWidth}px;
   width: 100%;
+  margin: auto;
   max-height: -webkit-fill-available;
   touch-action: none;
   @media only screen and (min-width: ${playerWidth}px) {
